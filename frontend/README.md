@@ -1,73 +1,157 @@
-# React + TypeScript + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript frontend for the Soccer Tournament Dashboard.
 
-Currently, two official plugins are available:
+Built with Vite, Tailwind CSS, React Router, and Sentry. The frontend communicates only with the FastAPI backend and never calls API-Football directly.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- React Router
+- Sentry
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Install dependencies:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Start the development server:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm run dev
 ```
+
+The app runs at:
+
+```txt
+http://localhost:5173
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file in `frontend/`:
+
+```env
+VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_ENABLE_BRACKET=false
+```
+
+Notes:
+
+- All frontend environment variables must start with `VITE_`
+- These values are exposed to the browser, so never include secrets
+
+---
+
+## Project Structure
+
+```txt
+src/
+  api/          raw backend API calls
+  assets/       static assets
+  components/   reusable UI components
+  config/       frontend config and feature flags
+  constants/    app-wide constants
+  context/      React context providers
+  hooks/        custom React hooks
+  pages/        route-level page components
+  services/     frontend business logic
+  styles/       global styles
+  types/        shared TypeScript types
+  utils/        helper functions
+```
+
+---
+
+## API Communication
+
+- All requests go through the FastAPI backend
+- The frontend never calls API-Football directly
+- Base URL is configured via `VITE_API_BASE_URL`
+- Requests should be defined in `src/api/`
+- Business logic should live in `src/services/`
+
+---
+
+## Feature Flags
+
+Feature flags are used to control incomplete or staged features.
+
+Example:
+
+```ts
+const flags = {
+  knockoutBracket: import.meta.env.VITE_ENABLE_BRACKET === 'true',
+};
+```
+
+Use flags to:
+
+- hide incomplete features
+- safely deploy UI changes
+- enable features without redeploying
+
+---
+
+## Styling
+
+- Tailwind CSS is used for styling
+- Global styles and variables are defined in `src/styles/`
+- Prefer utility classes over custom CSS
+- Use CSS variables for theme consistency
+
+---
+
+## Formatting
+
+Prettier is used for consistent formatting.
+
+Format all files:
+
+```bash
+npm run format
+```
+
+Check formatting:
+
+```bash
+npm run format:check
+```
+
+Formatting rules are defined in:
+
+```txt
+.prettierrc
+```
+
+---
+
+## Development Guidelines
+
+- Use functional components only
+- Define explicit types/interfaces for props
+- Avoid `any`; use `unknown` if necessary
+- Keep components focused and reusable
+- Keep data fetching out of components (use hooks/services)
+- Always destructure props in function signatures
+- Use `const` by default; avoid `let` unless necessary
+
+---
+
+## Notes
+
+- Do not store secrets in frontend code
+- All sensitive logic must remain in the backend
+- Keep this README focused on frontend-specific concerns
