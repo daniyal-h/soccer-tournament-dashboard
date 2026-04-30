@@ -1,0 +1,30 @@
+# dependencies
+node_modules
+
+# build outputs
+dist
+build
+
+# env files
+.env
+.env.*
+
+# logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# git
+.git
+.gitignore
+
+# editor
+.vscode
+
+# testing
+coverage
+
+# typescript
+*.tsbuildinfo
