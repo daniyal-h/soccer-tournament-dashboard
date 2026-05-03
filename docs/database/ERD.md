@@ -142,10 +142,10 @@ erDiagram
 | teams → player_stats | 1:N | Partial / Total | Captures which team a player represented per tournament. |
 | teams → match_events | 1:N | Partial / Total | Every event is attributed to a team. |
 | players → player_stats | 1:N | Partial / Total | A player can exist with no stats yet. |
-| players → match_events (primary) | 1:N | Partial / Total | `player_id` is always populated — every event has a primary actor. |
-| players → match_events (secondary) | 1:N | Partial / Partial | `secondary_player_id` is nullable — only populated for substitutions and goal-linked assists. |
+| players → match_events (primary) | 1:N | Partial / Total | `player_id` is always populated, every event has a primary actor. |
+| players → match_events (secondary) | 1:N | Partial / Partial | `secondary_player_id` is nullable, only populated for substitutions and goal-linked assists. |
 | matches → match_events | 1:N | Partial / Total | A scheduled match has no events yet. Every event must reference a match. |
 
 ## Infrastructure tables
 
-`cache_entries` and `refresh_jobs` have no foreign key relationships. They are standalone infrastructure tables — `cache_entries` stores serialised API-Football responses keyed by a unique cache key, and `refresh_jobs` logs background job execution. See `ARCHITECTURE.md` for caching strategy details.
+`cache_entries` and `refresh_jobs` have no foreign key relationships. They are standalone infrastructure tables. `cache_entries` stores serialized API-Football responses keyed by a unique cache key, and `refresh_jobs` logs background job execution. See `ARCHITECTURE.md` for caching strategy details.
