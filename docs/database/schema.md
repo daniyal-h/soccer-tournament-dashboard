@@ -3,7 +3,7 @@
 ## Overview
 
 This document defines the v1 PostgreSQL schema for the Soccer Tournament Dashboard.  
-It covers the eleven tables created in the initial Alembic migration, including the `tournament_teams` junction table used to resolve the M:N relationship between tournaments and teams.
+It covers the twelve tables created in the initial Alembic migration, including two junction tables: `tournament_teams` (M:N between tournaments and teams) and `team_players` (M:N between teams and players, scoped per tournament).
 
 All timestamps are stored in UTC.
 
@@ -132,11 +132,29 @@ All timestamps are stored in UTC.
 
 ### tournament_teams
 
+Resolves the M:N relationship between tournaments and teams. A team's group assignment is stored here because it is a property of the registration, not of the team itself.
+
 | Column        | Type             | Description      |
 | ------------- | ---------------- | ---------------- |
 | tournament_id | Integer (FK, PK) | → tournaments.id |
 | team_id       | Integer (FK, PK) | → teams.id       |
 | group         | String           | Group assignment |
+
+---
+
+### team_players
+
+Resolves the M:N relationship between teams and players, scoped per tournament. A player's squad number and position are stored here because they are properties of the registration, not permanent attributes of the player.
+
+The three-column composite PK is intentional: the same player can be registered to different teams across different tournaments (e.g. club vs national team).
+
+| Column        | Type             | Description                          |
+| ------------- | ---------------- | ------------------------------------ |
+| tournament_id | Integer (FK, PK) | → tournaments.id                     |
+| team_id       | Integer (FK, PK) | → teams.id                           |
+| player_id     | Integer (FK, PK) | → players.id                         |
+| squad_number  | Integer          | Shirt number (nullable)              |
+| position      | Enum             | GK \| DEF \| MID \| FWD (nullable)  |
 
 ---
 
@@ -171,9 +189,11 @@ All timestamps are stored in UTC.
 | From        | To           | Cardinality | Participation     | Resolved via                                 |
 | ----------- | ------------ | ----------- | ----------------- | -------------------------------------------- |
 | tournaments | teams        | M:N         | Partial / Partial | tournament_teams                             |
+| tournaments | players      | M:N         | Partial / Partial | team_players                                 |
 | tournaments | matches      | 1:N         | Partial / Total   | matches.tournament_id                        |
 | tournaments | standings    | 1:N         | Partial / Total   | standings.tournament_id                      |
 | tournaments | player_stats | 1:N         | Partial / Total   | player_stats.tournament_id                   |
+| teams       | players      | M:N         | Partial / Partial | team_players                                 |
 | teams       | matches      | 1:N         | Partial / Total   | matches.team_a_id / team_b_id                |
 | teams       | standings    | 1:N         | Partial / Total   | standings.team_id                            |
 | teams       | player_stats | 1:N         | Partial / Total   | player_stats.team_id                         |

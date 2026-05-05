@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Visual reference for the v1 PostgreSQL schema. All eleven tables are shown with their columns, types, and key constraints.
+Visual reference for the v1 PostgreSQL schema. All twelve tables are shown with their columns, types, and key constraints.
 
 ```mermaid
 erDiagram
@@ -38,6 +38,14 @@ erDiagram
     int tournament_id PK,FK
     int team_id PK,FK
     string group
+  }
+
+  team_players {
+    int tournament_id PK,FK
+    int team_id PK,FK
+    int player_id PK,FK
+    int squad_number
+    string position
   }
 
   matches {
@@ -111,6 +119,10 @@ erDiagram
   tournaments ||--o{ tournament_teams : "registers in"
   teams       ||--o{ tournament_teams : "participates in"
 
+  tournaments ||--o{ team_players     : "scopes"
+  teams       ||--o{ team_players     : "registers"
+  players     ||--o{ team_players     : "registered via"
+
   tournaments ||--o{ matches          : "hosts"
   teams       ||--o{ matches          : "plays in (A)"
   teams       ||--o{ matches          : "plays in (B)"
@@ -132,7 +144,9 @@ erDiagram
 
 | Relationship | Cardinality | Participation | Notes |
 |---|---|---|---|
-| tournaments → teams | M:N | Partial / Partial | Resolved via `tournament_teams` junction. `group` lives on the junction row. |
+| tournaments → teams | M:N | Partial / Partial | Resolved via `tournament_teams`. `group` lives on the junction row. |
+| tournaments → players | M:N | Partial / Partial | Resolved via `team_players`. A player is always registered through a team. |
+| teams → players | M:N | Partial / Partial | Resolved via `team_players`. `squad_number` and `position` live on the junction row — they are registration attributes, not player attributes. |
 | tournaments → matches | 1:N | Partial / Total | A new tournament has no matches yet. Every match must belong to a tournament. |
 | tournaments → standings | 1:N | Partial / Total | Every standings row must reference a tournament. |
 | tournaments → player_stats | 1:N | Partial / Total | One stats row per player per tournament. |
