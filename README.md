@@ -82,8 +82,11 @@ Visual bracket from Round of 16 through to the Final. Renders placeholder slots 
 ## Running Locally
 
 ### Prerequisites
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 - An [API-Football](https://www.api-football.com/) API key (free tier)
+
+---
 
 ### Setup
 
@@ -92,33 +95,104 @@ Visual bracket from Round of 16 through to the Final. Renders placeholder slots 
 ```bash
 git clone https://github.com/daniyal-h/soccer-tournament-dashboard.git
 cd soccer-tournament-dashboard
-```
+````
 
-2. Create the backend environment file
+---
+
+2. Create environment files
 
 ```bash
 cp backend/.env.example backend/.env
+cp backend/.env.example backend/.env.docker
 ```
 
-Fill in the required values:
+---
 
-```
+3. Configure environment variables
+
+#### Local backend (`.env`)
+
+Used when running the backend directly (e.g. `uvicorn`):
+
+```env
 API_FOOTBALL_KEY=your_api_key_here
-DATABASE_URL=postgresql://user:password@db:5432/soccer
+DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 SECRET_KEY=your_secret_key_here
 ```
 
-3. Start the full stack
+#### Docker backend (`.env.docker`)
 
-```bash
-docker-compose up
+Used when running via Docker Compose:
+
+```env
+API_FOOTBALL_KEY=your_api_key_here
+DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
+SECRET_KEY=your_secret_key_here
 ```
 
-4. Open the app
+**Important:**
 
-Navigate to [http://localhost:5173](http://localhost:5173) in your browser.
-The API runs at [http://localhost:8000](http://localhost:8000).
-Interactive API docs are available at [http://localhost:8000/docs](http://localhost:8000/docs).
+* `localhost` → when running backend locally
+* `db` → when running inside Docker (service name)
+
+---
+
+4. Start the full stack
+
+```bash
+docker compose up --build
+```
+
+Detached mode (optional):
+
+```bash
+docker compose up -d --build
+```
+
+---
+
+5. Apply database migrations
+
+In a separate terminal:
+
+```bash
+cd backend
+alembic upgrade head
+```
+
+---
+
+6. Open the app
+
+* Frontend: [http://localhost:5173](http://localhost:5173)
+* Backend API: [http://localhost:8000](http://localhost:8000)
+* API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+* Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
+
+---
+
+### Verify database setup (optional)
+
+```bash
+docker exec -it postgres_db psql -U app_user -d app_db
+\dt
+```
+
+You should see all application tables.
+
+---
+
+### Stopping the stack
+
+```bash
+docker compose down
+```
+
+To also remove database data:
+
+```bash
+docker compose down -v
+```
 
 ---
 
