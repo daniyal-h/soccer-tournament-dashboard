@@ -1,13 +1,9 @@
 from datetime import date
 
 from sqlalchemy import Date, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import TimestampMixin
-
-
-class Base(DeclarativeBase):
-    pass
+from .base import Base, TimestampMixin
 
 
 class Tournament(TimestampMixin, Base):

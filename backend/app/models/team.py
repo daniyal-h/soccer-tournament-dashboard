@@ -2,13 +2,9 @@ import enum
 
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import Index, Integer, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
-from .base import TimestampMixin
-
-
-class Base(DeclarativeBase):
-    pass
+from .base import Base, TimestampMixin
 
 
 class TeamType(str, enum.Enum):
