@@ -24,5 +24,11 @@ class PlayerStat(TimestampMixin, Base):
         Index("ix_player_stats_player_id", "player_id"),
         Index("ix_player_stats_team_id", "team_id"),
         Index("ix_player_stats_tournament_id", "tournament_id"),
-        Index("ix_player_stats_player_tournament", "player_id", "tournament_id"),
+        Index(
+            "uq_player_stats_player_tournament_team",
+            "player_id",
+            "tournament_id",
+            "team_id",
+            unique=True,
+        ),
     )
