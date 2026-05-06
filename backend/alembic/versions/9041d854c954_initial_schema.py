@@ -7,9 +7,9 @@ Create Date: 2026-05-05 22:36:28.118484
 """
 from typing import Sequence, Union
 
-from alembic import op
 import sqlalchemy as sa
 
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = '9041d854c954'
@@ -294,10 +294,15 @@ def downgrade() -> None:
     op.drop_table('cache_entries')
     # ### end Alembic commands ###
 
-    # Drop enum types — Postgres persists these independently of tables
-    sa.Enum(name='event_type_enum').drop(op.get_bind())
-    sa.Enum(name='position_type_enum').drop(op.get_bind())
-    sa.Enum(name='stage_type_enum').drop(op.get_bind())
-    sa.Enum(name='status_type_enum').drop(op.get_bind())
-    sa.Enum(name='job_status_enum').drop(op.get_bind())
-    sa.Enum(name='team_type_enum').drop(op.get_bind())
+    # Drop enum types: Postgres persists these independently of tables
+    enum_names = [
+        "event_type_enum",
+        "position_type_enum",
+        "stage_type_enum",
+        "status_type_enum",
+        "job_status_enum",
+        "team_type_enum",
+    ]
+
+    for name in enum_names:
+        sa.Enum(name=name).drop(op.get_bind(), checkfirst=True)
