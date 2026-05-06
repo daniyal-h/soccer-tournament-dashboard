@@ -10,6 +10,8 @@ class TimestampMixin:
         server_default=func.now(),
         nullable=False,
     )
+
+    # updated_at is maintained by the set_updated_at Postgres trigger defined in the Alembic migration
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
