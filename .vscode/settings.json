@@ -2,13 +2,24 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.formatOnSave": true,
 
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+
     "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.tabSize": 2
     },
     "[typescriptreact]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.tabSize": 2
     },
 
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.tabSize": 4
+    },
+
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    }
 }
