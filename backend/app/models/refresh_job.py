@@ -23,7 +23,11 @@ class RefreshJob(Base):
     job_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
 
     status: Mapped[JobStatus] = mapped_column(
-        SQLAlchemyEnum(JobStatus, name="job_status_enum"),
+        SQLAlchemyEnum(
+            JobStatus,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="job_status_enum",
+        ),
         nullable=False,
     )
 

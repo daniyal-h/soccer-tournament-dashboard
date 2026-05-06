@@ -25,7 +25,11 @@ class Team(TimestampMixin, Base):
 
     # "national" for international teams, "club" for leagues
     type: Mapped[TeamType] = mapped_column(
-        SQLAlchemyEnum(TeamType, name="team_type_enum"),
+        SQLAlchemyEnum(
+            TeamType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="team_type_enum",
+        ),
         nullable=False,
     )
 

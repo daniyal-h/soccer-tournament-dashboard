@@ -24,6 +24,10 @@ class TeamPlayer(Base):
     # registration attributes, not permanent properties of the player
     squad_number: Mapped[int | None] = mapped_column(Integer, nullable=True)
     position: Mapped[PositionType | None] = mapped_column(
-        SQLAlchemyEnum(PositionType, name="position_type_enum"),
+        SQLAlchemyEnum(
+            PositionType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="position_type_enum",
+        ),
         nullable=True,
     )

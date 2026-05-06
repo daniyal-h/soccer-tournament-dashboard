@@ -39,7 +39,11 @@ class Match(TimestampMixin, Base):
     kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     stage: Mapped[StageType] = mapped_column(
-        SQLAlchemyEnum(StageType, name="stage_type_enum"),
+        SQLAlchemyEnum(
+            StageType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="stage_type_enum",
+        ),
         nullable=False,
     )
 
@@ -47,7 +51,11 @@ class Match(TimestampMixin, Base):
     group: Mapped[str | None] = mapped_column(String(10), nullable=True)
 
     status: Mapped[StatusType] = mapped_column(
-        SQLAlchemyEnum(StatusType, name="status_type_enum"),
+        SQLAlchemyEnum(
+            StatusType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="status_type_enum",
+        ),
         nullable=False,
     )
 

@@ -32,7 +32,11 @@ class MatchEvent(TimestampMixin, Base):
     secondary_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
 
     event_type: Mapped[EventType] = mapped_column(
-        SQLAlchemyEnum(EventType, name="event_type_enum"),
+        SQLAlchemyEnum(
+            EventType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="event_type_enum",
+        ),
         nullable=False,
     )
 
