@@ -29,8 +29,7 @@ class Standing(TimestampMixin, Base):
         Index("ix_standings_team_id", "team_id"),
         Index("ix_standings_tournament_group", "tournament_id", "group"),
         Index(
-            "uq_player_stats_player_tournament_team",
-            "player_id",
+            "uq_standings_tournament_team",
             "tournament_id",
             "team_id",
             unique=True,
