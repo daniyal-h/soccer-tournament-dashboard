@@ -1,8 +1,8 @@
 """initial schema
 
-Revision ID: 11c85f6159a7
+Revision ID: 9041d854c954
 Revises: 
-Create Date: 2026-05-05 22:23:44.612794
+Create Date: 2026-05-05 22:36:28.118484
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '11c85f6159a7'
+revision: str = '9041d854c954'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,7 +49,7 @@ def upgrade() -> None:
     op.create_table('refresh_jobs',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('job_name', sa.String(length=100), nullable=False),
-    sa.Column('status', sa.Enum('RUNNING', 'SUCCESS', 'FAILED', name='job_status_enum'), nullable=False),
+    sa.Column('status', sa.Enum('running', 'success', 'failed', name='job_status_enum'), nullable=False),
     sa.Column('started_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('finished_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -60,7 +60,7 @@ def upgrade() -> None:
     sa.Column('external_api_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('short_name', sa.String(length=20), nullable=False),
-    sa.Column('type', sa.Enum('NATIONAL', 'CLUB', name='team_type_enum'), nullable=False),
+    sa.Column('type', sa.Enum('national', 'club', name='team_type_enum'), nullable=False),
     sa.Column('logo_url', sa.String(length=255), nullable=True),
     sa.Column('country', sa.String(length=100), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
@@ -91,9 +91,9 @@ def upgrade() -> None:
     sa.Column('team_a_id', sa.Integer(), nullable=False),
     sa.Column('team_b_id', sa.Integer(), nullable=False),
     sa.Column('kickoff_time', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('stage', sa.Enum('GROUP', 'KNOCKOUT', 'OTHER', name='stage_type_enum'), nullable=False),
+    sa.Column('stage', sa.Enum('group', 'knockout', 'other', name='stage_type_enum'), nullable=False),
     sa.Column('group', sa.String(length=10), nullable=True),
-    sa.Column('status', sa.Enum('SCHEDULED', 'LIVE', 'FINISHED', 'POSTPONED', 'CANCELLED', name='status_type_enum'), nullable=False),
+    sa.Column('status', sa.Enum('scheduled', 'live', 'finished', 'postponed', 'cancelled', name='status_type_enum'), nullable=False),
     sa.Column('venue', sa.String(length=100), nullable=True),
     sa.Column('team_a_score', sa.Integer(), nullable=True),
     sa.Column('team_b_score', sa.Integer(), nullable=True),
@@ -179,7 +179,7 @@ def upgrade() -> None:
     sa.Column('team_id', sa.Integer(), nullable=False),
     sa.Column('player_id', sa.Integer(), nullable=False),
     sa.Column('secondary_player_id', sa.Integer(), nullable=True),
-    sa.Column('event_type', sa.Enum('GOAL', 'OWN_GOAL', 'PENALTY_GOAL', 'PENALTY_MISS', 'ASSIST', 'YELLOW_CARD', 'RED_CARD', 'SUBSTITUTION', name='event_type_enum'), nullable=False),
+    sa.Column('event_type', sa.Enum('goal', 'own_goal', 'penalty_goal', 'penalty_miss', 'assist', 'yellow_card', 'red_card', 'substitution', name='event_type_enum'), nullable=False),
     sa.Column('minute', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
