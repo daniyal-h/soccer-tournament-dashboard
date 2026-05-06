@@ -67,15 +67,30 @@ http://localhost:8000/api/v1/health
 
 ## Environment Variables
 
-Create a `.env` file in `backend/` based on `.env.example`.
+Two environment files are used depending on how the backend is run:
+
+### Local development (`.env`)
+
+Used when running the backend directly (e.g. `uvicorn`).
 
 ```env
-API_FOOTBALL_KEY=your_api_key_here
-DATABASE_URL=postgresql://user:password@localhost:5432/soccer
-SECRET_KEY=your_secret_key_here
-SENTRY_DSN=your_sentry_dsn_here
-REFRESH_JOB_TOKEN=your_refresh_job_token_here
+DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 ```
+
+### Docker environment (`.env.docker`)
+
+Used when running via Docker Compose.
+
+```env
+DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
+```
+
+Note the hostname difference:
+
+* `localhost` → when running backend locally
+* `db` → when running inside Docker (service name)
+
+The backend container uses `.env.docker` via `docker-compose.yml`.
 
 Never commit `.env`.
 
@@ -150,6 +165,8 @@ Guidelines:
 
 PostgreSQL is used as the main database and cache layer.
 
+If running the backend locally, ensure `.env` uses `localhost`. If running via Docker, `.env.docker` must use `db` as the host.
+
 Alembic handles migrations.
 
 Initialize migrations:
@@ -168,6 +185,44 @@ Create a migration:
 
 ```bash
 alembic revision --autogenerate -m "describe change"
+```
+
+When models change:
+
+```bash
+alembic revision --autogenerate -m "describe change"
+alembic upgrade head
+```
+
+---
+
+### Local Database Setup
+
+PostgreSQL runs in Docker for local development.
+
+Start the database container:
+
+```bash
+docker compose up -d db
+````
+
+Ensure your `.env` contains:
+
+```env
+DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
+```
+
+Apply migrations to initialize the schema:
+
+```bash
+alembic upgrade head
+```
+
+Verify the database:
+
+```bash
+docker exec -it postgres_db psql -U app_user -d app_db
+\dt
 ```
 
 ---
