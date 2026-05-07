@@ -219,7 +219,7 @@ jobs:
   # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
 
   # sonarcloud:
-  #   if: false  # TODO: enable once SONAR_TOKEN is added to secrets (milestone: infra)
+  #   if: false  # TODO: enable once tests are done and SONAR_TOKEN is added to secrets
   #   name: SonarCloud scan
   #   needs: [build]
   #   runs-on: ubuntu-latest
