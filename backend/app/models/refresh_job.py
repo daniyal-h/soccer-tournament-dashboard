@@ -1,9 +1,8 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -31,9 +30,13 @@ class RefreshJob(Base):
         nullable=False,
     )
 
-    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
 
     # null while the job is still running
-    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     Index("ix_refresh_jobs_status", "status")
