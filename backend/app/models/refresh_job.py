@@ -1,9 +1,8 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base

@@ -15,4 +15,6 @@ class CacheEntry(Base):
     payload: Mapped[str] = mapped_column(Text, nullable=False)
 
     last_updated: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
