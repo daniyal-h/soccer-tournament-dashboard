@@ -217,22 +217,19 @@ jobs:
         run: docker compose down -v
 
   # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
+  # TODO: add back coverage download steps and update needs to include tests jobs
+  sonarcloud:
+    name: SonarCloud scan
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  # sonarcloud:
-  #   if: false  # TODO: enable once tests are done and SONAR_TOKEN is added to secrets
-  #   name: SonarCloud scan
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0  # required for SonarCloud blame data
-  #     - name: Download coverage report
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: coverage-report
-  #     - name: SonarCloud scan
-  #       uses: SonarSource/sonarcloud-github-action@master
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: SonarCloud scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
