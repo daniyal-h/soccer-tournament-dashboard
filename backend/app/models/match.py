@@ -28,20 +28,14 @@ class Match(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     # API-Football identifier used for syncing
-    external_api_id: Mapped[int] = mapped_column(
-        Integer, nullable=False, unique=True, index=True
-    )
+    external_api_id: Mapped[int] = mapped_column(Integer, nullable=False, unique=True, index=True)
 
-    tournament_id: Mapped[int] = mapped_column(
-        ForeignKey("tournaments.id"), nullable=False
-    )
+    tournament_id: Mapped[int] = mapped_column(ForeignKey("tournaments.id"), nullable=False)
 
     team_a_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
     team_b_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
 
-    kickoff_time: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     stage: Mapped[StageType] = mapped_column(
         SQLAlchemyEnum(
