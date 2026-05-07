@@ -2,234 +2,234 @@ name: Soccer Tournament Dashboard CI
 
 # This workflow runs on all pulls and pushes
 on:
-  pull_request:
-    branches:
-      - '*'
-  push:
-    branches:
-      - '*'
+    pull_request:
+        branches:
+            - "*"
+    push:
+        branches:
+            - "*"
 
 jobs:
-  # ── Stage 1: Static analysis (all parallel) ────────────────────────────────
+    # ── Stage 1: Static analysis (all parallel) ────────────────────────────────
 
-  lint-frontend:
-    name: Lint frontend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    lint-frontend:
+        name: Lint frontend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+            - name: Setup Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "20"
+                  cache: "npm"
+                  cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: frontend
+            - name: Install dependencies
+              run: npm ci
+              working-directory: frontend
 
-      - name: Run ESLint
-        run: npm run lint
-        working-directory: frontend
+            - name: Run ESLint
+              run: npm run lint
+              working-directory: frontend
 
-      - name: Check formatting
-        run: npm run format:check
-        working-directory: frontend
+            - name: Check formatting
+              run: npm run format:check
+              working-directory: frontend
 
-  type-check:
-    name: Type check frontend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    type-check:
+        name: Type check frontend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+            - name: Setup Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "20"
+                  cache: "npm"
+                  cache-dependency-path: frontend/package-lock.json
 
-      - name: Install dependencies
-        run: npm ci
-        working-directory: frontend
+            - name: Install dependencies
+              run: npm ci
+              working-directory: frontend
 
-      - name: Run TypeScript type check
-        run: npx tsc --noEmit
-        working-directory: frontend
+            - name: Run TypeScript type check
+              run: npx tsc --noEmit
+              working-directory: frontend
 
-  lint-backend:
-    name: Lint backend
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    lint-backend:
+        name: Lint backend
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: backend/requirements-dev.txt
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: "pip"
+                  cache-dependency-path: backend/requirements-dev.txt
 
-      - name: Install dependencies
-        run: pip install -r requirements-dev.txt
-        working-directory: backend
+            - name: Install dependencies
+              run: pip install -r requirements-dev.txt
+              working-directory: backend
 
-      - name: Run Ruff linter
-        run: ruff check .
-        working-directory: backend
+            - name: Run Ruff linter
+              run: ruff check .
+              working-directory: backend
 
-      - name: Check formatting
-        run: ruff format --check .
-        working-directory: backend
+            - name: Check formatting
+              run: ruff format --check .
+              working-directory: backend
 
-  security-scan:
-    name: Security scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    security-scan:
+        name: Security scan
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: 'pip'
-          cache-dependency-path: |
-            backend/requirements.txt
-            backend/requirements-dev.txt
+            - name: Setup Python
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+                  cache: "pip"
+                  cache-dependency-path: |
+                      backend/requirements.txt
+                      backend/requirements-dev.txt
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+            - name: Setup Node.js
+              uses: actions/setup-node@v5
+              with:
+                  node-version: "20"
+                  cache: "npm"
+                  cache-dependency-path: frontend/package-lock.json
 
-      - name: Install Python dependencies
-        run: pip install pip-audit -r requirements.txt -r requirements-dev.txt
-        working-directory: backend
+            - name: Install Python dependencies
+              run: pip install pip-audit -r requirements.txt -r requirements-dev.txt
+              working-directory: backend
 
-      - name: Install Node dependencies
-        run: npm ci
-        working-directory: frontend
+            - name: Install Node dependencies
+              run: npm ci
+              working-directory: frontend
 
-      - name: Audit Python dependencies
-        run: pip-audit
-        working-directory: backend
+            - name: Audit Python dependencies
+              run: pip-audit
+              working-directory: backend
 
-      - name: Audit Node dependencies
-        run: npm audit --audit-level=high
-        working-directory: frontend
+            - name: Audit Node dependencies
+              run: npm audit --audit-level=high
+              working-directory: frontend
 
-  # ── Stage 2: Tests (disabled until pytest + Vitest are configured) ─────────
+    # ── Stage 2: Tests (disabled until pytest + Vitest are configured) ─────────
 
-  # backend-tests:
-  #   if: false  # TODO: enable once pytest is set up (milestone: group-standings)
-  #   name: Backend tests
-  #   needs: [lint-backend, security-scan]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-python@v5
-  #       with:
-  #         python-version: '3.12'
-  #         cache: 'pip'
-  #         cache-dependency-path: backend/requirements.txt
-  #     - run: pip install -r requirements.txt
-  #       working-directory: backend
-  #     - name: Run pytest with coverage
-  #       run: pytest --cov --cov-report=xml
-  #       working-directory: backend
-  #     - name: Upload coverage report
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: coverage-report
-  #         path: backend/coverage.xml
+    # backend-tests:
+    #   if: false  # TODO: enable once pytest is set up (milestone: group-standings)
+    #   name: Backend tests
+    #   needs: [lint-backend, security-scan]
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - uses: actions/checkout@v5
+    #     - uses: actions/setup-python@v5
+    #       with:
+    #         python-version: '3.12'
+    #         cache: 'pip'
+    #         cache-dependency-path: backend/requirements.txt
+    #     - run: pip install -r requirements.txt
+    #       working-directory: backend
+    #     - name: Run pytest with coverage
+    #       run: pytest --cov --cov-report=xml
+    #       working-directory: backend
+    #     - name: Upload coverage report
+    #       uses: actions/upload-artifact@v4
+    #       with:
+    #         name: coverage-report
+    #         path: backend/coverage.xml
 
-  # frontend-tests:
-  #   if: false  # TODO: enable once Vitest is configured (milestone: group-standings)
-  #   name: Frontend tests
-  #   needs: [lint-frontend, type-check]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '20'
-  #         cache: 'npm'
-  #         cache-dependency-path: frontend/package-lock.json
-  #     - run: npm ci
-  #       working-directory: frontend
-  #     - name: Run Vitest
-  #       run: npx vitest run
-  #       working-directory: frontend
+    # frontend-tests:
+    #   if: false  # TODO: enable once Vitest is configured (milestone: group-standings)
+    #   name: Frontend tests
+    #   needs: [lint-frontend, type-check]
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - uses: actions/checkout@v5
+    #     - uses: actions/setup-node@v5
+    #       with:
+    #         node-version: '20'
+    #         cache: 'npm'
+    #         cache-dependency-path: frontend/package-lock.json
+    #     - run: npm ci
+    #       working-directory: frontend
+    #     - name: Run Vitest
+    #       run: npx vitest run
+    #       working-directory: frontend
 
-  # ── Stage 3: Build (disabled until Dockerfile exists) ─────────────────────
+    # ── Stage 3: Build (disabled until Dockerfile exists) ─────────────────────
 
-  build:
-    name: Build Docker images
-    needs: [lint-backend, lint-frontend, type-check, security-scan] # TODO: change to tests when they're done
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    build:
+        name: Build Docker images
+        needs: [lint-backend, lint-frontend, type-check, security-scan] # TODO: change to tests when they're done
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
 
-      - name: Create backend env file
-        run: |
-          echo "DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db" > backend/.env.docker
+            - name: Create backend env file
+              run: |
+                  echo "DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db" > backend/.env.docker
 
-      - name: Build and start stack
-        run: docker compose up --build -d
+            - name: Build and start stack
+              run: docker compose up --build -d
 
-      - name: Wait for backend to be healthy
-        run: |
-          echo "Waiting for backend..."
-          for i in {1..30}; do
-            if curl -sf http://localhost:8000/api/v1/health > /dev/null; then
-              echo "Backend is up"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Backend failed to start"
-          docker compose logs backend
-          exit 1
+            - name: Wait for backend to be healthy
+              run: |
+                  echo "Waiting for backend..."
+                  for i in {1..30}; do
+                    if curl -sf http://localhost:8000/api/v1/health > /dev/null; then
+                      echo "Backend is up"
+                      exit 0
+                    fi
+                    sleep 2
+                  done
+                  echo "Backend failed to start"
+                  docker compose logs backend
+                  exit 1
 
-      - name: Wait for frontend to be healthy
-        run: |
-          echo "Waiting for frontend..."
-          for i in {1..30}; do
-            if curl -sf http://localhost:3000 > /dev/null; then
-              echo "Frontend is up"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Frontend failed to start"
-          exit 1
+            - name: Wait for frontend to be healthy
+              run: |
+                  echo "Waiting for frontend..."
+                  for i in {1..30}; do
+                    if curl -sf http://localhost:3000 > /dev/null; then
+                      echo "Frontend is up"
+                      exit 0
+                    fi
+                    sleep 2
+                  done
+                  echo "Frontend failed to start"
+                  exit 1
 
-      - name: Tear down stack
-        if: always()
-        run: docker compose down -v
+            - name: Tear down stack
+              if: always()
+              run: docker compose down -v
 
-  # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
-  # TODO: add back coverage download steps and update needs to include tests jobs
-  sonarcloud:
-    name: SonarCloud scan
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
+    # TODO: add back coverage download steps and update needs to include tests jobs
+    sonarcloud:
+        name: SonarCloud scan
+        needs: [build]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v5
+              with:
+                  fetch-depth: 0
 
-      - name: SonarCloud scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            - name: SonarCloud scan
+              uses: SonarSource/sonarcloud-github-action@master
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
