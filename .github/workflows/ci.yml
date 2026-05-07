@@ -172,7 +172,7 @@ jobs:
 
   build:
     name: Build Docker images
-    needs: [lint-backend, lint-frontend, type-check, security-scan]
+    needs: [lint-backend, lint-frontend, type-check, security-scan] # TODO: change to tests when they're done
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
