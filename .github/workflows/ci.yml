@@ -83,7 +83,7 @@ jobs:
         working-directory: backend
 
       - name: Check formatting
-        run: black --check .
+        run: ruff format --check .
         working-directory: backend
 
   security-scan:
@@ -110,7 +110,7 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install Python dependencies
-        run: pip install pip-audit -r requirements.txt, requirements-dev.txt
+        run: pip install pip-audit -r requirements.txt -r requirements-dev.txt
         working-directory: backend
 
       - name: Install Node dependencies
