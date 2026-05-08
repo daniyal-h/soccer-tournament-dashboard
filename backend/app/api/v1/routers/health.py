@@ -30,14 +30,14 @@ class HealthResponse(BaseModel):
 async def health_check(db: Annotated[Session, Depends(get_db)]) -> HealthResponse:
     def database_check() -> CheckStatus:
         try:
-            db.execute(("SELECT 1"))
+            db.execute(text("SELECT 1"))
             return "ok"
         except Exception:
             return "error"
 
     def cache_check() -> CheckStatus:
         try:
-            db.execute(text("SELECT 1 FROM cache WHERE 1=0"))
+            db.execute(text("SELECT 1 FROM cache_entries WHERE 1=0"))
             return "ok"
         except Exception:
             return "error"
@@ -45,7 +45,7 @@ async def health_check(db: Annotated[Session, Depends(get_db)]) -> HealthRespons
     db_status = database_check()
     cache_status = cache_check()
 
-    overall = "ok" if db_status == "ok" and cache_check == "ok" else "error"
+    overall = "ok" if db_status == "ok" and cache_status == "ok" else "error"
 
     return HealthResponse(
         status=overall,
