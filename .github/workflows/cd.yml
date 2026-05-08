@@ -1,0 +1,28 @@
+name: Soccer Tournament Dashboard CD
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    deploy-backend:
+        name: Deploy backend to Render
+        runs-on: ubuntu-latest
+        steps:
+            - name: Trigger Render deploy hook
+              run: |
+                  curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
+            - name: Wait for deployment to complete
+              run: |
+                  echo "Waiting for backend to be healthy..."
+                  for i in {1..20}; do
+                    if curl -sf "${{ secrets.RENDER_BACKEND_URL }}/api/v1/health" > /dev/null; then
+                      echo "Backend is live"
+                      exit 0
+                    fi
+                    sleep 15
+                  done
+                  echo "Backend failed to become healthy"
+                  exit 1
