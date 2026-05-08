@@ -19,8 +19,7 @@ The backend exposes the versioned REST API used by the frontend, manages API-Foo
 - Sentry
 - pytest
 - mutmut
-- Black
-- isort
+- Ruff
 
 ---
 
@@ -377,23 +376,18 @@ mutmut results
 
 ## Formatting
 
-Format code with Black:
+Lint and format with Ruff:
 
 ```bash
-black .
+ruff check .
+ruff format .
 ```
 
-Sort imports with isort:
+Check without making changes:
 
 ```bash
-isort .
-```
-
-Check formatting without changing files:
-
-```bash
-black --check .
-isort --check-only .
+ruff check --no-fix .
+ruff format --check .
 ```
 
 Configuration lives in:
@@ -412,11 +406,13 @@ After installing new packages:
 python -m pip freeze > requirements.txt
 ```
 
-`requirements.txt` is committed and used by:
+Dev dependencies are managed separately:
 
-* local setup
-* CI
-* Docker builds
-* deployment
+```bash
+pip install -r requirements-dev.txt
+```
+
+`requirements.txt` is used by local setup, Docker builds, CI, and deployment.
+`requirements-dev.txt` is used by CI for linting, formatting, and testing tools.
 
 The virtual environment itself is ignored by Git.
