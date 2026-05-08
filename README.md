@@ -20,7 +20,7 @@ This project was built to practice the full software development lifecycle: feat
 |---|---|
 | Frontend | React (TypeScript), deployed on Vercel |
 | Backend | Python/FastAPI, deployed on Render via Docker |
-| Database | PostgreSQL, Render managed |
+| Database | PostgreSQL, Neon |
 | Containerization | Docker + docker-compose |
 | CI/CD | GitHub Actions (lint, test, deploy on push to main) |
 | Error monitoring | Sentry (frontend + backend) |
@@ -164,7 +164,7 @@ alembic upgrade head
 
 6. Open the app
 
-* Frontend: [http://localhost:5173](http://localhost:5173)
+* Frontend: [http://localhost:3000](http://localhost:3000)
 * Backend API: [http://localhost:8000](http://localhost:8000)
 * API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 * Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
