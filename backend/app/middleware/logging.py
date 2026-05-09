@@ -1,10 +1,21 @@
 import uuid
 from time import time
 
+import sentry_sdk
 import structlog
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+
+from app.core.config import settings
+
+sentry_sdk.init(
+    dsn=settings.SENTRY_DSN,
+    environment=settings.ENVIRONMENT, # "staging" | "production"
+    traces_sample_rate=0.2, # 20% of requests for performance tracing
+    profiles_sample_rate=0.1,
+    send_default_pii=False, # never log user data
+)
 
 logger = structlog.get_logger()
 
