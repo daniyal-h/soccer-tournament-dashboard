@@ -1,5 +1,5 @@
-import uuid
 import time
+import uuid
 
 import sentry_sdk
 import structlog
