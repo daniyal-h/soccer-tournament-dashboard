@@ -1,5 +1,5 @@
 import uuid
-from time import time
+import time
 
 import sentry_sdk
 import structlog
@@ -11,10 +11,10 @@ from app.core.config import settings
 
 sentry_sdk.init(
     dsn=settings.SENTRY_DSN,
-    environment=settings.ENVIRONMENT, # "staging" | "production"
-    traces_sample_rate=0.2, # 20% of requests for performance tracing
+    environment=settings.ENVIRONMENT,  # "staging" | "production"
+    traces_sample_rate=0.2,  # 20% of requests for performance tracing
     profiles_sample_rate=0.1,
-    send_default_pii=False, # never log user data
+    send_default_pii=False,  # never log user data
 )
 
 logger = structlog.get_logger()
@@ -23,7 +23,7 @@ logger = structlog.get_logger()
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         # skip logging for health endpoint
-        if request.url.path == "/api/v1/health":
+        if request.url.path in ("/api/v1/health", "/api/v1/health/"):
             return await call_next(request)
 
         request_id = str(uuid.uuid4())
