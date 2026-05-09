@@ -62,6 +62,15 @@ Health check:
 http://localhost:8000/api/v1/health
 ```
 
+Response:
+
+| Field | Values |
+|---|---|
+| `status` | `ok` \| `degraded` \| `error` |
+| `version` | app version from env |
+| `checks` | `database` and `cache_entries` status |
+| `timestamp` | UTC ISO timestamp |
+
 ---
 
 ## Environment Variables
@@ -74,6 +83,9 @@ Used when running the backend directly (e.g. `uvicorn`).
 
 ```env
 DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
+SENTRY_DSN=
+ENVIRONMENT=development
+VERSION=0.1.0
 ```
 
 ### Docker environment (`.env.docker`)
@@ -82,6 +94,9 @@ Used when running via Docker Compose.
 
 ```env
 DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
+SENTRY_DSN=
+ENVIRONMENT=development
+VERSION=0.1.0
 ```
 
 Note the hostname difference:
@@ -341,6 +356,7 @@ method
 path
 status_code
 duration_ms
+request_id
 ```
 
 ---
