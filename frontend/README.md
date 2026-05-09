@@ -45,6 +45,8 @@ Create a `.env` file in `frontend/`:
 
 ```env
 VITE_API_BASE_URL=http://localhost:8000/api/v1
+VITE_SENTRY_DSN=
+VITE_ENVIRONMENT=development
 VITE_ENABLE_BRACKET=false
 ```
 
@@ -82,6 +84,18 @@ src/
 - Base URL is configured via `VITE_API_BASE_URL`
 - Requests should be defined in `src/api/`
 - Business logic should live in `src/services/`
+
+---
+
+## Observability
+
+Sentry is integrated for error tracking and session replay.
+
+- Unhandled errors are captured automatically via `ErrorBoundary`
+- Failed API calls should be captured manually with `Sentry.captureException`
+- Session replay is enabled for error events (100%) and 5% of sessions otherwise
+- `VITE_ENVIRONMENT` tags errors by environment in the Sentry dashboard
+- `VITE_SENTRY_DSN` is intentionally public — protection is handled via allowed domains in Sentry project settings
 
 ---
 
