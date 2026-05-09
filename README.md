@@ -24,7 +24,7 @@ This project was built to practice the full software development lifecycle: feat
 | Containerization | Docker + docker-compose |
 | CI/CD | GitHub Actions (lint, test, deploy on push to main) |
 | Error monitoring | Sentry (frontend + backend) |
-| Uptime monitoring | Better Uptime |
+| Uptime monitoring | Better Stack · [Status Page](https://soccer-tournament-dashboard.betteruptime.com/) |
 | External data | API-Football (responses cached in PostgreSQL) |
 
 ---
@@ -118,6 +118,9 @@ Used when running the backend directly (e.g. `uvicorn`):
 API_FOOTBALL_KEY=your_api_key_here
 DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 SECRET_KEY=your_secret_key_here
+SENTRY_DSN=          # optional, leave empty to disable
+ENVIRONMENT=development
+VERSION=0.1.0
 ```
 
 #### Docker backend (`.env.docker`)
@@ -167,7 +170,7 @@ alembic upgrade head
 * Frontend: [http://localhost:3000](http://localhost:3000)
 * Backend API: [http://localhost:8000](http://localhost:8000)
 * API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-* Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health)
+* Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - returns status, version, and DB/cache checks
 
 ---
 
@@ -229,10 +232,10 @@ mutmut results
 
 ## CI/CD Pipeline
 
-Every push to a feature branch runs linting and the full test suite via GitHub Actions. Merging to `main` triggers an automatic deployment to Render. Branch protection on `main` enforces passing CI before any merge.
+Every push to a feature branch runs linting and the full test suite via GitHub Actions. Merging to `main` triggers an automatic deployment to Render staging, awaiting promotion to production. Branch protection on `main` enforces passing CI before any merge.
 
 ```
-feature branch → PR → CI (lint + test + SonarCloud) → merge → deploy to Render
+feature branch → PR → CI (lint + test + SonarCloud) → merge to main → auto-deploy to staging → manual promotion to production
 ```
 
 ---

@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 
 from app.api.v1.api import api_router
+from app.middleware.logging import RequestLoggingMiddleware
 
 app = FastAPI(title="Soccer Tournament Dashboard API")
+
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(api_router, prefix="/api/v1")
 
