@@ -15,5 +15,5 @@ router = APIRouter()
 
 
 @router.get("/{tournament_id}")
-async def get_player_stats(tournament_id: int, stats: StatsCategory.goals, limit: int = 10) -> dict:
+async def get_player_stats(tournament_id: int, stats: StatsCategory = StatsCategory.goals, limit: int = 10) -> dict:
     return {"message": "not yet implemented"}
