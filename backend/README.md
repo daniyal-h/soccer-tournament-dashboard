@@ -116,14 +116,15 @@ Never commit `.env`.
 app/
   api/
     v1/
-      routers/        versioned route handlers
-      api.py          v1 router registration
-  core/               config, database setup, shared app wiring
-  models/             SQLAlchemy database models
-  schemas/            Pydantic request/response schemas
-  services/           business logic
-  repositories/       database access logic
-  main.py             FastAPI entry point
+      routers/          versioned route handlers
+      services/         business logic
+      repositories/     database access logic
+      api.py            v1 router registration
+  core/                 config, database setup, shared app wiring
+  middleware/           Request middleware
+  models/               SQLAlchemy database models
+  schemas/              Pydantic request/response schemas
+  main.py               FastAPI entry point
 
 tests/
   unit/               isolated service/function tests
@@ -145,11 +146,11 @@ Example routes:
 
 ```txt
 GET /api/v1/health
-GET /api/v1/matches
-GET /api/v1/standings
-GET /api/v1/teams/{id}
+GET /api/v1/standings/{tournament_id}
+GET /api/v1/matches/{tournament_id}
+GET /api/v1/teams/{team_id}
+GET /api/v1/player_stats/{tournament_id}
 GET /api/v1/search
-GET /api/v1/players/leaderboard
 ```
 
 Versioning keeps the API contract stable when future breaking changes are introduced.
@@ -252,7 +253,6 @@ cache_key
 payload
 last_updated
 expires_at
-last_refresh_attempt
 ```
 
 Rules:
@@ -292,9 +292,9 @@ Errors should follow the standard response shape:
 ```json
 {
   "error": {
-    "code": "ERROR_CODE",
-    "message": "User-friendly message",
-    "details": {}
+    "status": 404,
+    "code": "NOT_FOUND",
+    "message": "Tournament not found"
   }
 }
 ```

@@ -154,18 +154,7 @@ docker compose up -d --build
 
 ---
 
-5. Apply database migrations
-
-In a separate terminal:
-
-```bash
-cd backend
-alembic upgrade head
-```
-
----
-
-6. Open the app
+5. Open the app
 
 * Frontend: [http://localhost:3000](http://localhost:3000)
 * Backend API: [http://localhost:8000](http://localhost:8000)
@@ -255,15 +244,17 @@ soccer-tournament-dashboard/
       components/
       pages/
       hooks/
-  backend/
-    app/
-      routers/
-      services/
-      repositories/
-      models/
-    tests/
-      unit/
-      integration/
+backend/
+  app/
+    api/
+      v1/
+        routers/
+        services/
+        repositories/
+    models/
+    schemas/
+    middleware/
+    core/
 ```
 
 ---

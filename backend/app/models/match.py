@@ -8,12 +8,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base, TimestampMixin
 
 
-class StageType(str, enum.Enum):
-    GROUP = "group"
-    KNOCKOUT = "knockout"
-    OTHER = "other"
-
-
 class StatusType(str, enum.Enum):
     SCHEDULED = "scheduled"
     LIVE = "live"
@@ -37,16 +31,9 @@ class Match(TimestampMixin, Base):
 
     kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    stage: Mapped[StageType] = mapped_column(
-        SQLAlchemyEnum(
-            StageType,
-            values_callable=lambda enum_cls: [member.value for member in enum_cls],
-            name="stage_type_enum",
-        ),
-        nullable=False,
-    )
+    stage: Mapped[str] = mapped_column(String(20), nullable=False)
 
-    # knockout matches don't belong in groups
+    # knockout matches don't belong in groups (nullable)
     group: Mapped[str | None] = mapped_column(String(10), nullable=True)
 
     status: Mapped[StatusType] = mapped_column(
