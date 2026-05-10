@@ -1,6 +1,6 @@
 from .base import Base, TimestampMixin
 from .cache_entry import CacheEntry
-from .match import Match, StageType, StatusType
+from .match import Match, StatusType
 from .match_event import EventType, MatchEvent
 from .player_stat import PlayerStat
 from .players import Player
@@ -23,7 +23,6 @@ __all__ = [
     "PlayerStat",
     "PositionType",
     "RefreshJob",
-    "StageType",
     "Standing",
     "StatusType",
     "Team",
