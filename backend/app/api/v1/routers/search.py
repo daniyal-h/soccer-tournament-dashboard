@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Query
 from enum import Enum
 from typing import Annotated
+
+from fastapi import APIRouter, Query
 
 
 class TypesCategory(str, Enum):

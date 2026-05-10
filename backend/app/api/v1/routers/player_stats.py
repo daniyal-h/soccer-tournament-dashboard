@@ -1,5 +1,6 @@
-from fastapi import APIRouter
 from enum import Enum
+
+from fastapi import APIRouter
 
 
 class StatsCategory(str, Enum):
@@ -15,5 +16,7 @@ router = APIRouter()
 
 
 @router.get("/{tournament_id}")
-async def get_player_stats(tournament_id: int, stats: StatsCategory = StatsCategory.goals, limit: int = 10) -> dict:
+async def get_player_stats(
+    tournament_id: int, stats: StatsCategory = StatsCategory.goals, limit: int = 10
+) -> dict:
     return {"message": "not yet implemented"}
