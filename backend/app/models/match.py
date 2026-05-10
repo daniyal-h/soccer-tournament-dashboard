@@ -31,10 +31,10 @@ class Match(TimestampMixin, Base):
 
     kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    stage: Mapped[str] = mapped_column(String(10), nullable=False)
+    stage: Mapped[str] = mapped_column(String(20), nullable=False)
 
     # knockout matches don't belong in groups (nullable)
-    group: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    group: Mapped[str | None] = mapped_column(String(10), nullable=True)
 
     status: Mapped[StatusType] = mapped_column(
         SQLAlchemyEnum(
