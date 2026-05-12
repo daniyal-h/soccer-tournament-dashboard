@@ -1,9 +1,5 @@
-import React from 'react'
-
 const StandingsPage = () => {
-  return (
-    <div>StandingsPage</div>
-  )
-}
+  return <div>StandingsPage</div>;
+};
 
-export default StandingsPage
+export default StandingsPage;
