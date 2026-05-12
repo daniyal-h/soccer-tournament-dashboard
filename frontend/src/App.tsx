@@ -1,10 +1,24 @@
 import './App.css';
 
+import { Route, Routes } from 'react-router-dom';
+
+import AppLayout from './components/layout/AppLayout';
+import Schedule from './components/pages/Schedule';
+import Standings from './components/pages/Standings';
+import NotFound from './components/pages/NotFound';
+import TeamProfile from './components/pages/TeamProfile';
+
 function App() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white flex items-center justify-center">
-      <h1 className="text-4xl font-bold">Soccer Tournament Dashboard</h1>
-    </main>
+    <Routes>
+      <Route element={<AppLayout />}>
+        {/* <Route path="/" element={<Home />} /> */}
+        <Route path="/" element={<Standings />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/teams/:teamId" element={<TeamProfile />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
   );
 }
 
