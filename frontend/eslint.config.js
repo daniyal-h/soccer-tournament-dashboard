@@ -18,7 +18,7 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
 
-    plugins:{
+    plugins: {
       'simple-import-sort': simpleImportSort,
     },
 
@@ -26,7 +26,7 @@ export default defineConfig([
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
     },
-    
+
     languageOptions: {
       globals: globals.browser,
     },
