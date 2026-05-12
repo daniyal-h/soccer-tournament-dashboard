@@ -5,6 +5,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
+import { TournamentProvider } from './context/TournamentContext.tsx';
+
 import App from './App.tsx';
 
 Sentry.init({
@@ -25,9 +27,11 @@ Sentry.init({
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={<p>Something went wrong</p>}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <TournamentProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </TournamentProvider>
     </Sentry.ErrorBoundary>
   </StrictMode>,
 );
