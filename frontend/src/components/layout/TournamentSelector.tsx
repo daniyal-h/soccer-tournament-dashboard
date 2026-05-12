@@ -1,3 +1,4 @@
+import { useTournament } from '@/context/TournamentContext';
 import {
   Combobox,
   ComboboxContent,
@@ -5,23 +6,55 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-} from '../ui/combobox';
+} from '@/components/ui/combobox';
 
-const tournaments = ['FIFA World Cup 2026', 'UEFA Champions League', 'Copa America'];
+const tournaments = [
+  { id: 'world-cup-2026', label: 'FIFA World Cup 2026' },
+  { id: 'uefa-champions-league', label: 'UEFA Champions League' },
+  { id: 'copa-america', label: 'Copa America' },
+];
 
 const TournamentSelector = () => {
+  const { selectedTournamentId, setSelectedTournamentId } = useTournament();
+
+  const selectedTournament =
+    tournaments.find((tournament) => tournament.id === selectedTournamentId) ?? tournaments[0];
+
   return (
     <div className="w-full md:w-55 lg:w-75">
-      <Combobox items={tournaments}>
+      <Combobox
+        items={tournaments.map((tournament) => tournament.label)}
+        value={selectedTournament.label}
+        onValueChange={(label) => {
+          if (!label) {
+            return;
+          }
+
+          const tournament = tournaments.find((item) => item.label === label);
+
+          if (tournament) {
+            setSelectedTournamentId(tournament.id);
+          }
+        }}
+      >
         <ComboboxInput placeholder="Select a tournament" />
         <ComboboxContent>
           <ComboboxEmpty>No tournament found</ComboboxEmpty>
+
           <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
-              </ComboboxItem>
-            )}
+            {(label) => {
+              const tournament = tournaments.find((item) => item.label === label);
+
+              if (!tournament) {
+                return null;
+              }
+
+              return (
+                <ComboboxItem key={tournament.id} value={tournament.label}>
+                  {tournament.label}
+                </ComboboxItem>
+              );
+            }}
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
