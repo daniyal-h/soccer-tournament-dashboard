@@ -8,29 +8,25 @@ import {
   ComboboxList,
 } from '@/components/ui/combobox';
 
-const tournaments = [
-  { id: 'world-cup-2026', label: 'FIFA World Cup 2026' },
-  { id: 'uefa-champions-league', label: 'UEFA Champions League' },
-  { id: 'copa-america', label: 'Copa America' },
-];
+import { TOURNAMENTS } from '@/constants/tournaments';
 
 const TournamentSelector = () => {
   const { selectedTournamentId, setSelectedTournamentId } = useTournament();
 
   const selectedTournament =
-    tournaments.find((tournament) => tournament.id === selectedTournamentId) ?? tournaments[0];
+    TOURNAMENTS.find((tournament) => tournament.id === selectedTournamentId) ?? TOURNAMENTS[0];
 
   return (
     <div className="w-full md:w-55 lg:w-75">
       <Combobox
-        items={tournaments.map((tournament) => tournament.label)}
+        items={TOURNAMENTS.map((tournament) => tournament.label)}
         value={selectedTournament.label}
         onValueChange={(label) => {
           if (!label) {
             return;
           }
 
-          const tournament = tournaments.find((item) => item.label === label);
+          const tournament = TOURNAMENTS.find((item) => item.label === label);
 
           if (tournament) {
             setSelectedTournamentId(tournament.id);
@@ -43,7 +39,7 @@ const TournamentSelector = () => {
 
           <ComboboxList>
             {(label) => {
-              const tournament = tournaments.find((item) => item.label === label);
+              const tournament = TOURNAMENTS.find((item) => item.label === label);
 
               if (!tournament) {
                 return null;

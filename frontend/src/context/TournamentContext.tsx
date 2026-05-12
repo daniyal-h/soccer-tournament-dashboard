@@ -1,11 +1,10 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { DEFAULT_TOURNAMENT_ID } from '@/constants/tournaments';
 
 interface TournamentContextValue {
   selectedTournamentId: string;
   setSelectedTournamentId: (tournamentId: string) => void;
 }
-
-const DEFAULT_TOURNAMENT_ID = 'world-cup-2026';
 
 const TournamentContext = createContext<TournamentContextValue | undefined>(undefined);
 
