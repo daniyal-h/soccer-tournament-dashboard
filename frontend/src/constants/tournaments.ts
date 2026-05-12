@@ -14,3 +14,7 @@ export const DEFAULT_TOURNAMENT_ID = 'world-cup-2026';
 export const getTournamentById = (tournamentId: string) => {
   return TOURNAMENTS.find((tournament) => tournament.id === tournamentId);
 };
+
+export const getTournamentByLabel = (label: string) => {
+  return TOURNAMENTS.find((tournament) => tournament.label === label);
+};

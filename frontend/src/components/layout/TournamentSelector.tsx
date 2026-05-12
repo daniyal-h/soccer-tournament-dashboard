@@ -1,3 +1,4 @@
+import { TOURNAMENTS, getTournamentById, getTournamentByLabel } from '@/constants/tournaments';
 import { useTournament } from '@/context/TournamentContext';
 import {
   Combobox,
@@ -8,13 +9,10 @@ import {
   ComboboxList,
 } from '@/components/ui/combobox';
 
-import { TOURNAMENTS } from '@/constants/tournaments';
-
 const TournamentSelector = () => {
   const { selectedTournamentId, setSelectedTournamentId } = useTournament();
 
-  const selectedTournament =
-    TOURNAMENTS.find((tournament) => tournament.id === selectedTournamentId) ?? TOURNAMENTS[0];
+  const selectedTournament = getTournamentById(selectedTournamentId) ?? TOURNAMENTS[0];
 
   return (
     <div className="w-full md:w-55 lg:w-75">
@@ -26,7 +24,7 @@ const TournamentSelector = () => {
             return;
           }
 
-          const tournament = TOURNAMENTS.find((item) => item.label === label);
+          const tournament = getTournamentByLabel(label);
 
           if (tournament) {
             setSelectedTournamentId(tournament.id);
@@ -34,12 +32,13 @@ const TournamentSelector = () => {
         }}
       >
         <ComboboxInput placeholder="Select a tournament" />
+
         <ComboboxContent>
           <ComboboxEmpty>No tournament found</ComboboxEmpty>
 
           <ComboboxList>
             {(label) => {
-              const tournament = TOURNAMENTS.find((item) => item.label === label);
+              const tournament = getTournamentByLabel(label);
 
               if (!tournament) {
                 return null;
