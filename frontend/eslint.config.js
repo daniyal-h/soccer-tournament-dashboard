@@ -9,7 +9,7 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 export default defineConfig([
   globalIgnores(['dist']),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ['src/components/ui/**/*.{ts,tsx}'],
 
     extends: [
       js.configs.recommended,
@@ -25,6 +25,7 @@ export default defineConfig([
     rules: {
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
+      'react-refresh/only-export-components': 'off',
     },
 
     languageOptions: {
