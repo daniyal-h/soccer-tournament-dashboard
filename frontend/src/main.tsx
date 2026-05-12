@@ -1,4 +1,4 @@
-import './index.css';
+import './styles/globals.css';
 
 import * as Sentry from '@sentry/react';
 import { StrictMode } from 'react';
