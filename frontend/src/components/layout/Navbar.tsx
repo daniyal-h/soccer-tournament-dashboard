@@ -2,8 +2,8 @@ import { NavLink } from 'react-router-dom';
 import TournamentSelector from './TournamentSelector';
 
 const navItems = [
-  { label: 'Home', to: '/' },
-  { label: 'Standings', to: '/standings' },
+  // { label: 'Home', to: '/' },
+  { label: 'Standings', to: '/' },
   { label: 'Schedule', to: '/schedule' },
 ];
 
