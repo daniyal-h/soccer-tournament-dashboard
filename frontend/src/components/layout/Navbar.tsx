@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import TournamentSelector from './TournamentSelector';
 
 const navItems = [
   { label: 'Home', to: '/' },
@@ -13,6 +14,8 @@ const Navbar = () => {
         <NavLink to="/" className="text-lg font-semibold">
           Soccer Dashboard
         </NavLink>
+
+        < TournamentSelector />
 
         <div className="flex items-center gap-4">
           {navItems.map((item) => (
