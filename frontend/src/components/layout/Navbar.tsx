@@ -10,7 +10,7 @@ const navItems = [
 const Navbar = () => {
   return (
     <header className="border-b border-border bg-background">
-      <nav className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
+      <nav className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 lg:px-8">
         <NavLink to="/" className="text-lg font-semibold">
           Soccer Dashboard
         </NavLink>
