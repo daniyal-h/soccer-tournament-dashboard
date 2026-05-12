@@ -1,14 +1,17 @@
 import { Outlet } from 'react-router-dom';
 
+import Navbar from './Navbar';
+import PageContainer from './PageContainer';
+
 const AppLayout = () => {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      <nav className="border-b">Navbar</nav>
+      <Navbar />
 
       <main className="flex-1">
-        <div className="mx-auto w-full max-w-7xl px-4 py-6">
+        <PageContainer>
           <Outlet />
-        </div>
+        </PageContainer>
       </main>
     </div>
   );
