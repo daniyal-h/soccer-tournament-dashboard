@@ -10,12 +10,14 @@ const navItems = [
 const Navbar = () => {
   return (
     <header className="border-b border-border bg-background">
-      <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <nav className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between">
         <NavLink to="/" className="text-lg font-semibold">
           Soccer Dashboard
         </NavLink>
 
-        < TournamentSelector />
+        <div className="w-full md:w-auto">
+          <TournamentSelector />
+        </div>
 
         <div className="flex items-center gap-4">
           {navItems.map((item) => (
