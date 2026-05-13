@@ -20,21 +20,23 @@ const Navbar = () => {
           <TournamentSelector />
         </div>
 
-        <div className="flex items-center gap-4">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                [
-                  'text-sm font-medium transition-colors',
-                  isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                ].join(' ')
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
+        <div className="flex items-center justify-between md:justify-end md:gap-4">
+          <div className="flex items-center gap-4">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  [
+                    'text-sm font-medium transition-colors',
+                    isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+                  ].join(' ')
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
 
           <ThemeToggle />
         </div>
