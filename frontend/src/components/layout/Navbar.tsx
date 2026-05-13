@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import TournamentSelector from './TournamentSelector';
+import ThemeToggle from './ThemeToggle';
 
 const navItems = [
   // { label: 'Home', to: '/' },
@@ -34,6 +35,8 @@ const Navbar = () => {
               {item.label}
             </NavLink>
           ))}
+
+          <ThemeToggle />
         </div>
       </nav>
     </header>
