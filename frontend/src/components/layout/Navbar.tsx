@@ -4,13 +4,7 @@ import DesktopNav from './DesktopNav';
 import MobileNav from './MobileNav';
 import ThemeToggle from './ThemeToggle';
 
-const navItems = [
-  { label: 'Standings', to: '/' },
-  { label: 'Schedule', to: '/schedule' },
-  { label: 'Bracket', to: '/bracket' },
-  { label: 'Teams', to: '/teams' },
-  { label: 'Statistics', to: '/stats' },
-];
+import { navItems } from '@/constants/navigation';
 
 const Navbar = () => {
   return (

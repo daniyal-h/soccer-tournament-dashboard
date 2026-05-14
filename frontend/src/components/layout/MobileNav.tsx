@@ -1,19 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { type NavProps } from '@/constants/navigation';
 
 import { Menu } from 'lucide-react';
 
-type NavItem = {
-  to: string;
-  label: string;
-};
-
-interface MobileNavProps {
-  navItems: NavItem[];
-}
-
-const MobileNav = ({ navItems }: MobileNavProps) => {
+const MobileNav = ({ navItems }: NavProps) => {
   return (
     <div className="md:hidden">
       <Sheet>

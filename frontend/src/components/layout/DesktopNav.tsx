@@ -1,15 +1,8 @@
 import { NavLink } from 'react-router-dom';
 
-type NavItem = {
-  to: string;
-  label: string;
-};
+import { type NavProps } from '@/constants/navigation';
 
-interface DesktopNavProps {
-  navItems: NavItem[];
-}
-
-const DesktopNav = ({ navItems }: DesktopNavProps) => {
+const DesktopNav = ({ navItems }: NavProps) => {
   return (
     <div className="hidden items-center gap-2 md:flex">
       {navItems.map((item) => (
