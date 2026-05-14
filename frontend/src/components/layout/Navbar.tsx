@@ -18,11 +18,10 @@ const Navbar = () => {
           <TournamentSelector />
         </div>
 
+        {/* Render Mobile Nav if window shrinks too much */}
         <div className="flex items-center justify-between md:justify-end md:gap-4">
-
           <DesktopNav navItems={navItems} />
           <MobileNav navItems={navItems} />
-
           <ThemeToggle />
         </div>
       </nav>
