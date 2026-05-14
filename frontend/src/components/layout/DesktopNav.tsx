@@ -4,7 +4,7 @@ import { type NavProps } from '@/constants/navigation';
 
 const DesktopNav = ({ navItems }: NavProps) => {
   return (
-    <div className="hidden min-[500px]:flex items-center gap-2">
+    <div className="flex items-center gap-2">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
