@@ -1,12 +1,12 @@
-import './App.css';
+import '@/App.css';
 
 import { Route, Routes } from 'react-router-dom';
 
-import AppLayout from './components/layout/AppLayout';
-import Schedule from './components/pages/Schedule';
-import Standings from './components/pages/Standings';
-import NotFound from './components/pages/NotFound';
-import TeamProfile from './components/pages/TeamProfile';
+import AppLayout from '@/components/layout/AppLayout';
+import Schedule from '@/pages/Schedule';
+import Standings from '@/pages/Standings';
+import NotFound from '@/pages/NotFound';
+import TeamProfile from '@/pages/TeamProfile';
 
 function App() {
   return (
