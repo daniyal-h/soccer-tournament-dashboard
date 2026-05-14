@@ -5,9 +5,9 @@ import { type NavProps } from '@/constants/navigation';
 
 import { Menu } from 'lucide-react';
 
-const MobileNav = ({ navItems }: NavProps) => {
+const MobileNav = ({ primaryNavItems, navItems }: NavProps) => {
   return (
-    <div className="min-[500px]:hidden">
+    <div className="flex w-full items-center justify-between min-[500px]:hidden">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">
@@ -40,6 +40,25 @@ const MobileNav = ({ navItems }: NavProps) => {
           </div>
         </SheetContent>
       </Sheet>
+
+      <div className="flex items-center gap-4">
+        {primaryNavItems?.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              [
+                'rounded-md px-2 py-2 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+              ].join(' ')
+            }
+          >
+            {item.label}
+          </NavLink>
+        ))}
+      </div>
     </div>
   );
 };
