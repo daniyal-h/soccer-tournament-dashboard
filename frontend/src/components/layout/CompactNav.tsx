@@ -7,7 +7,7 @@ import { Menu } from 'lucide-react';
 
 const MobileNav = ({ navItems }: NavProps) => {
   return (
-    <div className="min-[500px]:hidden">
+    <div className="flex items-center">
       <Sheet>
         <SheetTrigger asChild>
           <Button variant="outline" size="icon">

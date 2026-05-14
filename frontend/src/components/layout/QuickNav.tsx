@@ -2,9 +2,9 @@ import { NavLink } from 'react-router-dom';
 
 import { type NavProps } from '@/constants/navigation';
 
-const DesktopNav = ({ navItems }: NavProps) => {
+const QuickNav = ({ navItems }: NavProps) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-4">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
@@ -25,4 +25,4 @@ const DesktopNav = ({ navItems }: NavProps) => {
   );
 };
 
-export default DesktopNav;
+export default QuickNav;
