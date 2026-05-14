@@ -18,7 +18,7 @@ const MobileNav = ({ navItems }: NavProps) => {
         <SheetContent side="left" className="w-64 p-6" showCloseButton={false}>
           <SheetTitle className="mb-6 text-lg">Navigation</SheetTitle>
 
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 text-muted-foreground">
             {navItems.map((item) => (
               <SheetClose asChild key={item.to}>
                 <NavLink
@@ -29,7 +29,7 @@ const MobileNav = ({ navItems }: NavProps) => {
                       'rounded-md px-3 py-2 text-base font-medium transition-colors',
                       isActive
                         ? 'bg-accent text-foreground'
-                        : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+                        : 'text-muted-foreground hover:bg-accent hover:text-foreground hover:[&]:text-foreground',
                     ].join(' ')
                   }
                 >
