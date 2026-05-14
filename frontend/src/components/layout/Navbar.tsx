@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import TournamentSelector from './TournamentSelector';
 import DesktopNav from './DesktopNav';
-import MobileNav from './MobileNav';
+import MobileNav from './CompactNav';
 import ThemeToggle from './ThemeToggle';
 
 import { navItems } from '@/constants/navigation';
