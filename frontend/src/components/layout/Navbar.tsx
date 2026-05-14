@@ -1,12 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import TournamentSelector from './TournamentSelector';
+import DesktopNav from './DesktopNav';
+import MobileNav from './CompactNav';
 import ThemeToggle from './ThemeToggle';
 
-const navItems = [
-  // { label: 'Home', to: '/' },
-  { label: 'Standings', to: '/' },
-  { label: 'Schedule', to: '/schedule' },
-];
+import { navItems } from '@/constants/navigation';
 
 const Navbar = () => {
   return (
@@ -20,24 +18,10 @@ const Navbar = () => {
           <TournamentSelector />
         </div>
 
+        {/* Render Mobile Nav if window shrinks too much */}
         <div className="flex items-center justify-between md:justify-end md:gap-4">
-          <div className="flex items-center gap-4">
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  [
-                    'text-sm font-medium transition-colors',
-                    isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
-                  ].join(' ')
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-
+          <DesktopNav navItems={navItems} />
+          <MobileNav navItems={navItems} />
           <ThemeToggle />
         </div>
       </nav>
