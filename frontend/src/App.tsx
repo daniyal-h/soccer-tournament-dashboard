@@ -1,4 +1,4 @@
-import '@/App.css';
+import './App.css';
 
 import { Route, Routes } from 'react-router-dom';
 
@@ -15,7 +15,6 @@ function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        {/* <Route path="/" element={<Home />} /> */}
         <Route path="/" element={<Standings />} />
         <Route path="/bracket" element={<Bracket />} />
         <Route path="/schedule" element={<Schedule />} />
