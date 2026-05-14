@@ -9,6 +9,7 @@ import NotFound from '@/pages/NotFound';
 import TeamProfile from '@/pages/TeamProfile';
 import Bracket from '@/pages/Bracket';
 import Teams from '@/pages/Teams';
+import PlayerStats from '@/pages/PlayerStats';
 
 function App() {
   return (
@@ -18,8 +19,9 @@ function App() {
         <Route path="/" element={<Standings />} />
         <Route path="/bracket" element={<Bracket />} />
         <Route path="/schedule" element={<Schedule />} />
-        <Route path='/teams' element={<Teams />} />
+        <Route path="/teams" element={<Teams />} />
         <Route path="/teams/:teamId" element={<TeamProfile />} />
+        <Route path="/stats" element={<PlayerStats />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
