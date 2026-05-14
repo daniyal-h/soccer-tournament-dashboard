@@ -3,9 +3,11 @@ import TournamentSelector from './TournamentSelector';
 import ThemeToggle from './ThemeToggle';
 
 const navItems = [
-  // { label: 'Home', to: '/' },
   { label: 'Standings', to: '/' },
   { label: 'Schedule', to: '/schedule' },
+  { label: 'Bracket', to: '/bracket'},
+  { label: 'Teams', to: '/teams' },
+  { label: 'Statistics', to: '/stats' },
 ];
 
 const Navbar = () => {
