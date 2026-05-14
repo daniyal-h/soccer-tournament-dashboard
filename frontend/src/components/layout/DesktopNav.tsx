@@ -1,7 +1,5 @@
 import { NavLink } from 'react-router-dom';
 
-import ThemeToggle from '@/components/layout/ThemeToggle';
-
 type NavItem = {
   to: string;
   label: string;
