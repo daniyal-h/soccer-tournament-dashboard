@@ -5,8 +5,8 @@ from app.models.tournament import Tournament
 from app.schemas.errors import NotFoundError
 
 
-async def get_tournaments(db: Session) -> list[Tournament]:
-    tournaments = await tournaments_repo.get_all_tournaments(db)
+def get_tournaments(db: Session) -> list[Tournament]:
+    tournaments = tournaments_repo.get_all_tournaments(db)
 
     if not tournaments:
         raise NotFoundError("No tournaments found")

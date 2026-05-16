@@ -11,8 +11,8 @@ router = APIRouter()
 
 
 @router.get("/", response_model=list[TournamentResponse])
-async def get_tournaments(db: Annotated[Session, Depends(get_db)]) -> dict:
-    return await tournaments_service.get_tournaments(db)
+def get_tournaments(db: Annotated[Session, Depends(get_db)]) -> dict:
+    return tournaments_service.get_tournaments(db)
 
 
 @router.get("/{tournament_id}")
