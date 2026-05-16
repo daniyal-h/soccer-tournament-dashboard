@@ -7,7 +7,7 @@ class TournamentResponse(BaseModel):
     id: int
     name: str
     season: str
-    logo_url: str
+    logo_url: str | None = None
     start_date: date
     end_date: date
 
