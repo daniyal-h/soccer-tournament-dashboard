@@ -19,8 +19,9 @@ const Navbar = () => {
           <TournamentSelector />
         </div>
 
-        <div className="hidden min-[500px]:flex items-center gap-4">
+        <div className="hidden min-[500px]:flex items-center gap-4 justify-between">
           <DesktopNav navItems={NAV_ITEMS} />
+          
           <ThemeToggle />
         </div>
 
@@ -30,6 +31,7 @@ const Navbar = () => {
           <div className="flex justify-center">
             <QuickNav navItems={PRIMARY_NAV_ITEMS} />
           </div>
+          
           <ThemeToggle />
         </div>
       </nav>
