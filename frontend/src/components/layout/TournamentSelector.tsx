@@ -25,7 +25,7 @@ const TournamentSelector = () => {
 
   if (error) {
     return (
-      <div className="w-full md:w-55 lg:w-75 text-sm text-muted-foreground">
+      <div className="w-full rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 md:w-55 lg:w-75 text-sm text-destructive">
         {error.message}
       </div>
     );
