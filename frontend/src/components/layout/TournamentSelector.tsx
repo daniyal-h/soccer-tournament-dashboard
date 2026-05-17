@@ -23,16 +23,15 @@ const TournamentSelector = () => {
     ? `${selectedTournament.name} ${selectedTournament.season}`
     : undefined;
 
-  if (isLoading || selectedTournamentLabel === undefined) {
-    return <div className="w-full md:w-55 lg:w-75">Loading tournaments...</div>;
-  }
-
   if (error) {
     return (
       <div className="w-full md:w-55 lg:w-75 text-sm text-muted-foreground">
         Failed to load tournaments
       </div>
     );
+  }
+  if (isLoading || selectedTournamentLabel === undefined) {
+    return <div className="w-full md:w-55 lg:w-75">Loading tournaments...</div>;
   }
 
   return (
