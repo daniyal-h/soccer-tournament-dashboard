@@ -1,17 +1,14 @@
 import { useTournament } from '@/context/TournamentContext';
-import { getTournamentById } from '@/constants/tournaments';
 
 const Teams = () => {
-  const { selectedTournamentId } = useTournament();
-
-  const selectedTournament = getTournamentById(selectedTournamentId);
+  const { selectedTournament } = useTournament();
 
   return (
     <section className="space-y-2">
       <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
 
       <p className="text-muted-foreground">
-        View the teams in {selectedTournament?.label ?? 'the selected tournament'}.
+        View the teams in {selectedTournament?.name ?? 'the selected tournament'}.
       </p>
     </section>
   );
