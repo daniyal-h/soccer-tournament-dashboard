@@ -1,9 +1,15 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DEFAULT_TOURNAMENT_ID } from '@/constants/tournaments';
+import { type Tournament } from '@/types/tournament';
+import { useTournaments } from '@/hooks/useTournaments';
 
 interface TournamentContextValue {
-  selectedTournamentId: string;
-  setSelectedTournamentId: (tournamentId: string) => void;
+  tournaments: Tournament[];
+  selectedTournamentId: number;
+  selectedTournament: Tournament | null;
+  setSelectedTournamentId: (tournamentId: number) => void;
+  isLoading: boolean;
+  error: Error | null;
 }
 
 const TournamentContext = createContext<TournamentContextValue | undefined>(undefined);
@@ -13,20 +19,33 @@ interface TournamentProviderProps {
 }
 
 export const TournamentProvider = ({ children }: TournamentProviderProps) => {
-  const [selectedTournamentId, setSelectedTournamentId] = useState(() => {
-    return localStorage.getItem('selectedTournamentId') ?? DEFAULT_TOURNAMENT_ID;
+  const { tournaments, isLoading, error } = useTournaments();
+
+  // get the stored ID as a number
+  const [selectedTournamentId, setSelectedTournamentId] = useState<number>(() => {
+    const storedTournamentId = localStorage.getItem('selectedTournamentId');
+
+    return storedTournamentId ? Number(storedTournamentId) : DEFAULT_TOURNAMENT_ID;
   });
 
   useEffect(() => {
-    localStorage.setItem('selectedTournamentId', selectedTournamentId);
+    localStorage.setItem('selectedTournamentId', String(selectedTournamentId));
   }, [selectedTournamentId]);
+
+  const selectedTournament = useMemo(() => {
+    return tournaments.find((tournament) => tournament.id === selectedTournamentId) ?? null;
+  }, [tournaments, selectedTournamentId]);
 
   const value = useMemo(
     () => ({
+      tournaments,
       selectedTournamentId,
+      selectedTournament,
       setSelectedTournamentId,
+      isLoading,
+      error,
     }),
-    [selectedTournamentId, setSelectedTournamentId],
+    [tournaments, selectedTournamentId, selectedTournament, isLoading, error],
   );
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>;
