@@ -1,1 +1,1 @@
-export const DEFAULT_TOURNAMENT_ID = 1;
+export const DEFAULT_TOURNAMENT_ID = 2;
