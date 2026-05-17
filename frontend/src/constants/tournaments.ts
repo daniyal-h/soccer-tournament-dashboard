@@ -9,7 +9,7 @@ export const TOURNAMENTS: Tournament[] = [
   { id: 'copa-america', label: 'Copa America' },
 ];
 
-export const DEFAULT_TOURNAMENT_ID = 'world-cup-2026';
+export const DEFAULT_TOURNAMENT_ID = 1;
 
 export const getTournamentById = (tournamentId: string) => {
   return TOURNAMENTS.find((tournament) => tournament.id === tournamentId);
