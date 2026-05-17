@@ -26,7 +26,7 @@ const TournamentSelector = () => {
   if (error) {
     return (
       <div className="w-full md:w-55 lg:w-75 text-sm text-muted-foreground">
-        Failed to load tournaments
+        {error.message}
       </div>
     );
   }
