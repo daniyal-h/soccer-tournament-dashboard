@@ -10,7 +10,26 @@ import {
 } from '@/components/ui/combobox';
 
 const TournamentSelector = () => {
-  const { selectedTournamentId, setSelectedTournamentId } = useTournament();
+  const { tournaments, selectedTournamentId, setSelectedTournamentId, isLoading, error } =
+    useTournament();
+
+  if (isLoading) {
+    return (
+      <div className="w-full md:w-55 lg:w-75">
+        <Combobox items={[]} disabled>
+          <ComboboxInput placeholder="Loading tournaments..." />
+        </Combobox>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full md:w-55 lg:w-75 text-sm text-muted-foreground">
+        Failed to load tournaments
+      </div>
+    );
+  }
 
   const selectedTournament = getTournamentById(selectedTournamentId) ?? TOURNAMENTS[0];
 
