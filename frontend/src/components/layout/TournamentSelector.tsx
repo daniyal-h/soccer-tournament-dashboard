@@ -13,24 +13,18 @@ const TournamentSelector = () => {
   const { tournaments, selectedTournament, setSelectedTournamentId, isLoading, error } =
     useTournament();
 
-    // adapt API response of a list of Tournaments to a map
-    const tournamentOptions = useMemo(() => {
-      return tournaments.map((tournament) => `${tournament.name} ${tournament.season}`);
-    }, [tournaments]);
-  
-    // use the adapted map to get the label of the selected tournament
-    const selectedTournamentLabel = selectedTournament
-      ? `${selectedTournament.name} ${selectedTournament.season}`
-      : '';
+  // adapt API response of a list of Tournaments to a map
+  const tournamentOptions = useMemo(() => {
+    return tournaments.map((tournament) => `${tournament.name} ${tournament.season}`);
+  }, [tournaments]);
 
-  if (isLoading) {
-    return (
-      <div className="w-full md:w-55 lg:w-75">
-        <Combobox items={[]} disabled>
-          <ComboboxInput placeholder="Loading tournaments..." />
-        </Combobox>
-      </div>
-    );
+  // use the adapted map to get the label of the selected tournament
+  const selectedTournamentLabel = selectedTournament
+    ? `${selectedTournament.name} ${selectedTournament.season}`
+    : undefined;
+
+  if (isLoading || selectedTournamentLabel === undefined) {
+    return <div className="w-full md:w-55 lg:w-75">Loading tournaments...</div>;
   }
 
   if (error) {
