@@ -1,4 +1,3 @@
-import { TOURNAMENTS, getTournamentById, getTournamentByLabel } from '@/constants/tournaments';
 import { useTournament } from '@/context/TournamentContext';
 import {
   Combobox,
@@ -8,16 +7,21 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@/components/ui/combobox';
+import { useMemo } from 'react';
 
 const TournamentSelector = () => {
-  const {
-    tournaments,
-    selectedTournament,
-    selectedTournamentId,
-    setSelectedTournamentId,
-    isLoading,
-    error,
-  } = useTournament();
+  const { tournaments, selectedTournament, setSelectedTournamentId, isLoading, error } =
+    useTournament();
+
+    // adapt API response of a list of Tournaments to a map
+    const tournamentOptions = useMemo(() => {
+      return tournaments.map((tournament) => `${tournament.name} ${tournament.season}`);
+    }, [tournaments]);
+  
+    // use the adapted map to get the label of the selected tournament
+    const selectedTournamentLabel = selectedTournament
+      ? `${selectedTournament.name} ${selectedTournament.season}`
+      : '';
 
   if (isLoading) {
     return (
@@ -40,10 +44,17 @@ const TournamentSelector = () => {
   return (
     <div className="w-full md:w-55 lg:w-75">
       <Combobox
-        items={tournaments}
-        value={selectedTournament ?? undefined}
-        itemToStringValue={(tournament) => tournament.name}
-        onValueChange={(tournament) => {
+        items={tournamentOptions}
+        value={selectedTournamentLabel}
+        onValueChange={(label) => {
+          if (!label) {
+            return;
+          }
+
+          const tournament = tournaments.find(
+            (tournament) => `${tournament.name} ${tournament.season}` === label,
+          );
+
           if (!tournament) {
             return;
           }
@@ -54,12 +65,12 @@ const TournamentSelector = () => {
         <ComboboxInput placeholder="Select a tournament" />
 
         <ComboboxContent>
-          <ComboboxEmpty>No tournament found</ComboboxEmpty>
+          <ComboboxEmpty>No tournaments found.</ComboboxEmpty>
 
           <ComboboxList>
-            {(tournament) => (
-              <ComboboxItem key={tournament.id} value={tournament}>
-                {tournament.name} {tournament.season}
+            {(item) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
               </ComboboxItem>
             )}
           </ComboboxList>
@@ -67,48 +78,6 @@ const TournamentSelector = () => {
       </Combobox>
     </div>
   );
-
-  // return (
-  //   <div className="w-full md:w-55 lg:w-75">
-  //     <Combobox
-  //       items={TOURNAMENTS.map((tournament) => tournament.label)}
-  //       value={selectedTournament.label}
-  //       onValueChange={(label) => {
-  //         if (!label) {
-  //           return;
-  //         }
-
-  //         const tournament = getTournamentByLabel(label);
-
-  //         if (tournament) {
-  //           setSelectedTournamentId(tournament.id);
-  //         }
-  //       }}
-  //     >
-  //       <ComboboxInput placeholder="Select a tournament" />
-
-  //       <ComboboxContent>
-  //         <ComboboxEmpty>No tournament found</ComboboxEmpty>
-
-  //         <ComboboxList>
-  //           {(label) => {
-  //             const tournament = getTournamentByLabel(label);
-
-  //             if (!tournament) {
-  //               return null;
-  //             }
-
-  //             return (
-  //               <ComboboxItem key={tournament.id} value={tournament.label}>
-  //                 {tournament.label}
-  //               </ComboboxItem>
-  //             );
-  //           }}
-  //         </ComboboxList>
-  //       </ComboboxContent>
-  //     </Combobox>
-  //   </div>
-  // );
 };
 
 export default TournamentSelector;
