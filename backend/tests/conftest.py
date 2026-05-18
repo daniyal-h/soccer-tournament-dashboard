@@ -1,3 +1,8 @@
+import os
+
+os.environ['ENVIRONMENT'] = 'test'
+os.environ['SENTRY_DSN'] = ''
+
 import pytest
 from fastapi.testclient import TestClient
 
