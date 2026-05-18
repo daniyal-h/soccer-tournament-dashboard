@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
 
     class Config:
-        env_file = ".env",
-        case_sensitive=True,
+        env_file = (".env",)
+        case_sensitive = (True,)
 
 
 settings = Settings()
