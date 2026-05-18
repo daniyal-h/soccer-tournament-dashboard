@@ -7,7 +7,6 @@ from app.core.config import settings
 from app.middleware.logging import RequestLoggingMiddleware
 from app.schemas.errors import AppError, app_error_handler
 
-
 # skip Sentry if not given for cases such as when running unit tests
 if settings.SENTRY_DSN:
     sentry_sdk.init(

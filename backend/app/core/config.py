@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
 
     model_config = SettingsConfigDict(
-        env_file='.env',
+        env_file=".env",
         case_sensitive=True,
     )
 
