@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getTournaments } from '@/api/tournamentsApi';
 import type { Tournament } from '@/types/tournament';
+import { ApiError } from '@/api/client';
 
 export function useTournaments() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
@@ -14,7 +15,17 @@ export function useTournaments() {
     getTournaments()
       .then(setTournaments)
       .catch((err) => {
-        setError(err instanceof Error ? err : new Error('Failed to load tournaments'));
+        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
+          setError(new Error('No tournaments were found.'));
+          return;
+        }
+
+        if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
+          setError(new Error('Unable to reach the server.'));
+          return;
+        }
+
+        setError(new Error('Failed to load tournaments.'));
       })
       .finally(() => {
         setIsLoading(false);
