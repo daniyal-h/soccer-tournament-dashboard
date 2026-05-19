@@ -228,7 +228,7 @@ DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 ENVIRONMENT=development
 VERSION=0.1.0
 SENTRY_DSN=
-ALLOWED_ORIGINS=["http://localhost:5173"]
+ALLOWED_ORIGINS=["http://localhost:5173","http://localhost:3000"]
 ```
 
 Apply migrations to initialize the schema:
