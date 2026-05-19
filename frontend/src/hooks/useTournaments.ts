@@ -16,7 +16,7 @@ export function useTournaments() {
       .then(setTournaments)
       .catch((err) => {
         if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('No tournaments were found.'));
+          setError(new Error('No tournaments available.'));
           return;
         }
 

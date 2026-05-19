@@ -11,8 +11,11 @@ describe('useTournaments', () => {
         id: 1,
         name: 'FIFA World Cup',
         season: '2026',
+        logo_url: null,
+        start_date: '2026-06-11',
+        end_date: '2026-07-19',
       },
-    ] as never);
+    ]);
 
     const { result } = renderHook(() => useTournaments());
 
@@ -35,6 +38,6 @@ describe('useTournaments', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(result.current.error?.message).toBe('No tournaments found');
+    expect(result.current.error?.message).toBe('Failed to load tournaments.');
   });
 });
