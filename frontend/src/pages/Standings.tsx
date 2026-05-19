@@ -3,8 +3,22 @@ import { useTournament } from '@/context/TournamentContext';
 import GroupGrid from '@/components/standings/GroupGrid';
 import Legend from '@/components/standings/Legend';
 
+import { useStandings } from '@/hooks/useStandings';
+
+import LoadingState from '@/components/feedback/LoadingState';
+import ErrorState from '@/components/feedback/ErrorState';
+
 const Standings = () => {
-  const { selectedTournament } = useTournament();
+  const { selectedTournament, selectedTournamentId } = useTournament();
+  const { standings, isLoading, error } = useStandings({ tournamentId: selectedTournamentId });
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorState description={error.message} />;
+  }
 
   return (
     <section className="space-y-2">
@@ -16,7 +30,7 @@ const Standings = () => {
 
       <div className="space-y-4">
         <Legend />
-        <GroupGrid />
+        <GroupGrid standings={standings} />
       </div>
     </section>
   );
