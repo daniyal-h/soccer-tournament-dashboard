@@ -27,7 +27,7 @@ class HealthResponse(BaseModel):
 
 
 @router.get("/", response_model=HealthResponse)
-async def health_check(db: Annotated[Session, Depends(get_db)]) -> HealthResponse:
+def health_check(db: Annotated[Session, Depends(get_db)]):
     def database_check() -> CheckStatus:
         try:
             db.execute(text("SELECT 1"))

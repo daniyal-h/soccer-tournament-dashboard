@@ -44,7 +44,7 @@ class RateLimitedError(AppError):
 # Exception handler
 
 
-async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
+def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
         content={
