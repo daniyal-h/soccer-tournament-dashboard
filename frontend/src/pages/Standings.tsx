@@ -28,7 +28,7 @@ const Standings = () => {
         View standings for {selectedTournament?.name ?? 'the selected tournament'}.
       </p>
 
-      <div className="space-y-4">
+      <div className="space-y-4 pt-2">
         <Legend />
         <GroupGrid standings={standings} />
       </div>
