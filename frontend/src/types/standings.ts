@@ -13,3 +13,8 @@ export interface Standing {
   goal_difference: number;
   points: number;
 }
+
+export interface StandingsOptions {
+  tournamentId: number;
+  group?: string;
+}
