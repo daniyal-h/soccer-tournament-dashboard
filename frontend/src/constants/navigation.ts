@@ -1,5 +1,3 @@
-
-
 export const PRIMARY_NAV_ITEMS = [
   { label: 'Standings', to: '/' },
   { label: 'Schedule', to: '/schedule' },

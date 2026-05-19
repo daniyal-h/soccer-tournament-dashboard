@@ -5,4 +5,4 @@ export interface Tournament {
   logo_url: string | null;
   start_date: string;
   end_date: string;
-};
+}
