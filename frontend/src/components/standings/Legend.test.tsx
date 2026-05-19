@@ -4,12 +4,19 @@ import { describe, expect, it } from 'vitest';
 import Legend from './Legend';
 
 describe('Legend', () => {
-  it('renders standings abbreviations and labels', () => {
+  it('renders visible legend items', () => {
     render(<Legend />);
 
-    expect(screen.getByText('MP')).toBeInTheDocument();
-    expect(screen.getByText('= Matches Played')).toBeInTheDocument();
+    expect(screen.getByText('W')).toBeInTheDocument();
+    expect(screen.getByText('Wins')).toBeInTheDocument();
     expect(screen.getByText('Pts')).toBeInTheDocument();
-    expect(screen.getByText('= Points')).toBeInTheDocument();
+    expect(screen.getByText('Points')).toBeInTheDocument();
+  });
+
+  it('hides secondary legend items on mobile', () => {
+    render(<Legend />);
+
+    expect(screen.getByText('MP').parentElement).toHaveClass('hidden');
+    expect(screen.getByText('GD').parentElement).toHaveClass('hidden');
   });
 });
