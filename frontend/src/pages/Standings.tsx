@@ -6,7 +6,7 @@ import Legend from '@/components/standings/Legend';
 import { useStandings } from '@/hooks/useStandings';
 
 import ErrorState from '@/components/feedback/ErrorState';
-import StandingsSkeleton from '@/components/feedback/StandingsSkeleton';
+import StandingsSkeleton from '@/components/standings/StandingsSkeleton';
 
 const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();
