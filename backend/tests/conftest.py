@@ -1,7 +1,12 @@
 import os
 
-os.environ["ENVIRONMENT"] = "test"
-os.environ["SENTRY_DSN"] = ""
+os.environ.setdefault(
+    "DATABASE_URL",
+    "postgresql://test_user:test_password@localhost:5432/test_db",
+)
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("SENTRY_DSN", "")
+os.environ.setdefault("ALLOWED_ORIGINS", '["http://localhost:5173"]')
 
 import pytest
 from fastapi.testclient import TestClient

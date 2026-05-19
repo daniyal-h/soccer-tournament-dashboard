@@ -157,6 +157,11 @@ jobs:
             - name: Run pytest
               run: pytest -v
               working-directory: backend
+              env:
+                  ENVIRONMENT: test
+                  SENTRY_DSN: ""
+                  DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
+                  ALLOWED_ORIGINS: '["http://localhost:5173"]'
 
     frontend-tests:
         name: Frontend tests
