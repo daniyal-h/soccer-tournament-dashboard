@@ -1,5 +1,8 @@
 name: Soccer Tournament Dashboard CI
 
+permissions:
+    contents: read
+
 # This workflow runs on all pulls and pushes
 on:
     pull_request:
