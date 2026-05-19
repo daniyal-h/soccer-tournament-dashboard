@@ -8,10 +8,17 @@ export function useTournaments() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    setIsLoading(true);
+    setError(null);
+
     getTournaments()
       .then(setTournaments)
-      .catch(setError)
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        setError(err instanceof Error ? err : new Error('Failed to load tournaments'));
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   return { tournaments, isLoading, error };
