@@ -3,21 +3,21 @@ export const COLUMNS = [
   { key: 'w', label: 'W', dataKey: 'wins', mobileHidden: false },
   { key: 'd', label: 'D', dataKey: 'draws', mobileHidden: false },
   { key: 'l', label: 'L', dataKey: 'losses', mobileHidden: false },
-  { key: 'gf', label: 'GF', dataKey: 'goals_for', mobileHidden: true },
-  { key: 'ga', label: 'GA', dataKey: 'goals_against', mobileHidden: true },
+  { key: 'gf', label: 'GF', dataKey: 'goals_for', mobileHidden: false },
+  { key: 'ga', label: 'GA', dataKey: 'goals_against', mobileHidden: false },
   { key: 'gd', label: 'GD', dataKey: 'goal_difference', mobileHidden: true },
   { key: 'pts', label: 'Pts', dataKey: 'points', mobileHidden: false },
 ] as const;
 
 export const LEGEND = [
-  { abbr: 'MP', full: 'Matches Played' },
-  { abbr: 'W', full: 'Wins' },
-  { abbr: 'D', full: 'Draws' },
-  { abbr: 'L', full: 'Losses' },
-  { abbr: 'GF', full: 'Goals For' },
-  { abbr: 'GA', full: 'Goals Against' },
-  { abbr: 'GD', full: 'Goal Difference' },
-  { abbr: 'Pts', full: 'Points' },
+  { abbr: 'MP', full: 'Matches Played', mobileHidden: true },
+  { abbr: 'W', full: 'Wins', mobileHidden: false },
+  { abbr: 'D', full: 'Draws', mobileHidden: false },
+  { abbr: 'L', full: 'Losses', mobileHidden: false },
+  { abbr: 'GF', full: 'Goals For', mobileHidden: false },
+  { abbr: 'GA', full: 'Goals Against', mobileHidden: false },
+  { abbr: 'GD', full: 'Goal Difference', mobileHidden: true },
+  { abbr: 'Pts', full: 'Points', mobileHidden: false },
 ] as const;
 
 export const stubGroup = [
