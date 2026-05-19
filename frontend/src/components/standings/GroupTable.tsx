@@ -2,15 +2,16 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
 
-import { COLUMNS, LEGEND } from '@/constants/standings';
+import { COLUMNS } from '@/constants/standings';
 
 import { type Standing } from '@/constants/standings';
+
+import { cn } from '@/lib/utils';
 
 interface GroupTableProps {
   rows: Standing[];
@@ -18,14 +19,17 @@ interface GroupTableProps {
 
 export function GroupTable({ rows }: GroupTableProps) {
   return (
-    <Table>
+    <Table className="text-xs sm:text-sm">
       <TableHeader>
         {/* Include a header row of the columns */}
         <TableRow>
           <TableHead className="w-8">#</TableHead>
           <TableHead>Team</TableHead>
           {COLUMNS.map((col) => (
-            <TableHead key={col.key} className="text-center">
+            <TableHead
+              key={col.key}
+              className={cn('text-center', col.mobileHidden && 'hidden sm:table-cell')}
+            >
               {col.label}
             </TableHead>
           ))}
@@ -37,42 +41,40 @@ export function GroupTable({ rows }: GroupTableProps) {
         {rows.map((row) => (
           <TableRow key={row.team.id} className={`${row.position <= 2 ? 'bg-accent' : ''}`}>
             <TableCell className="text-muted-foreground">{row.position}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
+
+            {/* Display the logo and name if space permits */}
+            <TableCell className="min-w-0 px-2 py-1">
+              <div className="flex min-w-0 items-center gap-2">
                 <img
                   src={row.team.logo_url}
                   alt={row.team.name}
-                  className="h-5 w-5 object-contain"
+                  className="h-4 w-4 shrink-0 object-contain"
                 />
-                <span className="font-medium">{row.team.name}</span>
+
+                <span className="hidden sm:inline max-w-32 truncate font-medium">
+                  {row.team.name}
+                </span>
+
+                <span className="sm:hidden font-medium">{row.team.short_name}</span>
               </div>
             </TableCell>
-            <TableCell className="text-center">{row.matches_played}</TableCell>
-            <TableCell className="text-center">{row.wins}</TableCell>
-            <TableCell className="text-center">{row.draws}</TableCell>
-            <TableCell className="text-center">{row.losses}</TableCell>
-            <TableCell className="text-center">{row.goals_for}</TableCell>
-            <TableCell className="text-center">{row.goals_against}</TableCell>
-            <TableCell className="text-center">{row.goal_difference}</TableCell>
-            <TableCell className="text-center font-bold">{row.points}</TableCell>
+
+            {/* List out all stats defined by the columns, hide some if needed */}
+            {COLUMNS.map((col) => (
+              <TableCell
+                key={col.key}
+                className={cn(
+                  'px-2 py-1 text-center',
+                  col.mobileHidden && 'hidden sm:table-cell',
+                  col.key === 'pts' && 'font-bold',
+                )}
+              >
+                {row[col.dataKey]}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
-
-      {/* Include a legend in the footer */}
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={10}>
-            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-              {LEGEND.map((item) => (
-                <span key={item.abbr}>
-                  {item.abbr} — {item.full}
-                </span>
-              ))}
-            </div>
-          </TableCell>
-        </TableRow>
-      </TableFooter>
     </Table>
   );
 }

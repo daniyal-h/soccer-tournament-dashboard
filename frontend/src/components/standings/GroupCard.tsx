@@ -17,7 +17,7 @@ interface GroupCardProps {
 const GroupCard = ({ group, rows }: GroupCardProps) => {
   return (
     <Card className="w-full shadow-sm">
-      <CardContent>
+      <CardContent className="p-3">
         <Accordion type="single" collapsible defaultValue="standings">
           <AccordionItem value="standings">
             <AccordionTrigger>Group {group}</AccordionTrigger>

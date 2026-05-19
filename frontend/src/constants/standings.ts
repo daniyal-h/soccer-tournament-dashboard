@@ -1,12 +1,12 @@
 export const COLUMNS = [
-  { key: 'mp', label: 'MP' },
-  { key: 'w', label: 'W' },
-  { key: 'd', label: 'D' },
-  { key: 'l', label: 'L' },
-  { key: 'gf', label: 'GF' },
-  { key: 'ga', label: 'GA' },
-  { key: 'gd', label: 'GD' },
-  { key: 'pts', label: 'Pts' },
+  { key: 'mp', label: 'MP', dataKey: 'matches_played', mobileHidden: true },
+  { key: 'w', label: 'W', dataKey: 'wins', mobileHidden: false },
+  { key: 'd', label: 'D', dataKey: 'draws', mobileHidden: false },
+  { key: 'l', label: 'L', dataKey: 'losses', mobileHidden: false },
+  { key: 'gf', label: 'GF', dataKey: 'goals_for', mobileHidden: true },
+  { key: 'ga', label: 'GA', dataKey: 'goals_against', mobileHidden: true },
+  { key: 'gd', label: 'GD', dataKey: 'goal_difference', mobileHidden: true },
+  { key: 'pts', label: 'Pts', dataKey: 'points', mobileHidden: false },
 ] as const;
 
 export const LEGEND = [
@@ -93,3 +93,14 @@ export const stubGroup = [
     points: 0,
   },
 ];
+
+export const stubStandings = {
+  A: stubGroup,
+  B: stubGroup,
+  C: stubGroup,
+  D: stubGroup,
+  E: stubGroup,
+  F: stubGroup,
+  G: stubGroup,
+  H: stubGroup,
+};
