@@ -1,21 +1,20 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-const CARD_COUNT = 4;
-const ROW_COUNT = 4;
+const skeletonCards = ['card-1', 'card-2', 'card-3', 'card-4'];
+const skeletonRows = ['row-1', 'row-2', 'row-3', 'row-4'];
+const skeletonStats = ['stat-1', 'stat-2', 'stat-3', 'stat-4'];
 
 const StandingsSkeleton = () => {
   return (
-    <div className="min-h-screen space-y-4 pt-2">
-      {/* Legends skeleton */}
+    <div className="min-h-screen space-y-4 pt-2" data-testid="standings-skeleton">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <Skeleton className="h-4 w-2/3" />
+        <Skeleton className="h-4 w-2/3" data-testid="legend-skeleton" />
       </div>
 
-      {/* Group cards skeleton */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 p-6">
-        {Array.from({ length: CARD_COUNT }).map((_, cardIndex) => (
-          <Card key={cardIndex} className="w-full shadow-sm">
+      <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
+        {skeletonCards.map((cardKey) => (
+          <Card key={cardKey} className="w-full shadow-sm" data-testid="standings-card-skeleton">
             <CardContent className="p-3">
               <div className="border-b">
                 <div className="flex h-12 items-center justify-between">
@@ -28,16 +27,17 @@ const StandingsSkeleton = () => {
                 <div className="mb-2 grid grid-cols-[2rem_minmax(0,1fr)_repeat(4,2rem)] items-center gap-2 px-2">
                   <Skeleton className="h-4 w-4" />
                   <Skeleton className="h-4 w-12" />
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <Skeleton key={index} className="h-4 w-6 justify-self-center" />
+                  {skeletonStats.map((statKey) => (
+                    <Skeleton key={statKey} className="h-4 w-6 justify-self-center" />
                   ))}
                 </div>
 
                 <div className="space-y-2">
-                  {Array.from({ length: ROW_COUNT }).map((_, rowIndex) => (
+                  {skeletonRows.map((rowKey) => (
                     <div
-                      key={rowIndex}
+                      key={rowKey}
                       className="grid grid-cols-[2rem_minmax(0,1fr)_repeat(4,2rem)] items-center gap-2 rounded-md px-2 py-2"
+                      data-testid="standings-row-skeleton"
                     >
                       <Skeleton className="h-4 w-4" />
 
@@ -46,8 +46,11 @@ const StandingsSkeleton = () => {
                         <Skeleton className="h-4 w-12 sm:w-24" />
                       </div>
 
-                      {Array.from({ length: 4 }).map((_, index) => (
-                        <Skeleton key={index} className="h-4 w-5 justify-self-center" />
+                      {skeletonStats.map((statKey) => (
+                        <Skeleton
+                          key={`${rowKey}-${statKey}`}
+                          className="h-4 w-5 justify-self-center"
+                        />
                       ))}
                     </div>
                   ))}
