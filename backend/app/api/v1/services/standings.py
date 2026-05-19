@@ -24,6 +24,6 @@ def get_standings(
     if group:
         if group not in grouped:
             raise NotFoundError(f"Group {group} not found in tournament {tournament_id}")
-        return {group: grouped[group]} # match response model
+        return {group: grouped[group]}  # match response model
 
     return grouped
