@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { type NavProps } from '@/types/layout';
+import { type NavProps } from '@/types/navbar';
 
 import { Menu } from 'lucide-react';
 

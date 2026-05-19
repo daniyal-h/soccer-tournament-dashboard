@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-import { type NavProps } from '@/types/layout';
+import { type NavProps } from '@/types/navbar';
 
 const QuickNav = ({ navItems }: NavProps) => {
   return (
