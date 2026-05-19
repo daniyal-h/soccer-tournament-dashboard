@@ -1,0 +1,41 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+
+import GroupGrid from './GroupGrid';
+import type { Standing } from '@/types/standings';
+
+const groupRows: Standing[] = [
+  {
+    team: {
+      id: 1,
+      name: 'Argentina',
+      short_name: 'ARG',
+      logo_url: 'https://flagcdn.com/w40/ar.png',
+    },
+    position: 1,
+    matches_played: 3,
+    wins: 3,
+    draws: 0,
+    losses: 0,
+    goals_for: 8,
+    goals_against: 2,
+    goal_difference: 6,
+    points: 9,
+  },
+];
+
+describe('GroupGrid', () => {
+  it('renders one card per group', () => {
+    render(
+      <GroupGrid
+        standings={{
+          A: groupRows,
+          B: groupRows,
+        }}
+      />,
+    );
+
+    expect(screen.getByText('Group A')).toBeInTheDocument();
+    expect(screen.getByText('Group B')).toBeInTheDocument();
+  });
+});
