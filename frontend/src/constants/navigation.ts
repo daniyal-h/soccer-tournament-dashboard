@@ -1,11 +1,4 @@
-type NavItem = {
-  to: string;
-  label: string;
-};
 
-export interface NavProps {
-  navItems: NavItem[];
-}
 
 export const PRIMARY_NAV_ITEMS = [
   { label: 'Standings', to: '/' },
