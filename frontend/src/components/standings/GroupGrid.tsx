@@ -8,7 +8,7 @@ interface GroupGridProps {
 const GroupGrid = ({ standings }: GroupGridProps) => {
   return (
     <div className="min-h-screen p-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 min-[960px]:grid-cols-2">
         {Object.entries(standings).map(([group, rows]) => (
           <GroupCard key={group} group={group} rows={rows} />
         ))}
