@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { getStandings } from '@/api/standingsApi';
 import type { Standing, StandingsOptions } from '@/types/standings';
+import { ApiError } from '@/api/client';
 
 export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [standings, setStandings] = useState<Record<string, Standing[]>>({});
@@ -14,7 +15,17 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
     getStandings({ tournamentId, group })
       .then(setStandings)
       .catch((err) => {
-        setError(err instanceof Error ? err : new Error('Failed to fetch standings'));
+        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
+          setError(new Error('No standings available yet.'));
+          return;
+        }
+
+        if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
+          setError(new Error('Unable to reach the server.'));
+          return;
+        }
+
+        setError(new Error('Failed to load standings.'));
       })
       .finally(() => {
         setIsLoading(false);
