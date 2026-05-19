@@ -1,5 +1,5 @@
-import GroupCard from "./GroupCard";
-import { stubStandings } from "@/constants/standings";
+import GroupCard from './GroupCard';
+import { stubStandings } from '@/constants/standings';
 
 const GroupGrid = () => {
   return (

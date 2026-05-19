@@ -1,12 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { GroupTable } from "./GroupTable";
-import { type Standing } from "@/constants/standings";
+} from '@/components/ui/accordion';
+import { GroupTable } from './GroupTable';
+import { type Standing } from '@/types/standings';
 
 interface GroupCardProps {
   group: string;

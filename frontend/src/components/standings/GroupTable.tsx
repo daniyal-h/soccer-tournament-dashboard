@@ -9,7 +9,7 @@ import {
 
 import { COLUMNS } from '@/constants/standings';
 
-import { type Standing } from '@/constants/standings';
+import { type Standing } from '@/types/standings';
 
 import { cn } from '@/lib/utils';
 
