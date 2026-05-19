@@ -36,6 +36,16 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
     return tournaments.find((tournament) => tournament.id === selectedTournamentId) ?? null;
   }, [tournaments, selectedTournamentId]);
 
+  useEffect(() => {
+    if (isLoading || error || tournaments.length === 0) {
+      return;
+    }
+
+    if (!selectedTournament) {
+      setSelectedTournamentId(tournaments[0].id);
+    }
+  }, [isLoading, error, tournaments, selectedTournament]);
+
   const value = useMemo(
     () => ({
       tournaments,
