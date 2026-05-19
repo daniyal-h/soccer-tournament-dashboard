@@ -1,6 +1,15 @@
 from fastapi import APIRouter
 
-from app.api.v1.routers import admin, health, matches, player_stats, search, standings, teams
+from app.api.v1.routers import (
+    admin,
+    health,
+    matches,
+    player_stats,
+    search,
+    standings,
+    teams,
+    tournaments,
+)
 
 api_router = APIRouter()
 
@@ -11,3 +20,4 @@ api_router.include_router(player_stats.router, prefix="/player_stats", tags=["pl
 api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(standings.router, prefix="/standings", tags=["standings"])
 api_router.include_router(teams.router, prefix="/teams", tags=["teams"])
+api_router.include_router(tournaments.router, prefix="/tournaments", tags=["tournaments"])

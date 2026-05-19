@@ -1,8 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import TournamentSelector from './TournamentSelector';
-import DesktopNav from './DesktopNav';
-import CompactNav from './CompactNav';
-import QuickNav from './QuickNav';
+import DesktopNav from './navbar/DesktopNav';
+import CompactNav from './navbar/CompactNav';
+import QuickNav from './navbar/QuickNav';
 import ThemeToggle from './ThemeToggle';
 
 import { PRIMARY_NAV_ITEMS, NAV_ITEMS } from '@/constants/navigation';
@@ -19,8 +19,9 @@ const Navbar = () => {
           <TournamentSelector />
         </div>
 
-        <div className="hidden min-[500px]:flex items-center gap-4">
+        <div className="hidden min-[500px]:flex items-center gap-4 justify-between">
           <DesktopNav navItems={NAV_ITEMS} />
+
           <ThemeToggle />
         </div>
 
@@ -30,6 +31,7 @@ const Navbar = () => {
           <div className="flex justify-center">
             <QuickNav navItems={PRIMARY_NAV_ITEMS} />
           </div>
+
           <ThemeToggle />
         </div>
       </nav>

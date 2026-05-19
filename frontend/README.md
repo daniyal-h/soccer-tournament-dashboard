@@ -54,6 +54,7 @@ Notes:
 
 - All frontend environment variables must start with `VITE_`
 - These values are exposed to the browser, so never include secrets
+- Do not include a trailing `/` for the API base URL
 
 ---
 
