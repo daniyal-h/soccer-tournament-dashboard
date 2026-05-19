@@ -1,4 +1,4 @@
-export type Tournament = {
+export interface Tournament {
   id: number;
   name: string;
   season: string;
