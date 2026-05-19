@@ -8,9 +8,7 @@ const Legend = () => {
           key={item.abbr}
           className={item.mobileHidden ? 'hidden sm:inline-flex' : 'inline-flex'}
         >
-          <span className="font-medium text-foreground">
-            {item.abbr}
-          </span>
+          <span className="font-medium text-foreground">{item.abbr}</span>
 
           <span className="mx-1">=</span>
 

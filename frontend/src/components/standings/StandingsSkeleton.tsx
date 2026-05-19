@@ -8,10 +8,12 @@ const skeletonStats = ['stat-1', 'stat-2', 'stat-3', 'stat-4'];
 const StandingsSkeleton = () => {
   return (
     <div className="min-h-screen space-y-4 pt-2" data-testid="standings-skeleton">
+      {/* Skeleton for the Legend */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <Skeleton className="h-4 w-2/3" data-testid="legend-skeleton" />
       </div>
 
+      {/* Skeleton for the group cards as a grid */}
       <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
         {skeletonCards.map((cardKey) => (
           <Card key={cardKey} className="w-full shadow-sm" data-testid="standings-card-skeleton">
