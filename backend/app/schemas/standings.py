@@ -1,8 +1,18 @@
 from pydantic import BaseModel, ConfigDict, computed_field
 
 
+# each standings row should include details of the team
+class TeamsSummary(BaseModel):
+    id: int
+    name: str
+    short_name: str
+    logo_url: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class StandingResponse(BaseModel):
-    team_id: int
+    team: TeamsSummary
     group: str
     position: int
     points: int
