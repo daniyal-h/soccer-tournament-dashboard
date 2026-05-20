@@ -1,4 +1,4 @@
-import { createContext, type ReactNode,useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useTournaments } from '@/hooks/useTournaments';
 
@@ -36,29 +36,25 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
   }, [selectedTournamentId]);
 
   const selectedTournament = useMemo(() => {
-    return tournaments.find((tournament) => tournament.id === selectedTournamentId) ?? null;
+    return (
+      tournaments.find((tournament) => tournament.id === selectedTournamentId) ??
+      tournaments[0] ??
+      null
+    );
   }, [tournaments, selectedTournamentId]);
 
-  useEffect(() => {
-    if (isLoading || error || tournaments.length === 0) {
-      return;
-    }
-
-    if (!selectedTournament) {
-      setSelectedTournamentId(tournaments[0].id);
-    }
-  }, [isLoading, error, tournaments, selectedTournament]);
+  const effectiveTournamentId = selectedTournament?.id ?? selectedTournamentId;
 
   const value = useMemo(
     () => ({
       tournaments,
-      selectedTournamentId,
+      selectedTournamentId: effectiveTournamentId,
       selectedTournament,
       setSelectedTournamentId,
       isLoading,
       error,
     }),
-    [tournaments, selectedTournamentId, selectedTournament, isLoading, error],
+    [tournaments, effectiveTournamentId, selectedTournament, isLoading, error],
   );
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>;

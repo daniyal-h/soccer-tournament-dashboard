@@ -11,7 +11,9 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
+
     setError(null);
 
     getStandings({ tournamentId, group })
