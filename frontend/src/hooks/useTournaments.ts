@@ -11,9 +11,6 @@ export function useTournaments() {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    setIsLoading(true);
-    setError(null);
-
     getTournaments()
       .then(setTournaments)
       .catch((err) => {
