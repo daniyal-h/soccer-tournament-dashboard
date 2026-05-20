@@ -28,7 +28,7 @@ export function GroupTable({ rows }: GroupTableProps) {
           {COLUMNS.map((col) => (
             <TableHead
               key={col.key}
-              className={cn('text-center', col.mobileHidden && 'hidden sm:table-cell')}
+              className={cn('text-center', col.mobileHidden && 'hidden min-[450px]:table-cell')}
             >
               {col.label}
             </TableHead>
@@ -65,7 +65,7 @@ export function GroupTable({ rows }: GroupTableProps) {
                 key={col.key}
                 className={cn(
                   'px-2 py-1 text-center',
-                  col.mobileHidden && 'hidden sm:table-cell',
+                  col.mobileHidden && 'hidden min-[450px]:table-cell',
                   col.key === 'pts' && 'font-bold',
                 )}
               >
