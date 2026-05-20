@@ -20,6 +20,11 @@ def get_standings(
     for row in rows:
         grouped.setdefault(row.group, []).append(row)
 
+    # sort each group by FIFA tiebreaker rules
+    # first by points, then goal difference, then goals scored (desc)
+    for group_rows in grouped.values():
+        group_rows.sort(key=lambda r: (-r.points, -(r.goals_for - r.goals_against), -r.goals_for))
+
     # if group was specified, return only those standings
     if group:
         if group not in grouped:
