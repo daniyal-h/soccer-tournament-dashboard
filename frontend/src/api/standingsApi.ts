@@ -2,7 +2,15 @@ import type { Standing, StandingsOptions } from '@/types/standings';
 
 import { apiGet } from './client';
 
-export function getStandings({ tournamentId, group }: StandingsOptions) {
+function isStandingsResponse(value: unknown): value is Record<string, Standing[]> {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every((rows) => Array.isArray(rows))
+  );
+}
+
+export async function getStandings({ tournamentId, group }: StandingsOptions) {
   const params = new URLSearchParams();
 
   if (group) {
@@ -13,5 +21,11 @@ export function getStandings({ tournamentId, group }: StandingsOptions) {
   const queryString = params.toString();
   const path = `/standings/${tournamentId}${queryString ? '?' + queryString : ''}`;
 
-  return apiGet<Record<string, Standing[]>>(path);
+  const data = await apiGet<Record<string, Standing[]>>(path);
+
+  if (!isStandingsResponse(data)) {
+    throw new Error('Invalid standings response');
+  }
+
+  return data;
 }
