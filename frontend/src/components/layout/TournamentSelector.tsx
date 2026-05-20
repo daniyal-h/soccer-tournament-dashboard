@@ -1,4 +1,5 @@
-import { useTournament } from '@/context/TournamentContext';
+import { useMemo } from 'react';
+
 import {
   Combobox,
   ComboboxContent,
@@ -7,7 +8,8 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@/components/ui/combobox';
-import { useMemo } from 'react';
+
+import { useTournament } from '@/context/TournamentContext';
 
 const TournamentSelector = () => {
   const { tournaments, selectedTournament, setSelectedTournamentId, isLoading, error } =

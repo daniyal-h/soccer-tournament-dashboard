@@ -1,7 +1,8 @@
 from sqlalchemy import ForeignKey, Index, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin
+from .team import Team
 
 
 class Standing(TimestampMixin, Base):
@@ -23,6 +24,8 @@ class Standing(TimestampMixin, Base):
     losses: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     goals_for: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     goals_against: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+    team: Mapped[Team] = relationship("Team", lazy="joined")
 
     __table_args__ = (
         Index("ix_standings_tournament_id", "tournament_id"),
