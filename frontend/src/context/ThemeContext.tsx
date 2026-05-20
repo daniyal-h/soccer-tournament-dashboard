@@ -1,4 +1,4 @@
-import { createContext, type ReactNode,useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 import type { Theme } from '@/types/navbar';
 

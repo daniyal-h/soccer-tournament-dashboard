@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-import { NAV_ITEMS,PRIMARY_NAV_ITEMS } from '@/constants/navigation';
+import { NAV_ITEMS, PRIMARY_NAV_ITEMS } from '@/constants/navigation';
 
 import CompactNav from './navbar/CompactNav';
 import DesktopNav from './navbar/DesktopNav';
