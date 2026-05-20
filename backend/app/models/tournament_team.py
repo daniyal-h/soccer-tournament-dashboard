@@ -1,5 +1,7 @@
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.team import Team
 
 from .base import Base
 
@@ -12,3 +14,5 @@ class TournamentTeam(Base):
 
     # Assigned at draw, null until the draw is completed
     group: Mapped[str | None] = mapped_column(String(10), nullable=True)
+
+    team: Mapped[Team] = relationship("Team", lazy="joined")
