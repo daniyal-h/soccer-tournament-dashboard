@@ -8,9 +8,9 @@ from app.schemas.errors import NotFoundError
 
 def test_get_standings_returns_grouped_by_group(mocker):
     db = Mock()
-    row_a1 = Mock(group="A")
-    row_a2 = Mock(group="A")
-    row_b1 = Mock(group="B")
+    row_a1 = Mock(group="A", points=0, goals_for=0, goals_against=0)
+    row_a2 = Mock(group="A", points=0, goals_for=0, goals_against=0)
+    row_b1 = Mock(group="B", points=0, goals_for=0, goals_against=0)
 
     mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
@@ -24,8 +24,8 @@ def test_get_standings_returns_grouped_by_group(mocker):
 
 def test_get_standings_filters_by_group(mocker):
     db = Mock()
-    row_a1 = Mock(group="A")
-    row_b1 = Mock(group="B")
+    row_a1 = Mock(group="A", points=0, goals_for=0, goals_against=0)
+    row_b1 = Mock(group="B", points=0, goals_for=0, goals_against=0)
 
     mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
@@ -42,7 +42,7 @@ def test_get_standings_raises_not_found_for_missing_group(mocker):
 
     mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
-        return_value=[Mock(group="A")],
+        return_value=[Mock(group="A", points=0, goals_for=0, goals_against=0)],
     )
 
     with pytest.raises(NotFoundError, match="Group Z not found"):
@@ -66,7 +66,7 @@ def test_get_standings_calls_repo_with_correct_args(mocker):
 
     get_all_standings = mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
-        return_value=[Mock(group="A")],
+        return_value=[Mock(group="A", points=0, goals_for=0, goals_against=0)],
     )
 
     standings_service.get_standings(db, tournament_id=42)
