@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getTournaments } from '@/api/tournamentsApi';
-import type { Tournament } from '@/types/tournament';
+
 import { ApiError } from '@/api/client';
+import { getTournaments } from '@/api/tournamentsApi';
+
+import type { Tournament } from '@/types/tournament';
 
 export function useTournaments() {
   const [tournaments, setTournaments] = useState<Tournament[]>([]);

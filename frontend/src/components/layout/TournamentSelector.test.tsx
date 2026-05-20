@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import * as tournamentContext from '@/context/TournamentContext';
+
 import TournamentSelector from './TournamentSelector';
 
 describe('TournamentSelector', () => {

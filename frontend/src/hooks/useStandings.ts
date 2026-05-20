@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { getStandings } from '@/api/standingsApi';
-import type { Standing, StandingsOptions } from '@/types/standings';
+
 import { ApiError } from '@/api/client';
+import { getStandings } from '@/api/standingsApi';
+
+import type { Standing, StandingsOptions } from '@/types/standings';
 
 export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [standings, setStandings] = useState<Record<string, Standing[]>>({});

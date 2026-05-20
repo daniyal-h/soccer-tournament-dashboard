@@ -1,8 +1,9 @@
-import { renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import * as tournamentsApi from '@/api/tournamentsApi';
+
 import { TournamentProvider, useTournament } from './TournamentContext';
 
 const wrapper = ({ children }: { children: ReactNode }) =>

@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import GroupCard from './GroupCard';
 import type { Standing } from '@/types/standings';
+
+import GroupCard from './GroupCard';
 
 const rows: Standing[] = [
   {

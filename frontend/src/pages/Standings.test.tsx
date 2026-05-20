@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import Standings from './Standings';
 import { useStandings } from '@/hooks/useStandings';
+
+import Standings from './Standings';
 
 vi.mock('@/context/TournamentContext', () => ({
   useTournament: () => ({

@@ -2,6 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import * as tournamentsApi from '@/api/tournamentsApi';
+
 import { useTournaments } from './useTournaments';
 
 describe('useTournaments', () => {

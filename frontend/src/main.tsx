@@ -1,14 +1,13 @@
-import './styles/globals.css';
-
-import * as Sentry from '@sentry/react';
 import { StrictMode } from 'react';
+import * as Sentry from '@sentry/react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
+import App from './App.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import { TournamentProvider } from './context/TournamentContext.tsx';
 
-import App from './App.tsx';
+import './styles/globals.css';
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,

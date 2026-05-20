@@ -7,9 +7,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { COLUMNS } from '@/constants/standings';
-
 import { type Standing } from '@/types/standings';
+
+import { COLUMNS } from '@/constants/standings';
 
 import { cn } from '@/lib/utils';
 

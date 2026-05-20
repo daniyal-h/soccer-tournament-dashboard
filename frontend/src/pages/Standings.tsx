@@ -1,12 +1,11 @@
-import { useTournament } from '@/context/TournamentContext';
-
+import ErrorState from '@/components/feedback/ErrorState';
 import GroupGrid from '@/components/standings/GroupGrid';
 import Legend from '@/components/standings/Legend';
+import StandingsSkeleton from '@/components/standings/StandingsSkeleton';
+
+import { useTournament } from '@/context/TournamentContext';
 
 import { useStandings } from '@/hooks/useStandings';
-
-import ErrorState from '@/components/feedback/ErrorState';
-import StandingsSkeleton from '@/components/standings/StandingsSkeleton';
 
 const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();

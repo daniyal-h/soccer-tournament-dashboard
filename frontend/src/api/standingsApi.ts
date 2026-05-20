@@ -1,5 +1,6 @@
-import { apiGet } from './client';
 import type { Standing, StandingsOptions } from '@/types/standings';
+
+import { apiGet } from './client';
 
 export function getStandings({ tournamentId, group }: StandingsOptions) {
   const params = new URLSearchParams();

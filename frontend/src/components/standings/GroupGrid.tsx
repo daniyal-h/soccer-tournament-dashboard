@@ -1,4 +1,5 @@
 import type { Standing } from '@/types/standings';
+
 import GroupCard from './GroupCard';
 
 interface GroupGridProps {

@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/api/client';
 import * as standingsApi from '@/api/standingsApi';
+
 import { useStandings } from './useStandings';
 
 describe('useStandings', () => {

@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import TournamentSelector from './TournamentSelector';
-import DesktopNav from './navbar/DesktopNav';
+
+import { NAV_ITEMS,PRIMARY_NAV_ITEMS } from '@/constants/navigation';
+
 import CompactNav from './navbar/CompactNav';
+import DesktopNav from './navbar/DesktopNav';
 import QuickNav from './navbar/QuickNav';
 import ThemeToggle from './ThemeToggle';
-
-import { PRIMARY_NAV_ITEMS, NAV_ITEMS } from '@/constants/navigation';
+import TournamentSelector from './TournamentSelector';
 
 const Navbar = () => {
   return (

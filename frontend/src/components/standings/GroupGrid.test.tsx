@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import GroupGrid from './GroupGrid';
 import type { Standing } from '@/types/standings';
+
+import GroupGrid from './GroupGrid';
 
 const groupRows: Standing[] = [
   {

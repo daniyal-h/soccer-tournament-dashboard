@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import { GroupTable } from './GroupTable';
 import type { Standing } from '@/types/standings';
+
+import { GroupTable } from './GroupTable';
 
 const rows: Standing[] = [
   {

@@ -1,15 +1,15 @@
-import './App.css';
-
 import { Route, Routes } from 'react-router-dom';
 
 import AppLayout from '@/components/layout/AppLayout';
+
+import './App.css';
+import Bracket from '@/pages/Bracket';
+import NotFound from '@/pages/NotFound';
+import PlayerStats from '@/pages/PlayerStats';
 import Schedule from '@/pages/Schedule';
 import Standings from '@/pages/Standings';
-import NotFound from '@/pages/NotFound';
 import TeamProfile from '@/pages/TeamProfile';
-import Bracket from '@/pages/Bracket';
 import Teams from '@/pages/Teams';
-import PlayerStats from '@/pages/PlayerStats';
 
 function App() {
   return (

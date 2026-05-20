@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, type ReactNode,useContext, useEffect, useMemo, useState } from 'react';
+
+import type { Theme } from '@/types/navbar';
 
 import { DEFAULT_THEME } from '@/constants/themes';
-import type { Theme } from '@/types/navbar';
 
 interface ThemeContextValue {
   selectedTheme: Theme;
