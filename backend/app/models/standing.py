@@ -1,8 +1,8 @@
 from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .team import Team
 from .base import Base, TimestampMixin
+from .team import Team
 
 
 class Standing(TimestampMixin, Base):
