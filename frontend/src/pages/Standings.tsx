@@ -1,3 +1,5 @@
+// import { useMemo, useState } from 'react';
+
 import ErrorState from '@/components/feedback/ErrorState';
 import GroupGrid from '@/components/standings/GroupGrid';
 import Legend from '@/components/standings/Legend';
@@ -11,6 +13,10 @@ const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();
   const { standings, isLoading, error } = useStandings({ tournamentId: selectedTournamentId });
 
+  const hasStarted = selectedTournament
+    ? new Date() > new Date(selectedTournament.start_date)
+    : false;
+
   if (error) {
     return <ErrorState description={error.message} />;
   }
@@ -20,7 +26,9 @@ const Standings = () => {
       <section className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
         <p className="text-muted-foreground">
-          View group standings for {selectedTournament?.name ?? 'the selected tournament'}.
+          {hasStarted
+            ? `View group standings for ${selectedTournament?.name}.`
+            : "The group stage hasn't started yet. Check back once the tournament kicks off."}
         </p>
 
         <StandingsSkeleton />
@@ -33,7 +41,9 @@ const Standings = () => {
       <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
 
       <p className="text-muted-foreground">
-        View standings for {selectedTournament?.name ?? 'the selected tournament'}.
+        {hasStarted
+          ? `View group standings for ${selectedTournament?.name}.`
+          : "The group stage hasn't started yet. Check back once the tournament kicks off."}
       </p>
 
       <div className="space-y-4 pt-2">
