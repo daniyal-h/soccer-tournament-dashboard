@@ -15,8 +15,8 @@ def get_cache(db: Session, key: str) -> dict | None:
     return json.loads(entry.payload)
 
 
-def set_cache(db: Session, key: str, payload: str, expires_at: datetime) -> None:
-    cache_repo.set_cache_entry(db, key, payload, expires_at)
+def set_cache(db: Session, key: str, payload: dict, expires_at: datetime) -> None:
+    cache_repo.set_cache_entry(db, key, json.dumps(payload), expires_at)
 
 
 def invalidate_cache(db: Session, key: str) -> None:
