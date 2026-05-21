@@ -8,6 +8,6 @@ def get_tournament_teams(db: Session, tournament_id: int):
     tournament_teams = tournament_teams_repo.get_teams_in_tournament(db, tournament_id)
 
     if not tournament_teams:
-        raise NotFoundError("No teams found in tournament", tournament_id)
+        raise NotFoundError("No teams found in tournament")
 
     return tournament_teams
