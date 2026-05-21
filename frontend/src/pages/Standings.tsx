@@ -1,5 +1,3 @@
-// import { useMemo, useState } from 'react';
-
 import ErrorState from '@/components/feedback/ErrorState';
 import GroupGrid from '@/components/standings/GroupGrid';
 import Legend from '@/components/standings/Legend';
