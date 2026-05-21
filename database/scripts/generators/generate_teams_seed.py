@@ -104,17 +104,9 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             "VALUES\n"
         )
 
-        f.write(",\n".join(teams_sql))
+    f.write(",\n".join(teams_sql))
 
-        f.write(
-            "\nON CONFLICT (external_api_id)\n"
-            "DO UPDATE SET\n"
-            "    name = EXCLUDED.name,\n"
-            "    short_name = EXCLUDED.short_name,\n"
-            "    type = EXCLUDED.type,\n"
-            "    logo_url = EXCLUDED.logo_url,\n"
-            "    country = EXCLUDED.country;\n\n"
-        )
+    f.write("\nON CONFLICT (external_api_id)\nDO NOTHING;\n\n")
 
     if tournament_teams_sql:
         f.write(

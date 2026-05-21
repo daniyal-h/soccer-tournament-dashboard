@@ -42,12 +42,7 @@ VALUES
 (2384, 'USA', 'USA', 'national', 'https://media.api-sports.io/football/teams/2384.png', 'USA'),
 (5529, 'Canada', 'CAN', 'national', 'https://media.api-sports.io/football/teams/5529.png', 'Canada')
 ON CONFLICT (external_api_id)
-DO UPDATE SET
-    name = EXCLUDED.name,
-    short_name = EXCLUDED.short_name,
-    type = EXCLUDED.type,
-    logo_url = EXCLUDED.logo_url,
-    country = EXCLUDED.country;
+DO NOTHING;
 
 INSERT INTO tournament_teams (
     tournament_id,
