@@ -39,7 +39,10 @@ export function GroupTable({ rows }: GroupTableProps) {
       {/* Display each team and their stats, highlight top two */}
       <TableBody>
         {rows.map((row) => (
-          <TableRow key={row.team.id} className={`${row.position <= 2 ? 'bg-accent' : ''}`}>
+          <TableRow
+            key={row.team.id}
+            className={`${row.position === 1 || row.position === 2 ? 'bg-accent' : ''}`}
+          >
             <TableCell className="text-muted-foreground">
               {row.position === 0 ? '-' : row.position}
             </TableCell>
