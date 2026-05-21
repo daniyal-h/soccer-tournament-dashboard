@@ -1,26 +1,28 @@
 from datetime import date
 
+import pytest
+
 from app.models.standing import Standing
 from app.models.team import Team
 from app.models.tournament import Tournament
+from app.models.tournament_team import TournamentTeam
 
 
-def test_standings_ranked_correctly(client, db_session):
-    # seed a tournament
-    start_date = (date(2026, 6, 11),)
-    end_date = (date(2026, 7, 19),)
+@pytest.fixture
+def seeded_tournament(db_session):
+    # initialize tournament
     tournament = Tournament(
         id=1,
         external_api_id=1,
         name="Test Cup",
         season="2026",
-        start_date=start_date,
-        end_date=end_date,
+        start_date=date(2026, 6, 11),
+        end_date=date(2026, 7, 19),
     )
     db_session.add(tournament)
-    db_session.flush()  # write tournament before standings FK is checked
+    db_session.flush()
 
-    # seed teams in the tournament
+    # add teams
     db_session.add_all(
         [
             Team(
@@ -51,7 +53,31 @@ def test_standings_ranked_correctly(client, db_session):
     )
     db_session.flush()
 
-    # seed standings in wrong order deliberately
+    # link teams to the tournament
+    db_session.add_all(
+        [
+            TournamentTeam(tournament_id=1, team_id=1, group="A"),
+            TournamentTeam(tournament_id=1, team_id=2, group="A"),
+            TournamentTeam(tournament_id=1, team_id=3, group="A"),
+        ]
+    )
+    db_session.commit()
+
+
+# validate that empty standings returns zero-state
+def test_standings_zero_state(client, db_session, seeded_tournament):
+    response = client.get("/api/v1/standings/1")
+    assert response.status_code == 200
+
+    group_a = response.json()["A"]
+    assert len(group_a) == 3
+    assert all(row["points"] == 0 for row in group_a)
+    assert all(row["position"] == 0 for row in group_a)
+
+
+# validate tiebreaker logic with added standings
+def test_standings_ranked_correctly(client, db_session, seeded_tournament):
+    # set standings
     db_session.add_all(
         [
             Standing(
@@ -98,6 +124,6 @@ def test_standings_ranked_correctly(client, db_session):
     assert response.status_code == 200
 
     group_a = response.json()["A"]
-    assert group_a[0]["points"] == 9  # first
-    assert group_a[1]["points"] == 6  # second
-    assert group_a[2]["points"] == 3  # third
+    assert group_a[0]["points"] == 9
+    assert group_a[1]["points"] == 6
+    assert group_a[2]["points"] == 3

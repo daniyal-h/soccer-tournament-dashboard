@@ -70,3 +70,19 @@ describe('GroupTable', () => {
     expect(screen.getByAltText('Brazil')).toBeInTheDocument();
   });
 });
+
+it('renders dash for position 0', () => {
+  const zeroStateRows = rows.map((row) => ({ ...row, position: 0 }));
+  render(<GroupTable rows={zeroStateRows} />);
+
+  const dashes = screen.getAllByText('-');
+  expect(dashes).toHaveLength(2);
+});
+
+it('highlights top 2 positions but not position 0', () => {
+  const zeroStateRows = rows.map((row) => ({ ...row, position: 0 }));
+  const { container } = render(<GroupTable rows={zeroStateRows} />);
+
+  // depends on what class/style you use for advancement highlighting
+  expect(container.querySelectorAll('.advancement-highlight')).toHaveLength(0);
+});

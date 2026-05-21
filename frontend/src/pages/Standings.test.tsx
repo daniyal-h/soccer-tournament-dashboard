@@ -1,23 +1,17 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { useTournament } from '@/context/TournamentContext';
 
 import { useStandings } from '@/hooks/useStandings';
 
 import Standings from './Standings';
 
 vi.mock('@/context/TournamentContext', () => ({
-  useTournament: () => ({
-    selectedTournamentId: 1,
-    selectedTournament: {
-      id: 1,
-      name: 'FIFA World Cup 2026',
-      season: '2026',
-      logo_url: null,
-      start_date: '2026-06-11',
-      end_date: '2026-07-19',
-    },
-  }),
+  useTournament: vi.fn(),
 }));
+
+const mockedUseTournament = vi.mocked(useTournament);
 
 vi.mock('@/hooks/useStandings', () => ({
   useStandings: vi.fn(),
@@ -36,6 +30,24 @@ vi.mock('@/components/standings/StandingsSkeleton', () => ({
 }));
 
 const mockedUseStandings = vi.mocked(useStandings);
+
+beforeEach(() => {
+  mockedUseTournament.mockReturnValue({
+    selectedTournamentId: 1,
+    selectedTournament: {
+      id: 1,
+      name: 'FIFA World Cup 2026',
+      season: '2026',
+      logo_url: null,
+      start_date: '2099-01-01',
+      end_date: '2099-07-19',
+    },
+    tournaments: [],
+    setSelectedTournamentId: vi.fn(),
+    isLoading: false,
+    error: null,
+  });
+});
 
 describe('Standings', () => {
   it('calls useStandings with the selected tournament id', () => {
@@ -62,7 +74,7 @@ describe('Standings', () => {
     render(<Standings />);
 
     expect(screen.getByRole('heading', { name: 'Standings' })).toBeInTheDocument();
-    expect(screen.getByText(/FIFA World Cup 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(/hasn't started yet/i)).toBeInTheDocument();
   });
 
   it('renders the skeleton while standings are loading', () => {
@@ -105,5 +117,28 @@ describe('Standings', () => {
     expect(screen.getByText('Failed to load standings.')).toBeInTheDocument();
     expect(screen.queryByText('Legend Mock')).not.toBeInTheDocument();
     expect(screen.queryByText('GroupGrid Mock')).not.toBeInTheDocument();
+  });
+
+  it('renders started tournament description', () => {
+    vi.mocked(useTournament).mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'FIFA World Cup 2026',
+        season: '2026',
+        logo_url: null,
+        start_date: '2024-01-01', // past date
+        end_date: '2024-02-01',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+    });
+
+    mockedUseStandings.mockReturnValue({ standings: {}, isLoading: false, error: null });
+    render(<Standings />);
+
+    expect(screen.getByText(/FIFA World Cup 2026/i)).toBeInTheDocument();
   });
 });
