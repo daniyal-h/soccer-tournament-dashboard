@@ -68,9 +68,7 @@ for tournament_api_id, season in TOURNAMENTS:
             external_team_id = team["id"]
             raw_group = row.get("group") or ""
 
-            group_name = escape_sql(
-                raw_group.replace("Group ", "").strip()
-            )
+            group_name = escape_sql(raw_group.replace("Group ", "").strip())
 
             if not group_name:
                 continue
@@ -149,7 +147,18 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
 
         f.write(",\n".join(standings_sql))
 
-        f.write(";\n\n")
+        f.write(
+            "\nON CONFLICT (tournament_id, team_id)\n"
+            "DO UPDATE SET\n"
+            '    "group" = EXCLUDED."group",\n'
+            "    position = EXCLUDED.position,\n"
+            "    points = EXCLUDED.points,\n"
+            "    wins = EXCLUDED.wins,\n"
+            "    draws = EXCLUDED.draws,\n"
+            "    losses = EXCLUDED.losses,\n"
+            "    goals_for = EXCLUDED.goals_for,\n"
+            "    goals_against = EXCLUDED.goals_against;\n\n"
+        )
 
     f.write("COMMIT TRANSACTION;\n")
 

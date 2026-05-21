@@ -86,6 +86,16 @@ VALUES
 ((SELECT id FROM tournaments WHERE external_api_id = 1 AND season = '2022'), (SELECT id FROM teams WHERE external_api_id = 27), 'H', 1, 6, 2, 0, 1, 6, 4),
 ((SELECT id FROM tournaments WHERE external_api_id = 1 AND season = '2022'), (SELECT id FROM teams WHERE external_api_id = 17), 'H', 2, 4, 1, 1, 1, 4, 4),
 ((SELECT id FROM tournaments WHERE external_api_id = 1 AND season = '2022'), (SELECT id FROM teams WHERE external_api_id = 7), 'H', 3, 4, 1, 1, 1, 2, 2),
-((SELECT id FROM tournaments WHERE external_api_id = 1 AND season = '2022'), (SELECT id FROM teams WHERE external_api_id = 1504), 'H', 4, 3, 1, 0, 2, 5, 7);
+((SELECT id FROM tournaments WHERE external_api_id = 1 AND season = '2022'), (SELECT id FROM teams WHERE external_api_id = 1504), 'H', 4, 3, 1, 0, 2, 5, 7)
+ON CONFLICT (tournament_id, team_id)
+DO UPDATE SET
+    "group" = EXCLUDED."group",
+    position = EXCLUDED.position,
+    points = EXCLUDED.points,
+    wins = EXCLUDED.wins,
+    draws = EXCLUDED.draws,
+    losses = EXCLUDED.losses,
+    goals_for = EXCLUDED.goals_for,
+    goals_against = EXCLUDED.goals_against;
 
 COMMIT TRANSACTION;
