@@ -9,6 +9,6 @@ export function formatSeason(tournament: Tournament): string {
   if (startYear === endYear) {
     return tournament.season;
   } else {
-    return `${startYear}/${endYear % 2000}`;
+    return `${startYear}/${String(endYear).slice(-2)}`;
   }
 }
