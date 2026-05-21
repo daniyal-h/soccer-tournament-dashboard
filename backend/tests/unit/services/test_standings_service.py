@@ -6,6 +6,38 @@ from app.api.v1.services import standings as standings_service
 from app.schemas.errors import NotFoundError
 
 
+def test_build_zero_state_standings_returns_zeroed_stats():
+    tt1 = Mock(tournament_id=1, team_id=1, group="A", team=Mock())
+    tt2 = Mock(tournament_id=1, team_id=2, group="A", team=Mock())
+
+    result = standings_service.build_zero_state_standings([tt1, tt2])
+
+    assert len(result) == 2
+    assert all(row.points == 0 for row in result)
+    assert all(row.goals_for == 0 for row in result)
+    assert all(row.goals_against == 0 for row in result)
+    assert all(row.wins == 0 for row in result)
+    assert all(row.draws == 0 for row in result)
+    assert all(row.losses == 0 for row in result)
+    assert all(row.position == 0 for row in result)
+
+
+def test_build_zero_state_standings_preserves_group_and_team():
+    mock_team = Mock()
+    tt = Mock(tournament_id=1, team_id=5, group="B", team=mock_team)
+
+    result = standings_service.build_zero_state_standings([tt])
+
+    assert result[0].group == "B"
+    assert result[0].team_id == 5
+    assert result[0].team is mock_team
+
+
+def test_build_zero_state_standings_returns_empty_for_no_teams():
+    result = standings_service.build_zero_state_standings([])
+    assert result == []
+
+
 def test_get_standings_returns_grouped_by_group(mocker):
     db = Mock()
     row_a1 = Mock(group="A", points=0, goals_for=0, goals_against=0)
