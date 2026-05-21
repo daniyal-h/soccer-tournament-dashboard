@@ -5,9 +5,9 @@ from app.schemas.errors import NotFoundError
 
 
 def get_tournament_teams(db: Session, tournament_id: int):
-    teams = tournament_teams_repo.get_teams_in_tournament(db, tournament_id)
+    tournament_teams = tournament_teams_repo.get_teams_in_tournament(db, tournament_id)
 
-    if not teams:
+    if not tournament_teams:
         raise NotFoundError("No teams found in tournament", tournament_id)
 
-    return teams
+    return tournament_teams
