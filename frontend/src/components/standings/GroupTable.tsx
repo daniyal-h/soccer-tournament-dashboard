@@ -40,7 +40,9 @@ export function GroupTable({ rows }: GroupTableProps) {
       <TableBody>
         {rows.map((row) => (
           <TableRow key={row.team.id} className={`${row.position <= 2 ? 'bg-accent' : ''}`}>
-            <TableCell className="text-muted-foreground">{row.position}</TableCell>
+            <TableCell className="text-muted-foreground">
+              {row.position === 0 ? '-' : row.position}
+            </TableCell>
 
             {/* Display the logo and name if space permits */}
             <TableCell className="min-w-0 px-2 py-1">
