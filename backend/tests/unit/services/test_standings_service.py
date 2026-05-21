@@ -56,6 +56,10 @@ def test_get_standings_raises_not_found_when_no_rows(mocker):
         "app.api.v1.services.standings.standings_repo.get_all_standings",
         return_value=[],
     )
+    mocker.patch(
+        "app.api.v1.services.standings.tournament_teams_service.get_tournament_teams",
+        side_effect=NotFoundError("No teams found in tournament"),
+    )
 
     with pytest.raises(NotFoundError):
         standings_service.get_standings(db, tournament_id=1)
