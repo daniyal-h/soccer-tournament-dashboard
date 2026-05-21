@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.models.cache_entry import CacheEntry
 
 
-def get_cache_entry(db: Session, key: str) -> dict | None:
+def get_cache_entry(db: Session, key: str) -> CacheEntry | None:
     return db.query(CacheEntry).where(CacheEntry.cache_key == key).first()
 
 
