@@ -43,18 +43,22 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
     );
   }, [tournaments, selectedTournamentId]);
 
-  const effectiveTournamentId = selectedTournament?.id ?? selectedTournamentId;
+  useEffect(() => {
+    if (selectedTournament && selectedTournament.id !== selectedTournamentId) {
+      localStorage.setItem('selectedTournamentId', String(selectedTournament.id));
+    }
+  }, [selectedTournament, selectedTournamentId]);
 
   const value = useMemo(
     () => ({
       tournaments,
-      selectedTournamentId: effectiveTournamentId,
+      selectedTournamentId: selectedTournament?.id ?? DEFAULT_TOURNAMENT_ID,
       selectedTournament,
       setSelectedTournamentId,
       isLoading,
       error,
     }),
-    [tournaments, effectiveTournamentId, selectedTournament, isLoading, error],
+    [tournaments, selectedTournament, isLoading, error],
   );
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>;
