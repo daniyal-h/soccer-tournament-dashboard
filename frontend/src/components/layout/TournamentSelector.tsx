@@ -25,7 +25,7 @@ const TournamentSelector = () => {
 
   // use the adapted map to get the label of the selected tournament
   const selectedTournamentLabel = selectedTournament
-    ? `${selectedTournament.name} ${selectedTournament.season}`
+    ? tournamentOptions[tournaments.findIndex((t) => t.id === selectedTournament.id)]
     : undefined;
 
   if (error) {
@@ -50,7 +50,7 @@ const TournamentSelector = () => {
           }
 
           const tournament = tournaments.find(
-            (tournament) => `${tournament.name} ${tournament.season}` === label,
+            (tournament) => `${tournament.name} ${formatSeason(tournament)}` === label,
           );
 
           if (!tournament) {
