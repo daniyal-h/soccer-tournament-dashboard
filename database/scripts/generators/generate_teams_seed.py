@@ -9,6 +9,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SCRIPTS_DIR = SCRIPT_DIR.parent
 
 GENERATED_SEEDS_DIR = SCRIPTS_DIR / "seeds" / "generated"
+GENERATED_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_FILE = GENERATED_SEEDS_DIR / "teams.sql"
 
@@ -34,7 +35,6 @@ TOURNAMENTS = [
 teams_seen = set()
 
 teams_sql = []
-tournament_teams_sql = []
 
 for tournament_api_id, season in TOURNAMENTS:
     response = requests.get(
@@ -69,23 +69,6 @@ for tournament_api_id, season in TOURNAMENTS:
                 f"'national', '{logo_url}', '{country}')"
             )
 
-        tournament_teams_sql.append(
-            f"""(
-(
-    SELECT id
-    FROM tournaments
-    WHERE external_api_id = {tournament_api_id}
-      AND season = '{season}'
-),
-(
-    SELECT id
-    FROM teams
-    WHERE external_api_id = {external_team_id}
-),
-NULL
-)"""
-        )
-
     time.sleep(0.5)
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
@@ -104,23 +87,9 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             "VALUES\n"
         )
 
-    f.write(",\n".join(teams_sql))
+        f.write(",\n".join(teams_sql))
 
-    f.write("\nON CONFLICT (external_api_id)\nDO NOTHING;\n\n")
-
-    if tournament_teams_sql:
-        f.write(
-            "INSERT INTO tournament_teams (\n"
-            "    tournament_id,\n"
-            "    team_id,\n"
-            '    "group"\n'
-            ")\n"
-            "VALUES\n"
-        )
-
-        f.write(",\n".join(tournament_teams_sql))
-
-        f.write("\nON CONFLICT (tournament_id, team_id)\nDO NOTHING;\n\n")
+        f.write("\nON CONFLICT (external_api_id)\nDO NOTHING;\n\n")
 
     f.write("COMMIT TRANSACTION;\n")
 
