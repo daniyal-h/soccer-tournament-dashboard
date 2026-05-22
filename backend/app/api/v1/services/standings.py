@@ -1,11 +1,13 @@
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
+from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.repositories import standings as standings_repo
 from app.api.v1.services import cache as cache_service
 from app.api.v1.services import teams as teams_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.constants.cache_ttl import STANDINGS_PRE_TOURNAMENT_TTL, STANDINGS_TTL
+from app.constants.jobs import JobName
 from app.models.standing import Standing
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
@@ -88,25 +90,36 @@ def get_standings(
 
 
 def update_standings(db: Session, tournament_id: int, data: list[StandingRefreshRow]) -> None:
-    rows = []
-    
-    for row in data:
-        # build the Standings object with resolved team IDs
-        team_id = teams_service.get_team_id_from_external_id(db, row.external_team_id)
-        rows.append(
-            Standing(
-                tournament_id=tournament_id,
-                team_id=team_id,
-                group=row.group,
-                position=row.position,
-                points=row.points,
-                wins=row.wins,
-                draws=row.draws,
-                losses=row.losses,
-                goals_for=row.goals_for,
-                goals_against=row.goals_against,
-            )
-        )
+    # create a refresh job for logging
+    job_id = refresh_jobs_repo.create_job(db, JobName.STANDINGS_REFRESH)
 
-    standings_repo.update_standings_in_tournament(db, tournament_id, rows)
-    cache_service.invalidate_cache(db, f"standings:{tournament_id}")
+    try:
+        rows = []
+
+        for row in data:
+            # build the Standings object with resolved team IDs
+            team_id = teams_service.get_team_id_from_external_id(db, row.external_team_id)
+            rows.append(
+                Standing(
+                    tournament_id=tournament_id,
+                    team_id=team_id,
+                    group=row.group,
+                    position=row.position,
+                    points=row.points,
+                    wins=row.wins,
+                    draws=row.draws,
+                    losses=row.losses,
+                    goals_for=row.goals_for,
+                    goals_against=row.goals_against,
+                )
+            )
+
+        standings_repo.update_standings_in_tournament(db, tournament_id, rows)
+        cache_service.invalidate_cache(db, f"standings:{tournament_id}")
+
+        # successful update completes the job
+        refresh_jobs_repo.complete_job(db, job_id, success=True)
+
+    except Exception as _:
+        refresh_jobs_repo.complete_job(db, job_id, success=False)
+        raise
