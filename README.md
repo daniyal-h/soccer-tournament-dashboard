@@ -16,16 +16,16 @@ This project was built to practice the full software development lifecycle: feat
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React (TypeScript), deployed on Vercel |
-| Backend | Python/FastAPI, deployed on Render via Docker |
-| Database | PostgreSQL, Neon |
-| Containerization | Docker + docker-compose |
-| CI/CD | GitHub Actions (lint, test, deploy on push to main) |
-| Error monitoring | Sentry (frontend + backend) |
+| Layer             | Technology                                                                          |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| Frontend          | React (TypeScript), deployed on Vercel                                              |
+| Backend           | Python/FastAPI, deployed on Render via Docker                                       |
+| Database          | PostgreSQL, Neon                                                                    |
+| Containerization  | Docker + docker-compose                                                             |
+| CI/CD             | GitHub Actions (lint, test, deploy on push to main)                                 |
+| Error monitoring  | Sentry (frontend + backend)                                                         |
 | Uptime monitoring | Better Stack · [Status Page](https://soccer-tournament-dashboard.betteruptime.com/) |
-| External data | API-Football (responses cached in PostgreSQL) |
+| External data     | API-Football (responses cached in PostgreSQL)                                       |
 
 ---
 
@@ -57,21 +57,27 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full breakdown.
 ## Features
 
 ### Tournament Selection & Standings
+
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
 ### Match Schedule
+
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 to 3 columns on desktop). Live matches auto-refresh only when an active match is in progress. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
 ### Team Profile
+
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
 ### Player Stats Leaderboard
+
 Tournament-wide player rankings pre-seeded into PostgreSQL via a daily scheduled job. Sortable by goals, assists, and cards. Filterable by position and country. Hover (desktop) or tap (mobile) reveals a full player detail card.
 
 ### Global Search
+
 Persistent search bar in the navbar. Searches teams and players from the PostgreSQL cache using full-text search (tsvector/tsquery). Filter chips for All, Teams, and Players. Debounced input to avoid unnecessary queries.
 
 ### Knockout Bracket
+
 Visual bracket from Round of 16 through to the Final. Renders placeholder slots before July 4 when the knockout stage begins, then populates with real data as matches are played.
 
 ---
@@ -92,7 +98,7 @@ Visual bracket from Round of 16 through to the Final. Renders placeholder slots 
 ```bash
 git clone https://github.com/daniyal-h/soccer-tournament-dashboard.git
 cd soccer-tournament-dashboard
-````
+```
 
 ---
 
@@ -114,10 +120,10 @@ Used when running the backend directly (e.g. `uvicorn`):
 ```env
 API_FOOTBALL_KEY=your_api_key_here
 DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
-SECRET_KEY=your_secret_key_here
 SENTRY_DSN=          # optional, leave empty to disable
 ENVIRONMENT=development
 VERSION=0.1.0
+ADMIN_TOKEN=your_admin_token_here
 ```
 
 #### Docker backend (`.env.docker`)
@@ -127,13 +133,13 @@ Used when running via Docker Compose:
 ```env
 API_FOOTBALL_KEY=your_api_key_here
 DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
-SECRET_KEY=your_secret_key_here
+ADMIN_TOKEN=your_admin_token_here
 ```
 
 **Important:**
 
-* `localhost` → when running backend locally
-* `db` → when running inside Docker (service name)
+- `localhost` → when running backend locally
+- `db` → when running inside Docker (service name)
 
 ---
 
@@ -153,10 +159,10 @@ docker compose up -d --build
 
 5. Open the app
 
-* Frontend: [http://localhost:3000](http://localhost:3000)
-* Backend API: [http://localhost:8000](http://localhost:8000)
-* API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
-* Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - returns status, version, and DB/cache checks
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- Backend API: [http://localhost:8000](http://localhost:8000)
+- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Health check: [http://localhost:8000/api/v1/health](http://localhost:8000/api/v1/health) - returns status, version, and DB/cache checks
 
 ---
 
@@ -189,17 +195,17 @@ docker compose down -v
 
 See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the full strategy and live status.
 
-| Type | Tool | Scope |
-|---|---|---|
-| Unit | pytest | Individual service functions, cache logic, ranking calculations |
-| Mutation | mutmut | Run incrementally after each function, 85 to 90% kill rate target |
-| Integration | pytest + HTTPX | Routes through service layer against a test database |
-| Acceptance | Playwright | End-to-end user journeys against the deployed app |
-| Load | k6 | Sustained traffic against core endpoints |
-| Spike | k6 | Sudden traffic surge simulating World Cup final kickoff |
-| Stress | k6 | Find the breaking point under increasing load |
-| Static analysis | SonarCloud | Runs on every push via GitHub Actions |
-| Contract | Pact | Frontend and backend contract verified independently |
+| Type            | Tool           | Scope                                                             |
+| --------------- | -------------- | ----------------------------------------------------------------- |
+| Unit            | pytest         | Individual service functions, cache logic, ranking calculations   |
+| Mutation        | mutmut         | Run incrementally after each function, 85 to 90% kill rate target |
+| Integration     | pytest + HTTPX | Routes through service layer against a test database              |
+| Acceptance      | Playwright     | End-to-end user journeys against the deployed app                 |
+| Load            | k6             | Sustained traffic against core endpoints                          |
+| Spike           | k6             | Sudden traffic surge simulating World Cup final kickoff           |
+| Stress          | k6             | Find the breaking point under increasing load                     |
+| Static analysis | SonarCloud     | Runs on every push via GitHub Actions                             |
+| Contract        | Pact           | Frontend and backend contract verified independently              |
 
 Run the backend test suite:
 
@@ -238,20 +244,44 @@ soccer-tournament-dashboard/
     DECISIONS.md
   frontend/
     src/
+      api/
+      assets/
       components/
-      pages/
+      config/
+      constants/
+      context/
       hooks/
-backend/
-  app/
-    api/
-      v1/
-        routers/
-        services/
-        repositories/
-    models/
-    schemas/
-    middleware/
-    core/
+      lib/
+      pages/
+      services/
+      styles/
+      types/
+      utils/
+
+
+  backend/
+    app/
+      api/
+        v1/
+          routers/
+          services/
+          repositories/
+      api/
+      constants/
+      core/
+      middleware/
+      models/
+      schemas/
+      utils/
+      tests/
+
+  database/
+    constants/
+    scripts/
+      generators/
+      refresh/
+      seeds/
+    utils/
 ```
 
 ---
@@ -260,15 +290,15 @@ backend/
 
 Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 
-| Decision | Choice | Reason |
-|---|---|---|
-| Backend language | Python/FastAPI | Adds stack breadth alongside TypeScript frontend; Python used in prior co-op |
-| Database | PostgreSQL | NoSQL already on resume; relational experience fills the gap |
-| Caching strategy | PostgreSQL response cache | Stays within API-Football free tier (100 requests/day) without sacrificing data freshness |
-| Sorting | Server-side via DB query | Client-side sorting of a visible subset produces incorrect tournament-wide rankings |
-| Player data | Daily seed job | Fetching all 48 teams on demand would exhaust the free tier quota in a single page load |
-| Preference storage | localStorage | Cookies are sent with every HTTP request, unnecessary overhead for a UI-only preference |
-| Branching | Trunk-based development | Continuous solo deployment makes a permanent dev branch overhead with no benefit |
+| Decision           | Choice                    | Reason                                                                                    |
+| ------------------ | ------------------------- | ----------------------------------------------------------------------------------------- |
+| Backend language   | Python/FastAPI            | Adds stack breadth alongside TypeScript frontend; Python used in prior co-op              |
+| Database           | PostgreSQL                | NoSQL already on resume; relational experience fills the gap                              |
+| Caching strategy   | PostgreSQL response cache | Stays within API-Football free tier (100 requests/day) without sacrificing data freshness |
+| Sorting            | Server-side via DB query  | Client-side sorting of a visible subset produces incorrect tournament-wide rankings       |
+| Player data        | Daily seed job            | Fetching all 48 teams on demand would exhaust the free tier quota in a single page load   |
+| Preference storage | localStorage              | Cookies are sent with every HTTP request, unnecessary overhead for a UI-only preference   |
+| Branching          | Trunk-based development   | Continuous solo deployment makes a permanent dev branch overhead with no benefit          |
 
 ---
 
@@ -278,3 +308,4 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 - Player stats refresh daily rather than in real time, a paid API tier would allow more frequent updates
 - No user authentication in the current version; saved preferences use localStorage only
 - Head-to-head match history between teams is a natural next feature given the existing data model
+- Standings refresh on a 1-minute cache TTL during live matches; there may be up to 1 minute of lag between a goal and the standings updating
