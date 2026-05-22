@@ -1,6 +1,7 @@
 import sys
 import time
 from pathlib import Path
+from datetime import date
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
@@ -9,7 +10,11 @@ from database.utils.api_client import api_get, api_put
 
 
 def refresh_standings() -> None:
-    for local_id, tournament_api_id, season in SUPPORTED_TOURNAMENTS:
+    for local_id, tournament_api_id, season, end_date in SUPPORTED_TOURNAMENTS:
+        # do not refresh finished tournaments
+        if date.today() > end_date:
+            return
+        
         # fetch fresh standings from API-Football
         data = api_get("/standings", {"league": tournament_api_id, "season": season})
         responses = data.get("response", [])
