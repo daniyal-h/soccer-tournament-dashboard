@@ -19,7 +19,7 @@ OUTPUT_FILE = GENERATED_SEEDS_DIR / "teams.sql"
 teams_seen = set()
 teams_sql = []
 
-for tournament_api_id, season in SUPPORTED_TOURNAMENTS:
+for _, tournament_api_id, season in SUPPORTED_TOURNAMENTS:
     params = {
         "league": tournament_api_id,
         "season": season,
