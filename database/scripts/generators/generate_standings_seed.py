@@ -1,5 +1,9 @@
 import time
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 
 from database.utils.api_client import api_get
 

@@ -1,5 +1,8 @@
+import sys
 import time
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from database.utils.api_client import api_get
 
@@ -9,7 +12,7 @@ SCRIPTS_DIR = SCRIPT_DIR.parent
 GENERATED_SEEDS_DIR = SCRIPTS_DIR / "seeds" / "generated"
 GENERATED_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
-OUTPUT_FILE = GENERATED_SEEDS_DIR / "standings.sql"
+OUTPUT_FILE = GENERATED_SEEDS_DIR / "teams.sql"
 
 TOURNAMENTS = [
     (1, "2022"),  # FIFA World Cup 2022
