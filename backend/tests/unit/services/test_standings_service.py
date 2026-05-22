@@ -1,9 +1,18 @@
+from datetime import UTC, datetime
 from unittest.mock import Mock
 
 import pytest
 
 from app.api.v1.services import standings as standings_service
+from app.constants.cache_ttl import STANDINGS_PRE_TOURNAMENT_TTL, STANDINGS_TTL
 from app.schemas.errors import NotFoundError
+
+
+@pytest.fixture(autouse=True)
+def mock_cache(mocker):
+    mocker.patch("app.api.v1.services.standings.cache_service.get_cache", return_value=None)
+    mocker.patch("app.api.v1.services.standings.cache_service.set_cache")
+    mocker.patch("app.api.v1.services.standings.jsonable_encoder", side_effect=lambda x: x)
 
 
 def test_build_zero_state_standings_returns_zeroed_stats():
@@ -153,3 +162,184 @@ def test_get_standings_sorts_by_goals_for_on_equal_points_and_gd(mocker):
 
     result = standings_service.get_standings(db, tournament_id=1)
     assert result["A"] == [row2, row1, row3]
+
+
+def test_get_standings_returns_cached_result(mocker):
+    db = Mock()
+    cached_result = {"A": [{"points": 9}]}
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=cached_result,
+    )
+    mock_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+    )
+
+    result = standings_service.get_standings(db, tournament_id=1)
+
+    assert result == cached_result
+    mock_repo.assert_not_called()
+
+
+def test_get_standings_writes_to_cache_on_miss(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=None,
+    )
+    mock_set_cache = mocker.patch(
+        "app.api.v1.services.standings.cache_service.set_cache",
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[Mock(group="A", points=0, goals_for=0, goals_against=0)],
+    )
+    mocker.patch("app.api.v1.services.standings.jsonable_encoder", side_effect=lambda x: x)
+
+    standings_service.get_standings(db, tournament_id=1)
+
+    mock_set_cache.assert_called_once()
+
+
+def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=None,
+    )
+    mock_set_cache = mocker.patch(
+        "app.api.v1.services.standings.cache_service.set_cache",
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[],
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.tournament_teams_service.get_tournament_teams",
+        return_value=[Mock(tournament_id=1, team_id=1, group="A", team=Mock())],
+    )
+    mocker.patch("app.api.v1.services.standings.jsonable_encoder", side_effect=lambda x: x)
+
+    standings_service.get_standings(db, tournament_id=1)
+
+    _, kwargs = mock_set_cache.call_args
+    assert kwargs["expires_at"] != None
+    # pre-tournament TTL should be longer than live TTL
+
+    now = datetime.now(UTC)
+    live_expires = now + STANDINGS_TTL
+    _ = now + STANDINGS_PRE_TOURNAMENT_TTL
+    actual_expires = kwargs["expires_at"]
+    assert actual_expires > live_expires
+
+
+def test_update_standings_resolves_team_ids_and_calls_repo(mocker):
+    db = Mock()
+
+    mock_get_team_id = mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    mock_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
+    )
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=1, data=data)
+
+    mock_get_team_id.assert_called_once_with(db, 99)
+    mock_repo.assert_called_once()
+    rows_passed = mock_repo.call_args[0][2]
+    assert rows_passed[0].team_id == 10
+
+
+def test_update_standings_invalidates_cache(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    mocker.patch("app.api.v1.services.standings.standings_repo.update_standings_in_tournament")
+    mock_invalidate = mocker.patch(
+        "app.api.v1.services.standings.cache_service.invalidate_cache",
+    )
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=1, data=data)
+
+    mock_invalidate.assert_called_once_with(db, "standings:1")
+
+
+def test_update_standings_logs_success_job(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    mocker.patch("app.api.v1.services.standings.standings_repo.update_standings_in_tournament")
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+    mock_create = mocker.patch(
+        "app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1
+    )
+    mock_complete = mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=1, data=data)
+
+    mock_create.assert_called_once()
+    mock_complete.assert_called_once_with(db, 1, success=True)
