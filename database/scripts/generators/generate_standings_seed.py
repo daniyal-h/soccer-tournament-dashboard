@@ -24,7 +24,7 @@ def escape_sql(value: str | None) -> str:
 tournament_teams_sql = []
 standings_sql = []
 
-for _, tournament_api_id, season in SUPPORTED_TOURNAMENTS:
+for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
     params = {
         "league": tournament_api_id,
         "season": season,
