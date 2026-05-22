@@ -4,6 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+from database.constants.tournaments import SUPPORTED_TOURNAMENTS
 from database.utils.api_client import api_get
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -14,17 +15,11 @@ GENERATED_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
 OUTPUT_FILE = GENERATED_SEEDS_DIR / "teams.sql"
 
-TOURNAMENTS = [
-    (1, "2022"),  # FIFA World Cup 2022
-    # (1, "2026"),  # FIFA World Cup 2026
-    # (4, "2024"),  # UEFA Euro 2024
-]
 
 teams_seen = set()
-
 teams_sql = []
 
-for tournament_api_id, season in TOURNAMENTS:
+for tournament_api_id, season in SUPPORTED_TOURNAMENTS:
     params = {
         "league": tournament_api_id,
         "season": season,
