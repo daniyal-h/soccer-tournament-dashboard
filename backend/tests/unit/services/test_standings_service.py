@@ -226,7 +226,7 @@ def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
     standings_service.get_standings(db, tournament_id=1)
 
     _, kwargs = mock_set_cache.call_args
-    assert kwargs["expires_at"] != None
+    assert kwargs["expires_at"] is not None
     # pre-tournament TTL should be longer than live TTL
 
     now = datetime.now(UTC)
