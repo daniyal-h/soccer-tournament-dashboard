@@ -45,7 +45,7 @@ for _, tournament_api_id, season in SUPPORTED_TOURNAMENTS:
                 f"'national', '{logo_url}', '{country}')"
             )
 
-    time.sleep(0.5)
+    time.sleep(0.5) # API-Football rate limits
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write("BEGIN TRANSACTION;\n\n")
