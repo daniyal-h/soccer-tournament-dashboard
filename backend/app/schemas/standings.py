@@ -33,3 +33,15 @@ class StandingResponse(BaseModel):
     @property
     def matches_played(self) -> int:
         return self.wins + self.draws + self.losses
+
+
+class StandingRefreshRow(BaseModel):
+    external_team_id: int
+    group: str
+    position: int
+    points: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
