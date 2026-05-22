@@ -15,31 +15,10 @@ VALUES
   -- Copa América
   (9, 'Copa América', '2024', 'https://media.api-sports.io/football/leagues/9.png', '2024-06-21', '2024-07-15'),
 
-  -- UEFA Champions League
-  (2, 'UEFA Champions League', '2024', 'https://media.api-sports.io/football/leagues/2.png', '2024-07-09', '2025-05-31'),
-  (2, 'UEFA Champions League', '2025', 'https://media.api-sports.io/football/leagues/2.png', '2025-07-08', '2026-05-30'),
-
-  -- Premier League
-  (39, 'Premier League', '2024', 'https://media.api-sports.io/football/leagues/39.png', '2024-08-16', '2025-05-25'),
-  (39, 'Premier League', '2025', 'https://media.api-sports.io/football/leagues/39.png', '2025-08-15', '2026-05-24'),
-
-  -- La Liga
-  (140, 'La Liga', '2024', 'https://media.api-sports.io/football/leagues/140.png', '2024-08-15', '2025-05-25'),
-  (140, 'La Liga', '2025', 'https://media.api-sports.io/football/leagues/140.png', '2025-08-15', '2026-05-24'),
-
-  -- Bundesliga
-  (78, 'Bundesliga', '2024', 'https://media.api-sports.io/football/leagues/78.png', '2024-08-23', '2025-05-26'),
-  (78, 'Bundesliga', '2025', 'https://media.api-sports.io/football/leagues/78.png', '2025-08-22', '2026-05-25'),
-
-  -- Serie A
-  (135, 'Serie A', '2024', 'https://media.api-sports.io/football/leagues/135.png', '2024-08-17', '2025-05-25'),
-  (135, 'Serie A', '2025', 'https://media.api-sports.io/football/leagues/135.png', '2025-08-23', '2026-05-24'),
-
-  -- Ligue 1
-  (61, 'Ligue 1', '2024', 'https://media.api-sports.io/football/leagues/61.png', '2024-08-16', '2025-05-29'),
-  (61, 'Ligue 1', '2025', 'https://media.api-sports.io/football/leagues/61.png', '2025-08-15', '2026-05-29'),
-
   -- Africa Cup of Nations
-  (6, 'Africa Cup of Nations', '2025', 'https://media.api-sports.io/football/leagues/6.png', '2025-12-21', '2026-01-18');
+  (6, 'Africa Cup of Nations', '2025', 'https://media.api-sports.io/football/leagues/6.png', '2025-12-21', '2026-01-18'),
+
+  -- FIFA Club World Cup
+  (15, 'FIFA Club World Cup', '2025', 'https://media.api-sports.io/football/leagues/15.png', '2025-06-15', '2025-07-13');
 
 COMMIT TRANSACTION;
