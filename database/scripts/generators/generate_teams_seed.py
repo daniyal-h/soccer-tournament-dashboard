@@ -1,9 +1,7 @@
-import os
 import time
 from pathlib import Path
 
-import requests
-from dotenv import load_dotenv
+from database.utils.api_client import api_get
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SCRIPTS_DIR = SCRIPT_DIR.parent
@@ -11,20 +9,7 @@ SCRIPTS_DIR = SCRIPT_DIR.parent
 GENERATED_SEEDS_DIR = SCRIPTS_DIR / "seeds" / "generated"
 GENERATED_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
-OUTPUT_FILE = GENERATED_SEEDS_DIR / "teams.sql"
-
-load_dotenv(SCRIPTS_DIR.parent / ".env")
-
-API_KEY = os.getenv("API_FOOTBALL_API_KEY")
-
-if not API_KEY:
-    raise ValueError("Missing API_FOOTBALL_API_KEY environment variable")
-
-HEADERS = {
-    "x-apisports-key": API_KEY,
-}
-
-BASE_URL = "https://v3.football.api-sports.io"
+OUTPUT_FILE = GENERATED_SEEDS_DIR / "standings.sql"
 
 TOURNAMENTS = [
     (1, "2022"),  # FIFA World Cup 2022
@@ -37,19 +22,12 @@ teams_seen = set()
 teams_sql = []
 
 for tournament_api_id, season in TOURNAMENTS:
-    response = requests.get(
-        f"{BASE_URL}/teams",
-        headers=HEADERS,
-        params={
-            "league": tournament_api_id,
-            "season": season,
-        },
-        timeout=30,
-    )
+    params = {
+        "league": tournament_api_id,
+        "season": season,
+    }
 
-    response.raise_for_status()
-
-    data = response.json()
+    data = api_get("/teams", params)
 
     for entry in data["response"]:
         team = entry["team"]
