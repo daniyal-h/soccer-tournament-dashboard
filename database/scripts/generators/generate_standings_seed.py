@@ -45,10 +45,13 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
             external_team_id = team["id"]
             raw_group = row.get("group") or ""
 
-            group_name = escape_sql(raw_group.replace("Group ", "").strip())
+            group_name = raw_group.replace("Group ", "").strip()
 
-            if not group_name:
+            # only allow for single-letter group classifications
+            if len(group_name) != 1 or not group_name.isalpha():
                 continue
+
+            group_name = escape_sql(group_name.upper())
 
             rank = row.get("rank") or 0
             points = row.get("points") or 0
@@ -82,7 +85,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
                 f"{goals_for}, {goals_against})"
             )
 
-    time.sleep(0.5) # API-Football rate limits
+    time.sleep(0.5)  # API-Football rate limits
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write("BEGIN TRANSACTION;\n\n")
