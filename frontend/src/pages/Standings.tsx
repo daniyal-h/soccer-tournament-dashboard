@@ -16,7 +16,7 @@ const Standings = () => {
     : false;
 
   if (error) {
-    return <ErrorState description={error.message} />;
+    return <ErrorState title="Standings not available yet" description={error.message} />;
   }
 
   if (isLoading) {
