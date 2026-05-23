@@ -9,8 +9,8 @@ VALUES
   -- UEFA Euro
   (4, 'UEFA Euro', '2024', 'https://media.api-sports.io/football/leagues/4.png', '2024-06-14', '2024-07-14'),
 
-  -- Copa America
-  (9, 'Copa America', '2024', 'https://media.api-sports.io/football/leagues/9.png', '2024-06-21', '2024-07-15'),
+  -- Copa América
+  (9, 'Copa América', '2024', 'https://media.api-sports.io/football/leagues/9.png', '2024-06-21', '2024-07-15'),
 
   -- Africa Cup of Nations
   (6, 'Africa Cup of Nations', '2025', 'https://media.api-sports.io/football/leagues/6.png', '2025-12-21', '2026-01-18'),
