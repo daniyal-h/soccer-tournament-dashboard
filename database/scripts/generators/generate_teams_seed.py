@@ -69,4 +69,4 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
 
     f.write("COMMIT TRANSACTION;\n")
 
-print("teams_seed.sql generated successfully")
+print("teams.sql generated successfully")
