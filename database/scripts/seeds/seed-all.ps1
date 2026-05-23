@@ -1,4 +1,22 @@
+param(
+    [string]$DatabaseUrl = ""
+)
+
 $ErrorActionPreference = "Stop"
+
+$envFile = "database/.env"
+
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+            [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim())
+        }
+    }
+}
+
+if (-not $DatabaseUrl) {
+    $DatabaseUrl = $env:DATABASE_URL
+}
 
 $container = "postgres_db"
 $user = "app_user"
@@ -25,13 +43,19 @@ foreach ($file in $seedFiles) {
         throw "Missing seed file: $file"
     }
 
-    $fileName = Split-Path $file -Leaf
-    $containerPath = "/tmp/$fileName"
-
     Write-Host "Seeding $file..."
 
-    docker cp $file "${container}:$containerPath"
-    docker exec -i $container psql -U $user -d $db -f $containerPath
+    if ($DatabaseUrl -and $DatabaseUrl -notlike "*@db:*") {
+        psql $DatabaseUrl -f $file
+    }
+    else {
+        $fileName = Split-Path $file -Leaf
+        $safeName = $file.Replace("\", "_").Replace("/", "_").Replace(":", "")
+        $containerPath = "/tmp/$safeName"
+
+        docker cp $file "${container}:$containerPath"
+        docker exec -i $container psql -U $user -d $db -f $containerPath
+    }
 }
 
 Write-Host "All seed files applied successfully."
