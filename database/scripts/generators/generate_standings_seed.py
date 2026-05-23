@@ -14,7 +14,8 @@ SCRIPTS_DIR = SCRIPT_DIR.parent
 GENERATED_SEEDS_DIR = SCRIPTS_DIR / "seeds" / "generated"
 GENERATED_SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
-OUTPUT_FILE = GENERATED_SEEDS_DIR / "standings.sql"
+TOURNAMENT_TEAMS_OUTPUT = GENERATED_SEEDS_DIR / "tournament_teams.sql"
+STANDINGS_OUTPUT = GENERATED_SEEDS_DIR / "standings.sql"
 
 
 def escape_sql(value: str | None) -> str:
@@ -87,7 +88,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
 
     time.sleep(0.5)  # API-Football rate limits
 
-with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+with open(TOURNAMENT_TEAMS_OUTPUT, "w", encoding="utf-8") as f:
     f.write("BEGIN TRANSACTION;\n\n")
 
     if tournament_teams_sql:
@@ -107,6 +108,12 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             "DO UPDATE SET\n"
             '    "group" = EXCLUDED."group";\n\n'
         )
+
+    f.write("COMMIT TRANSACTION;\n")
+
+
+with open(STANDINGS_OUTPUT, "w", encoding="utf-8") as f:
+    f.write("BEGIN TRANSACTION;\n\n")
 
     if standings_sql:
         f.write(
@@ -142,4 +149,6 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
 
     f.write("COMMIT TRANSACTION;\n")
 
+
+print("tournament_teams.sql generated successfully")
 print("standings.sql generated successfully")
