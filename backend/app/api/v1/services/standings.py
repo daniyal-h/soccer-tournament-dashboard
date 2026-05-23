@@ -6,13 +6,13 @@ from app.api.v1.repositories import standings as standings_repo
 from app.api.v1.services import cache as cache_service
 from app.api.v1.services import teams as teams_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
-from app.constants.cache_ttl import STANDINGS_PRE_TOURNAMENT_TTL, STANDINGS_TTL
+from app.api.v1.services import tournaments as tournaments_service
 from app.constants.jobs import JobName
 from app.models.standing import Standing
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
 from app.schemas.standings import StandingRefreshRow
-from app.utils.cache import get_expires_at
+from app.utils.cache import get_expires_at, get_standings_ttl
 
 
 # return a standings of teams in zero state
@@ -41,7 +41,6 @@ def get_standings(
 ) -> dict[str, list[Standing]]:
     # check cache for a valid entry
     cache_key = f"standings:{tournament_id}"
-    ttl = STANDINGS_TTL  # used to calculate expiry time, default to standings TTL
     cached = cache_service.get_cache(db, cache_key)
 
     # return cache, if group specified, return just the group data
@@ -52,8 +51,9 @@ def get_standings(
             return {group: cached[group]}
         return cached
 
-    # get a flat list of standings
+    tournament = tournaments_service.get_tournament(db, tournament_id)
     rows = standings_repo.get_all_standings(db, tournament_id)
+    has_persisted_rows = bool(rows)
 
     # if no standings found, check if group assignments exist for zero-state
     if not rows:
@@ -61,10 +61,12 @@ def get_standings(
             # return zero-state standings if there are group assignments
             tournament_teams = tournament_teams_service.get_tournament_teams(db, tournament_id)
             rows = build_zero_state_standings(tournament_teams)
-            ttl = STANDINGS_PRE_TOURNAMENT_TTL  # update to pre-tournament TTL
 
         except NotFoundError:
             raise NotFoundError(f"No standings found for tournament {tournament_id}")
+
+    # get the cache TTL based on the tournament status
+    ttl = get_standings_ttl(tournament, has_rows=has_persisted_rows)
 
     # convert the flat list into a dictionary of groups
     grouped: dict[str, list[Standing]] = {}
