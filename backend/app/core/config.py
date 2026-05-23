@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     SENTRY_DSN: str = ""
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
+    ADMIN_TOKEN: str
 
     model_config = SettingsConfigDict(
         env_file=".env",

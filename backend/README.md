@@ -30,7 +30,7 @@ Create and activate the virtual environment:
 ```bash
 python -m venv venv
 source venv/Scripts/activate
-````
+```
 
 Install dependencies:
 
@@ -64,12 +64,12 @@ http://localhost:8000/api/v1/health
 
 Response:
 
-| Field | Values |
-|---|---|
-| `status` | `ok` \| `degraded` \| `error` |
-| `version` | app version from env |
-| `checks` | `database` and `cache_entries` status |
-| `timestamp` | UTC ISO timestamp |
+| Field       | Values                                |
+| ----------- | ------------------------------------- |
+| `status`    | `ok` \| `degraded` \| `error`         |
+| `version`   | app version from env                  |
+| `checks`    | `database` and `cache_entries` status |
+| `timestamp` | UTC ISO timestamp                     |
 
 ---
 
@@ -86,6 +86,7 @@ DATABASE_URL=postgresql://app_user:app_password@localhost:5432/app_db
 SENTRY_DSN=
 ENVIRONMENT=development
 VERSION=0.1.0
+ADMIN_TOKEN=your_admin_token_here
 ```
 
 ### Docker environment (`.env.docker`)
@@ -101,8 +102,8 @@ VERSION=0.1.0
 
 Note the hostname difference:
 
-* `localhost` → when running backend locally
-* `db` → when running inside Docker (service name)
+- `localhost` → when running backend locally
+- `db` → when running inside Docker (service name)
 
 The backend container uses `.env.docker` via `docker-compose.yml`.
 
@@ -120,10 +121,12 @@ app/
       services/         business logic
       repositories/     database access logic
       api.py            v1 router registration
+  constants/            TTL values, job names
   core/                 config, database setup, shared app wiring
   middleware/           Request middleware
   models/               SQLAlchemy database models
   schemas/              Pydantic request/response schemas
+  utils/                Helper functions
   main.py               FastAPI entry point
 
 tests/
@@ -167,12 +170,12 @@ routers → services → repositories → database
 
 Guidelines:
 
-* Routers handle HTTP concerns only
-* Services contain business logic
-* Repositories contain SQL/database queries
-* Models define database tables
-* Schemas define request/response shapes
-* No database queries directly inside route handlers
+- Routers handle HTTP concerns only
+- Services contain business logic
+- Repositories contain SQL/database queries
+- Models define database tables
+- Schemas define request/response shapes
+- No database queries directly inside route handlers
 
 ---
 
@@ -219,7 +222,7 @@ Start the database container:
 
 ```bash
 docker compose up -d db
-````
+```
 
 Ensure your `.env` contains:
 
@@ -261,31 +264,31 @@ expires_at
 
 Rules:
 
-* Fresh cache is returned immediately
-* Stale cache triggers refresh when allowed
-* If refresh fails, stale data may be returned with a warning
-* Refresh cooldown prevents burning API-Football quota
+- Fresh cache is returned immediately, no DB query
+- Cache miss fetches from DB, writes to cache
+- Pre-tournament data uses 24-hour TTL
+- Live standings use 1-minute TTL
+- Refresh job invalidates cache after writing new data
 
 ---
 
 ## Background Jobs
 
-Scheduled refresh jobs are handled through GitHub Actions cron.
+Standings are refreshed via a scheduled GitHub Actions cron job.
 
-Typical responsibilities:
+The refresh script (database/scripts/refresh/refresh_standings.py):
 
-* Refresh player statistics
-* Refresh team data
-* Refresh search index data
-* Log success/failure
+- Fetches fresh standings from API-Football for all supported tournaments
+- Calls PUT /api/v1/admin/standings/{tournament_id} with transformed data
+- Backend deletes old standings rows and inserts new ones
+- Cache entry for the tournament is invalidated after write
+- Job result is logged to the refresh_jobs table
 
-Manual refresh may be exposed through a protected admin endpoint:
+Required secrets (GitHub Actions):
 
-```txt
-POST /api/v1/admin/refresh-cache
-```
-
-This endpoint must require `REFRESH_JOB_TOKEN`.
+- BACKEND_URL - environment level (Staging/Production differ)
+- ADMIN_TOKEN - repository level
+- API_FOOTBALL_API_KEY — repository level
 
 ---
 
@@ -295,20 +298,20 @@ Errors should follow the standard response shape:
 
 ```json
 {
-  "error": {
-    "status": 404,
-    "code": "NOT_FOUND",
-    "message": "Tournament not found"
-  }
+    "error": {
+        "status": 404,
+        "code": "NOT_FOUND",
+        "message": "Tournament not found"
+    }
 }
 ```
 
 Rules:
 
-* Known errors return controlled messages
-* Unknown errors return generic 500 responses
-* Unexpected exceptions are logged
-* Sentry captures unexpected failures
+- Known errors return controlled messages
+- Unknown errors return generic 500 responses
+- Unexpected exceptions are logged
+- Sentry captures unexpected failures
 
 ---
 
@@ -316,12 +319,12 @@ Rules:
 
 Backend security rules:
 
-* API-Football key stays backend-only
-* CORS allows only known frontend origins
-* SQL queries must be parameterized
-* Sort/filter fields must be whitelisted
-* Admin endpoints require token auth
-* Secrets must never be logged
+- API-Football key stays backend-only
+- CORS allows only known frontend origins
+- SQL queries must be parameterized
+- Sort/filter fields must be whitelisted
+- Admin endpoints require token auth
+- Secrets must never be logged
 
 ---
 
@@ -347,11 +350,11 @@ Cache refresh cooldown is separate from request rate limiting.
 
 The backend should provide:
 
-* Sentry exception reporting
-* Request logging middleware
-* Cache hit/miss/stale logs
-* Background job logs
-* Health endpoint for uptime monitoring
+- Sentry exception reporting
+- Request logging middleware
+- Cache hit/miss/stale logs
+- Background job logs
+- Health endpoint for uptime monitoring
 
 Request logs should include:
 

@@ -63,6 +63,8 @@ def seeded_tournament(db_session):
     )
     db_session.commit()
 
+    return tournament
+
 
 # validate that empty standings returns zero-state
 def test_standings_zero_state(client, db_session, seeded_tournament):
@@ -73,6 +75,29 @@ def test_standings_zero_state(client, db_session, seeded_tournament):
     assert len(group_a) == 3
     assert all(row["points"] == 0 for row in group_a)
     assert all(row["position"] == 0 for row in group_a)
+
+
+def test_standings_filter_by_group(client, db_session, seeded_tournament):
+    db_session.add(
+        Standing(
+            tournament_id=1,
+            team_id=1,
+            group="A",
+            points=3,
+            goals_for=1,
+            goals_against=0,
+            wins=1,
+            draws=0,
+            losses=0,
+            position=1,
+        )
+    )
+    db_session.commit()
+
+    response = client.get("/api/v1/standings/1?group=A")
+
+    assert response.status_code == 200
+    assert list(response.json().keys()) == ["A"]
 
 
 # validate tiebreaker logic with added standings
@@ -127,3 +152,13 @@ def test_standings_ranked_correctly(client, db_session, seeded_tournament):
     assert group_a[0]["points"] == 9
     assert group_a[1]["points"] == 6
     assert group_a[2]["points"] == 3
+
+
+def test_standings_invalid_group_returns_404(
+    client,
+    db_session,
+    seeded_tournament,
+):
+    response = client.get("/api/v1/standings/1?group=Z")
+
+    assert response.status_code == 404

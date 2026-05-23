@@ -69,6 +69,7 @@ src/
   constants/    app-wide constants
   context/      React context providers
   hooks/        custom React hooks
+  lib/          tailwind cn function
   pages/        route-level page components
   services/     frontend business logic
   styles/       global styles

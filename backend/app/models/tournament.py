@@ -1,6 +1,6 @@
 from datetime import date
 
-from sqlalchemy import Date, Integer, String
+from sqlalchemy import Date, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base, TimestampMixin
@@ -12,7 +12,7 @@ class Tournament(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     # API-Football identifier used for syncing
-    external_api_id: Mapped[int] = mapped_column(Integer, nullable=False, unique=True, index=True)
+    external_api_id: Mapped[int] = mapped_column(Integer, nullable=False)
 
     name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     season: Mapped[str] = mapped_column(String(20), nullable=False)
@@ -21,3 +21,7 @@ class Tournament(TimestampMixin, Base):
 
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("external_api_id", "season", name="uq_tournament_api_id_season"),
+    )

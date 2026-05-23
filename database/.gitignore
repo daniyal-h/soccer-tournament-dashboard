@@ -1,0 +1,11 @@
+# Environment
+.env
+
+# Generated seed files
+scripts/seeds/generated/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/

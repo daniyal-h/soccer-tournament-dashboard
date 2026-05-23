@@ -11,18 +11,21 @@ import {
 
 import { useTournament } from '@/context/TournamentContext';
 
+import { formatSeason } from '@/utils/layout/tournamentSelectorHelper';
+
 const TournamentSelector = () => {
   const { tournaments, selectedTournament, setSelectedTournamentId, isLoading, error } =
     useTournament();
 
   // adapt API response of a list of Tournaments to a map
+  // display seasons across multiple years if they require it
   const tournamentOptions = useMemo(() => {
-    return tournaments.map((tournament) => `${tournament.name} ${tournament.season}`);
+    return tournaments.map((tournament) => `${tournament.name} ${formatSeason(tournament)}`);
   }, [tournaments]);
 
   // use the adapted map to get the label of the selected tournament
   const selectedTournamentLabel = selectedTournament
-    ? `${selectedTournament.name} ${selectedTournament.season}`
+    ? tournamentOptions[tournaments.findIndex((t) => t.id === selectedTournament.id)]
     : undefined;
 
   if (error) {
@@ -47,7 +50,7 @@ const TournamentSelector = () => {
           }
 
           const tournament = tournaments.find(
-            (tournament) => `${tournament.name} ${tournament.season}` === label,
+            (tournament) => `${tournament.name} ${formatSeason(tournament)}` === label,
           );
 
           if (!tournament) {

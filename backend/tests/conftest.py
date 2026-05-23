@@ -7,6 +7,7 @@ os.environ.setdefault(
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("SENTRY_DSN", "")
 os.environ.setdefault("ALLOWED_ORIGINS", '["http://localhost:5173"]')
+os.environ.setdefault("ADMIN_TOKEN", "test_token")
 
 import pytest
 from fastapi.testclient import TestClient
