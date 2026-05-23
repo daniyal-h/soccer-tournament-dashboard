@@ -55,7 +55,31 @@ def test_set_cache_entry_updates_existing_entry(db_session):
     cache_repo.set_cache_entry(db_session, "standings:1", json.dumps({"B": []}), new_expires)
 
     result = db_session.query(CacheEntry).where(CacheEntry.cache_key == "standings:1").first()
+    assert result is not None
     assert json.loads(result.payload) == {"B": []}
+    assert result.expires_at.replace(tzinfo=UTC) == new_expires.replace(tzinfo=UTC)
+
+
+def test_set_cache_entry_does_not_create_duplicate_for_existing_key(db_session):
+    now = datetime.now(UTC)
+
+    cache_repo.set_cache_entry(
+        db_session,
+        "standings:1",
+        json.dumps({"A": []}),
+        now + timedelta(minutes=5),
+    )
+
+    cache_repo.set_cache_entry(
+        db_session,
+        "standings:1",
+        json.dumps({"B": []}),
+        now + timedelta(minutes=10),
+    )
+
+    count = db_session.query(CacheEntry).where(CacheEntry.cache_key == "standings:1").count()
+
+    assert count == 1
 
 
 def test_invalidate_cache_entry_deletes_entry(db_session):
