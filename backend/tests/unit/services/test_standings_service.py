@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from unittest.mock import Mock
 
 import pytest
@@ -13,6 +13,10 @@ def mock_cache(mocker):
     mocker.patch("app.api.v1.services.standings.cache_service.get_cache", return_value=None)
     mocker.patch("app.api.v1.services.standings.cache_service.set_cache")
     mocker.patch("app.api.v1.services.standings.jsonable_encoder", side_effect=lambda x: x)
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=Mock(start_date=date(2022, 11, 20), end_date=date(2022, 12, 18)),
+    )
 
 
 def test_build_zero_state_standings_returns_zeroed_stats():
@@ -203,6 +207,36 @@ def test_get_standings_writes_to_cache_on_miss(mocker):
     mock_set_cache.assert_called_once()
 
 
+def test_get_standings_uses_finished_tournament_ttl(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=None,
+    )
+    mock_set_cache = mocker.patch(
+        "app.api.v1.services.standings.cache_service.set_cache",
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=Mock(start_date=date(2022, 11, 20), end_date=date(2022, 12, 18)),
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[Mock(group="A", points=3, goals_for=1, goals_against=0)],
+    )
+
+    standings_service.get_standings(db, tournament_id=1)
+
+    _, kwargs = mock_set_cache.call_args
+
+    now = datetime.now(UTC)
+    live_expires = now + STANDINGS_TTL
+    actual_expires = kwargs["expires_at"]
+
+    assert actual_expires > live_expires
+
+
 def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
     db = Mock()
 
@@ -212,6 +246,10 @@ def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
     )
     mock_set_cache = mocker.patch(
         "app.api.v1.services.standings.cache_service.set_cache",
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=Mock(start_date=date(2026, 6, 11), end_date=date(2026, 7, 19)),
     )
     mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
