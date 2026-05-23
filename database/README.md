@@ -11,13 +11,21 @@ Static data is seeded manually via SQL files. Dynamic data (standings, matches, 
 ```txt
 database/
   constants/
-    tournaments.py      supported tournaments with local DB ids, API-Football ids, and seasons
+    tournaments.py      supported tournaments with local DB ids, API-Football ids, seasons, and end dates
+
   scripts/
     generators/         one-time scripts that generate SQL seed files from API-Football
+
     refresh/            scheduled scripts that refresh live data via the backend admin API
-    seeds/              static SQL seed files (committed to version control)
+
+    seeds/
+      generated/        temporary generated SQL artifacts (gitignored)
+      static/           committed historical tournament snapshots
+      seed-all.ps1      seeds all static SQL files into a target database
+
   utils/
     api_client.py       shared HTTP client for API-Football and backend admin requests
+
   .env                  local environment variables (never committed)
   .env.example          template for required environment variables
 ```
@@ -42,45 +50,95 @@ ADMIN_TOKEN=your_admin_token_here
 
 ## Supported Tournaments
 
-Defined in `constants/tournaments.py` as a list of tuples:
+Defined in `constants/tournaments.py` as tuples:
 
 ```txt
-(local_db_id, external_api_id, season)
+(local_db_id, external_api_id, season, end_date)
 ```
 
-All generators and refresh scripts iterate over this list. To add a new tournament, insert it into the DB first then add the tuple here.
+- `local_db_id` — internal DB id used by backend/admin routes
+- `external_api_id` — API-Football league id
+- `season` — tournament season/year
+- `end_date` — used by refresh jobs to stop polling concluded tournaments
+
+All generators and refresh scripts iterate over this list.
 
 ---
 
 ## Seed Scripts
 
-### Static seeds
+### Static Seeds
 
-SQL files in `scripts/seeds/` are committed to version control and run manually in Neon or any PostgreSQL client:
+Historical tournament snapshots are committed to version control under:
 
 ```txt
-seeds/
-  tournaments.sql     insert supported tournaments
+scripts/seeds/static/
 ```
 
-Run order matters — tournaments must exist before teams, teams before standings.
+Structure is organized by tournament:
+
+```txt
+static/
+  global/
+    tournaments.sql
+
+  world-cup-2022/
+    01-teams.sql
+    02-tournament-teams.sql
+    03-standings.sql
+```
+
+Files are executed in numeric order due to FK dependencies.
 
 ### Generators
 
-One-time scripts that fetch from API-Football and output SQL files to `scripts/seeds/generated/`. Run locally, review the output, then paste into Neon.
+### Generators
+
+Generators fetch tournament data from API-Football and output SQL files to:
+
+```txt
+scripts/seeds/generated/
+```
+
+Generated files are gitignored because they are derived artifacts rather than source-of-truth data.
+
+Run locally:
 
 ```bash
 python database/scripts/generators/generate_teams_seed.py
 python database/scripts/generators/generate_standings_seed.py
 ```
 
-Generated files are gitignored — they are derived artifacts, not source of truth.
+The standings generator outputs:
+
+- `tournament_teams.sql`
+- `standings.sql`
+
+After verifying generated output locally, promote stable snapshots into `scripts/seeds/static/`.
+
+---
+
+## Seeding Databases
+
+### Local Docker Database
+
+Seed all committed static data:
+
+```powershell
+.\database\scripts\seeds\seed-all.ps1
+```
+
+### Remote PostgreSQL / Neon
+
+Install PostgreSQL client tools (`psql`) and set `DATABASE_URL` in `database/.env`.
+
+The same script automatically switches to direct PostgreSQL mode when the connection string is not a local Docker Compose database.
 
 ---
 
 ## Refresh Scripts
 
-Scheduled scripts that keep live data current by calling the backend admin API directly.
+Scheduled scripts that keep live data current by calling the backend admin API directly. Finished tournaments are skipped automatically using the configured `end_date`.
 
 ```bash
 python database/scripts/refresh/refresh_standings.py
@@ -92,7 +150,7 @@ The standings refresh script:
 2. Fetches fresh standings from API-Football
 3. Transforms the response into the backend's expected shape
 4. Calls `PUT /api/v1/admin/standings/{tournament_id}` on the backend
-5. Backend writes new rows to DB and invalidates cache
+5. Backend upserts standings rows and invalidates cache
 
 ---
 
