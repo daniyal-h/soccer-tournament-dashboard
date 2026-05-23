@@ -6,6 +6,12 @@ A tournament-agnostic soccer dashboard built with World Cup 2026 as the primary 
 
 ---
 
+## Current Status
+
+Core standings infrastructure, tournament selection, database seeding pipeline, refresh jobs, CI/CD, Dockerization, and production deployment are implemented. Match schedules, player statistics, and knockout visualization are currently under active development.
+
+---
+
 ## Motivation
 
 Apps like Fotmob and SofaScore are excellent but closed. I wanted to build something that solves the same problem from scratch: a clean, fast soccer dashboard that a fan would actually use during the World Cup. The architecture is tournament-agnostic by design, so any competition supported by API-Football can be loaded via the tournament selector. World Cup 2026 is the default.
@@ -25,7 +31,7 @@ This project was built to practice the full software development lifecycle: feat
 | CI/CD             | GitHub Actions (lint, test, deploy on push to main)                                 |
 | Error monitoring  | Sentry (frontend + backend)                                                         |
 | Uptime monitoring | Better Stack · [Status Page](https://soccer-tournament-dashboard.betteruptime.com/) |
-| External data     | API-Football (responses cached in PostgreSQL)                                       |
+| External data     | API-Football (historical snapshots + scheduled refresh jobs)                        |
 
 ---
 
@@ -56,27 +62,27 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full breakdown.
 
 ## Features
 
-### Tournament Selection & Standings
+### Tournament Selection & Standings (in-progress)
 
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
-### Match Schedule
+### Match Schedule (planned)
 
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 to 3 columns on desktop). Live matches auto-refresh only when an active match is in progress. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
-### Team Profile
+### Team Profile (planned)
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
-### Player Stats Leaderboard
+### Player Stats Leaderboard (planned)
 
 Tournament-wide player rankings pre-seeded into PostgreSQL via a daily scheduled job. Sortable by goals, assists, and cards. Filterable by position and country. Hover (desktop) or tap (mobile) reveals a full player detail card.
 
-### Global Search
+### Global Search (planned)
 
 Persistent search bar in the navbar. Searches teams and players from the PostgreSQL cache using full-text search (tsvector/tsquery). Filter chips for All, Teams, and Players. Debounced input to avoid unnecessary queries.
 
-### Knockout Bracket
+### Knockout Bracket (planned)
 
 Visual bracket from Round of 16 through to the Final. Renders placeholder slots before July 4 when the knockout stage begins, then populates with real data as matches are played.
 
@@ -166,6 +172,14 @@ docker compose up -d --build
 
 ---
 
+### Seed historical tournament data
+
+```powershell
+.\database\scripts\seeds\seed-all.ps1
+```
+
+---
+
 ### Verify database setup (optional)
 
 ```bash
@@ -193,7 +207,7 @@ docker compose down -v
 
 ## Testing
 
-See [docs/TEST-PLAN.md](docs/TEST-PLAN.md) for the full strategy and live status.
+See [docs/test-plan.pdf](docs/test-plan.pdf) for the full strategy and live status.
 
 | Type            | Tool           | Scope                                                             |
 | --------------- | -------------- | ----------------------------------------------------------------- |
@@ -281,7 +295,9 @@ soccer-tournament-dashboard/
       generators/
       refresh/
       seeds/
-    utils/
+        generated/
+        static/
+        seed-all.ps1
 ```
 
 ---
