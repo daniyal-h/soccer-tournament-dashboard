@@ -13,7 +13,7 @@ def refresh_standings() -> None:
     for local_id, tournament_api_id, season, end_date in SUPPORTED_TOURNAMENTS:
         # do not refresh finished tournaments
         if date.today() > end_date:
-            return
+            continue
         
         # fetch fresh standings from API-Football
         data = api_get("/standings", {"league": tournament_api_id, "season": season})
@@ -28,10 +28,17 @@ def refresh_standings() -> None:
 
         for group_rows in standings_groups:
             for row in group_rows:
+                raw_group = row.get("group") or ""
+                group = raw_group.replace("Group ", "").strip()
+
+                # skip extraneous non-group data
+                if len(group) != 1 or not group.isalpha():
+                    continue
+
                 standings_data.append(
                     {
                         "external_team_id": row["team"]["id"],
-                        "group": row.get("group", "").replace("Group ", "").strip(),
+                        "group": group.upper(),
                         "position": row.get("rank", 0),
                         "points": row.get("points", 0),
                         "wins": row["all"].get("win", 0),
