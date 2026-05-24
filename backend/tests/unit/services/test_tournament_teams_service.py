@@ -27,7 +27,7 @@ def test_get_tournament_teams_raises_not_found_when_empty(mocker):
         return_value=[],
     )
 
-    with pytest.raises(NotFoundError):
+    with pytest.raises(NotFoundError, match="No teams found in tournament 1"):
         tournament_teams_service.get_tournament_teams(db, tournament_id=1)
 
 
