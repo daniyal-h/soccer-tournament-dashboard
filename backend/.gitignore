@@ -25,6 +25,7 @@ alembic/versions/__pycache__/
 htmlcov/
 .pytest_cache/
 .mutmut-cache/
+mutants/
 
 # IDE stuff (if you didn’t already handle at root)
 .vscode/
