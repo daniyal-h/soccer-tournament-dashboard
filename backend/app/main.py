@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.middleware.logging import RequestLoggingMiddleware
+from app.middleware.rate_limit import setup_rate_limiting
 from app.schemas.errors import AppError, app_error_handler
 
 # skip Sentry if not given for cases such as when running unit tests
@@ -20,6 +21,8 @@ if settings.SENTRY_DSN:
 app = FastAPI(title="Soccer Tournament Dashboard API")
 
 app.add_exception_handler(AppError, app_error_handler)
+
+setup_rate_limiting(app)
 
 app.add_middleware(RequestLoggingMiddleware)
 
