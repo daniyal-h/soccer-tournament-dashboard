@@ -154,14 +154,15 @@ jobs:
                   pip install -r requirements.txt -r requirements-dev.txt
               working-directory: backend
 
-            - name: Run pytest
-              run: pytest -v
+            - name: Run pytest with coverage
+              run: pytest -v --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
               working-directory: backend
               env:
                   ENVIRONMENT: test
                   SENTRY_DSN: ""
                   DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-                  ALLOWED_ORIGINS: '["http://localhost:5173"]'
+                  ALLOWED_ORIGINS: '"http://localhost:5173","http://localhost:3000"]'
+                  ADMIN_TOKEN: test_token
 
     frontend-tests:
         name: Frontend tests
