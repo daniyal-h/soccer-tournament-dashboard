@@ -228,6 +228,7 @@ frontend/coverage/
 # backend
 backend/venv/
 backend/.venv/
+backend/wsl-venv/
 backend/__pycache__/
 backend/.pytest_cache/
 backend/htmlcov/
