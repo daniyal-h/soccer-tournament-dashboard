@@ -87,7 +87,9 @@ describe('useStandings', () => {
     });
 
     expect(result.current.standings).toEqual({});
-    expect(result.current.error?.message).toBe('Too many requests. Please try again shortly.');
+    expect(result.current.error?.message).toBe(
+      'Too many requests. Please wait a moment and try again.',
+    );
   });
 
   it('handles network errors', async () => {

@@ -25,7 +25,7 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
         }
 
         if (err instanceof ApiError && err.code === 'RATE_LIMITED') {
-          setError(new Error('Too many requests. Please try again shortly.'));
+          setError(new Error('Too many requests. Please wait a moment and try again.'));
           return;
         }
 
