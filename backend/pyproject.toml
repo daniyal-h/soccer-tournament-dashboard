@@ -8,4 +8,6 @@ select = ["E", "F", "I"]  # pycodestyle, pyflakes, isort
 
 [tool.mutmut]
 paths_to_mutate = ["app"]
-runner = "pytest tests/unit"
+tests_dir = ["tests/unit"]
+runner = "pytest"
+debug = true
