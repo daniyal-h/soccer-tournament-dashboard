@@ -24,6 +24,11 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
           return;
         }
 
+        if (err instanceof ApiError && err.code === 'RATE_LIMITED') {
+          setError(new Error('Too many requests. Please try again shortly.'));
+          return;
+        }
+
         if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
           setError(new Error('Unable to reach the server.'));
           return;
