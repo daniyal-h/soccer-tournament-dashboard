@@ -14,7 +14,7 @@ router = APIRouter()
 @router.get("/{tournament_id}", response_model=dict[str, list[StandingResponse]])
 @limiter.limit("60/minute")
 def get_standings(
-    _request: Request,
+    request: Request,
     db: Annotated[Session, Depends(get_db)],
     tournament_id: int,
     group: str | None = None,
