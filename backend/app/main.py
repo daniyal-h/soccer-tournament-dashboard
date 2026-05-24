@@ -7,6 +7,7 @@ from app.api.v1.routers import testing
 from app.core.config import settings
 from app.middleware.logging import RequestLoggingMiddleware
 from app.middleware.rate_limit import setup_rate_limiting
+from app.middleware.security_headers import setup_security_headers
 from app.schemas.errors import AppError, app_error_handler
 
 # skip Sentry if not given for cases such as when running unit tests
@@ -23,6 +24,7 @@ app = FastAPI(title="Soccer Tournament Dashboard API")
 
 app.add_exception_handler(AppError, app_error_handler)
 
+setup_security_headers(app)
 setup_rate_limiting(app)
 
 app.add_middleware(RequestLoggingMiddleware)
