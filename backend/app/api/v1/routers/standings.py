@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import standings as standings_service
@@ -16,7 +16,10 @@ router = APIRouter()
 def get_standings(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    tournament_id: int,
-    group: str | None = None,
+    tournament_id: Annotated[int, Path(gt=0)],
+    group: Annotated[
+        str | None,
+        Query(pattern="^[A-L]$", max_length=1),
+    ] = None,
 ):
     return standings_service.get_standings(db, tournament_id, group)
