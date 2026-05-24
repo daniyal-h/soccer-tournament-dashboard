@@ -3,11 +3,22 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.extension import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
-from slowapi.util import get_remote_address
+from starlette.requests import Request
+
+
+# get IP address from either forwarded for or through request
+def get_client_ip(request: Request) -> str:
+    forwarded = request.headers.get("X-Forwarded-For")
+
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+
+    return request.client.host
+
 
 limiter = Limiter(
-    # rate limit based on IP addresses 
-    key_func=get_remote_address,
+    # rate limit based on IP addresses
+    key_func=get_client_ip,
     default_limits=["100/minute"],
 )
 
