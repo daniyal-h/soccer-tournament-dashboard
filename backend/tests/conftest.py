@@ -10,11 +10,16 @@ os.environ.setdefault("ALLOWED_ORIGINS", '["http://localhost:5173","http://local
 os.environ["ADMIN_TOKEN"] = "test_token"
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.main import app as fastapi_app
 
 
 @pytest.fixture
-def client() -> TestClient:
+def app() -> FastAPI:
+    return fastapi_app
+
+@pytest.fixture
+def client(app: FastAPI) -> TestClient:
     return TestClient(app)
