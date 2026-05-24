@@ -70,7 +70,26 @@ describe('useStandings', () => {
     });
 
     expect(result.current.standings).toEqual({});
-    expect(result.current.error?.message).toBe('No standings available yet.');
+    expect(result.current.error?.message).toBe(
+      'Groups and rankings will appear once tournament data is available.',
+    );
+  });
+
+  it('handles rate-limited standings errors', async () => {
+    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
+      new ApiError('Rate limit exceeded. Please try again later.', 429, 'RATE_LIMITED'),
+    );
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.standings).toEqual({});
+    expect(result.current.error?.message).toBe(
+      'Too many requests. Please wait a moment and try again.',
+    );
   });
 
   it('handles network errors', async () => {

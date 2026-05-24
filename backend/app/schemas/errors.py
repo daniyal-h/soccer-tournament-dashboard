@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
 
 # Base exception
 
@@ -55,3 +56,21 @@ def app_error_handler(_request: Request, exc: AppError) -> JSONResponse:
             }
         },
     )
+
+
+def rate_limit_handler(_request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    response = JSONResponse(
+        status_code=429,
+        content={
+            "error": {
+                "status": 429,
+                "code": "RATE_LIMITED",
+                "message": "Rate limit exceeded. Please try again later.",
+            }
+        },
+    )
+
+    if getattr(exc, "headers", None):
+        response.headers.update(exc.headers)
+
+    return response

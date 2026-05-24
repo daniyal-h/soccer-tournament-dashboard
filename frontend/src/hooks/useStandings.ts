@@ -20,7 +20,12 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
       .then(setStandings)
       .catch((err) => {
         if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('No standings available yet.'));
+          setError(new Error('Groups and rankings will appear once tournament data is available.'));
+          return;
+        }
+
+        if (err instanceof ApiError && err.code === 'RATE_LIMITED') {
+          setError(new Error('Too many requests. Please wait a moment and try again.'));
           return;
         }
 

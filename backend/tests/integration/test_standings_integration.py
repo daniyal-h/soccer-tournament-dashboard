@@ -154,11 +154,11 @@ def test_standings_ranked_correctly(client, db_session, seeded_tournament):
     assert group_a[2]["points"] == 3
 
 
-def test_standings_invalid_group_returns_404(
+def test_standings_invalid_group_returns_422(
     client,
     db_session,
     seeded_tournament,
 ):
     response = client.get("/api/v1/standings/1?group=Z")
 
-    assert response.status_code == 404
+    assert response.status_code == 422
