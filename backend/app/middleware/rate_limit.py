@@ -6,6 +6,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
 
 limiter = Limiter(
+    # rate limit based on IP addresses 
     key_func=get_remote_address,
     default_limits=["100/minute"],
 )
