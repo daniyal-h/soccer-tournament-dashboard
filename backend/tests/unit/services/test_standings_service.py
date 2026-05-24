@@ -19,6 +19,23 @@ def mock_cache(mocker):
     )
 
 
+def test_get_standings_rejects_invalid_tournament_id(client):
+    response = client.get("/api/v1/standings/0")
+
+    assert response.status_code == 422
+
+
+def test_get_standings_rejects_invalid_group(client):
+    response = client.get("/api/v1/standings/1?group=Z")
+    assert response.status_code == 422
+
+    response = client.get("/api/v1/standings/-1?group=A")
+    assert response.status_code == 422
+
+    response = client.get("/api/v1/standings/1?group=AZ")
+    assert response.status_code == 422
+
+
 def test_build_zero_state_standings_returns_zeroed_stats():
     tt1 = Mock(tournament_id=1, team_id=1, group="A", team=Mock())
     tt2 = Mock(tournament_id=1, team_id=2, group="A", team=Mock())
