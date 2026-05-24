@@ -233,6 +233,7 @@ backend/__pycache__/
 backend/.pytest_cache/
 backend/htmlcov/
 backend/.coverage
+backend/.mutmut-cache/
 
 # environment files
 .env
