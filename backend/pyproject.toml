@@ -7,5 +7,5 @@ select = ["E", "F", "I"]  # pycodestyle, pyflakes, isort
 [tool.ruff.format]
 
 [tool.mutmut]
-path_to_mutate = ["app"]
-runner = "pytest test/unit"
+paths_to_mutate = ["app"]
+runner = "pytest tests/unit"
