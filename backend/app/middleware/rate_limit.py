@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
-from slowapi.extension import _rate_limit_exceeded_handler
 from slowapi.middleware import SlowAPIMiddleware
 from starlette.requests import Request
+
+from app.schemas.errors import rate_limit_handler
 
 
 # get IP address from either forwarded for or through request
@@ -25,5 +26,5 @@ limiter = Limiter(
 
 def setup_rate_limiting(app: FastAPI) -> None:
     app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_exception_handler(RateLimitExceeded, rate_limit_handler)
     app.add_middleware(SlowAPIMiddleware)
