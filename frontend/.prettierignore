@@ -3,3 +3,7 @@ dist
 build
 coverage
 package-lock.json
+
+# stryker mutation testing
+.stryker-tmp/
+reports/mutation/

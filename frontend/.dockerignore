@@ -28,3 +28,7 @@ coverage
 
 # typescript
 *.tsbuildinfo
+
+# stryker mutation testing
+.stryker-tmp/
+reports/mutation/
