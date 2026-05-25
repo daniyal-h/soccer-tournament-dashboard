@@ -15,6 +15,13 @@ const Standings = () => {
     ? new Date() > new Date(selectedTournament.start_date)
     : false;
 
+  const tournamentName = selectedTournament?.name;
+
+  const description =
+    hasStarted && tournamentName
+      ? `View group standings for ${tournamentName}.`
+      : "The group stage hasn't started yet. Check back once the tournament kicks off.";
+
   if (error) {
     return <ErrorState title="Standings unavailable" description={error.message} />;
   }
@@ -23,11 +30,7 @@ const Standings = () => {
     return (
       <section className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
-        <p className="text-muted-foreground">
-          {hasStarted
-            ? `View group standings for ${selectedTournament?.name}.`
-            : "The group stage hasn't started yet. Check back once the tournament kicks off."}
-        </p>
+        <p className="text-muted-foreground">{description}</p>
 
         <StandingsSkeleton />
       </section>
@@ -38,11 +41,7 @@ const Standings = () => {
     <section className="space-y-3">
       <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
 
-      <p className="text-muted-foreground">
-        {hasStarted
-          ? `View group standings for ${selectedTournament?.name}.`
-          : "The group stage hasn't started yet. Check back once the tournament kicks off."}
-      </p>
+      <p className="text-muted-foreground">{description}</p>
 
       <div className="space-y-4 pt-2">
         <Legend />
