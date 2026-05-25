@@ -13,6 +13,7 @@
     "test": "vitest --reporter=verbose",
     "test:run": "vitest run --reporter=verbose",
     "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage --reporter=verbose",
     "test:mutation": "stryker run",
     "test:mutation:report": "stryker run && echo \"Open reports/mutation/index.html\""
   },
