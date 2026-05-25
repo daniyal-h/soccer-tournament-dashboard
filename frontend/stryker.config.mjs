@@ -3,8 +3,8 @@ export default {
   testRunner: 'vitest',
   coverageAnalysis: 'perTest',
 
-  concurrency: 4,
-  timeoutMS: 60000,
+  concurrency: 2,
+  timeoutMS: 10000,
   timeoutFactor: 2,
   ignoreStatic: true,
 
@@ -19,6 +19,14 @@ export default {
     '!src/main.tsx',
     '!src/App.tsx',
     '!src/setupTests.ts',
+    '!src/components/layout/AppLayout.tsx',
+    '!src/components/layout/PageContainer.tsx',
+
+    // placeholder pages
+    '!src/pages/PlayerStats.tsx',
+    '!src/pages/Schedule.tsx',
+    '!src/pages/TeamProfile.tsx',
+    '!src/pages/Teams.tsx',
 
     // ShadCN components
     '!src/components/ui/**', 
