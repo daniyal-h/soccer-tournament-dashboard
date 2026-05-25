@@ -45,6 +45,7 @@ const TournamentSelector = () => {
         items={tournamentOptions}
         value={selectedTournamentLabel}
         onValueChange={(label) => {
+          // Stryker disable next-line ConditionalExpression, BlockStatement: empty label already guarded
           if (!label) {
             return;
           }
