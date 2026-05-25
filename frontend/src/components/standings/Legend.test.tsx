@@ -19,4 +19,11 @@ describe('Legend', () => {
     expect(screen.getByText('MP').parentElement).toHaveClass('hidden');
     expect(screen.getByText('GD').parentElement).toHaveClass('hidden');
   });
+
+  it('renders primary legend items as inline-flex', () => {
+    render(<Legend />);
+
+    expect(screen.getByText('W').parentElement).toHaveClass('inline-flex');
+    expect(screen.getByText('Pts').parentElement).toHaveClass('inline-flex');
+  });
 });
