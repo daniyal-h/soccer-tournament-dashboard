@@ -12,7 +12,9 @@
     "format:check": "prettier --check .",
     "test": "vitest --reporter=verbose",
     "test:run": "vitest run --reporter=verbose",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:mutation": "stryker run",
+    "test:mutation:report": "stryker run && echo \"Open reports/mutation/index.html\""
   },
   "overrides": {
     "qs": "6.15.2"
