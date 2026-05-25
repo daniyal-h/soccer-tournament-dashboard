@@ -11,6 +11,7 @@ const DesktopNav = ({ navItems }: NavProps) => {
           to={item.to}
           className={({ isActive }) =>
             [
+              // Stryker disable next-line StringLiteral: base layout/style classes are visual-only
               'rounded-md px-2 py-2 text-sm font-medium transition-colors',
               isActive
                 ? 'bg-accent text-accent-foreground'

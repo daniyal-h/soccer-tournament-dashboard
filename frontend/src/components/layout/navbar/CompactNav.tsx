@@ -30,6 +30,7 @@ const CompactNav = ({ navItems }: NavProps) => {
                 onClick={() => setIsOpen(false)}
                 className={({ isActive }) =>
                   [
+                    // Stryker disable next-line StringLiteral: base layout/style classes are visual-only
                     'rounded-md px-3 py-2 text-base font-medium transition-colors',
                     isActive
                       ? 'bg-accent text-foreground'
