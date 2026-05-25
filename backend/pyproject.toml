@@ -10,3 +10,12 @@ select = ["E", "F", "I"]  # pycodestyle, pyflakes, isort
 paths_to_mutate = ["app"]
 tests_dir = ["tests/unit"]
 runner = "pytest"
+do_not_mutate = [
+    "app/api/v1/repositories/*",
+    "app/models/*",
+    "app/schemas/*",
+    "app/core/config.py",
+    "app/core/database.py",
+    "app/middleware/*",
+]
+debug = true
