@@ -22,7 +22,18 @@ vi.mock('@/components/standings/Legend', () => ({
 }));
 
 vi.mock('@/components/standings/GroupGrid', () => ({
-  default: () => <div>GroupGrid Mock</div>,
+  default: ({ standings }: { standings: unknown }) => (
+    <div data-testid="group-grid">{JSON.stringify(standings)}</div>
+  ),
+}));
+
+vi.mock('@/components/feedback/ErrorState', () => ({
+  default: ({ title, description }: { title: string; description: string }) => (
+    <div>
+      <h2>{title}</h2>
+      <p>{description}</p>
+    </div>
+  ),
 }));
 
 vi.mock('@/components/standings/StandingsSkeleton', () => ({
@@ -32,6 +43,8 @@ vi.mock('@/components/standings/StandingsSkeleton', () => ({
 const mockedUseStandings = vi.mocked(useStandings);
 
 beforeEach(() => {
+  vi.clearAllMocks();
+
   mockedUseTournament.mockReturnValue({
     selectedTournamentId: 1,
     selectedTournament: {
@@ -101,7 +114,7 @@ describe('Standings', () => {
     render(<Standings />);
 
     expect(screen.getByText('Legend Mock')).toBeInTheDocument();
-    expect(screen.getByText('GroupGrid Mock')).toBeInTheDocument();
+    expect(screen.getByTestId('group-grid')).toHaveTextContent('{}');
     expect(screen.queryByText('Standings Skeleton Mock')).not.toBeInTheDocument();
   });
 
@@ -140,5 +153,157 @@ describe('Standings', () => {
     render(<Standings />);
 
     expect(screen.getByText(/FIFA World Cup 2026/i)).toBeInTheDocument();
+  });
+
+  it('passes loaded standings to GroupGrid', () => {
+    mockedUseStandings.mockReturnValue({
+      standings: {
+        A: [
+          {
+            team: {
+              id: 1,
+              name: 'Argentina',
+              short_name: 'ARG',
+              logo_url: 'example.com',
+            },
+            position: 1,
+            matches_played: 3,
+            wins: 3,
+            draws: 0,
+            losses: 0,
+            goals_for: 8,
+            goals_against: 2,
+            goal_difference: 6,
+            points: 9,
+          },
+        ],
+      },
+      isLoading: false,
+      error: null,
+    });
+
+    render(<Standings />);
+
+    expect(screen.getByTestId('group-grid')).toHaveTextContent('Argentina');
+  });
+
+  it('treats the tournament as not started when current time equals the start date', () => {
+    vi.useFakeTimers();
+
+    vi.setSystemTime(new Date('2026-06-11T00:00:00Z'));
+
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'World Cup',
+        season: '2026',
+        logo_url: null,
+        start_date: '2026-06-11T00:00:00Z',
+        end_date: '2026-07-19T00:00:00Z',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: true,
+      error: null,
+    });
+
+    render(<Standings />);
+
+    expect(
+      screen.getByText(
+        "The group stage hasn't started yet. Check back once the tournament kicks off.",
+      ),
+    ).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
+  it('renders the started tournament description with the tournament name', () => {
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'Copa Test',
+        season: '2026',
+        logo_url: null,
+        start_date: '2024-01-01',
+        end_date: '2024-02-01',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      error: null,
+    });
+
+    render(<Standings />);
+
+    expect(screen.getByText('View group standings for Copa Test.')).toBeInTheDocument();
+  });
+
+  it('renders started tournament loading description with tournament name', () => {
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'Copa Test',
+        season: '2026',
+        logo_url: null,
+        start_date: '2024-01-01',
+        end_date: '2024-02-01',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: true,
+      error: null,
+    });
+
+    render(<Standings />);
+
+    expect(screen.getByText('View group standings for Copa Test.')).toBeInTheDocument();
+    expect(screen.getByText('Standings Skeleton Mock')).toBeInTheDocument();
+  });
+
+  it('renders pre-tournament loading description when no tournament is selected', () => {
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: null,
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: true,
+      error: null,
+    });
+
+    render(<Standings />);
+
+    expect(
+      screen.getByText(
+        "The group stage hasn't started yet. Check back once the tournament kicks off.",
+      ),
+    ).toBeInTheDocument();
   });
 });
