@@ -26,3 +26,5 @@ dist-ssr
 # stryker mutation testing
 .stryker-tmp/
 reports/mutation/
+reports/mutation-local/
+stryker.local.config.mjs
