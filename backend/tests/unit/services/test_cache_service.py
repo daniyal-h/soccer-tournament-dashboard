@@ -13,6 +13,26 @@ def make_entry(expires_at: datetime, payload: dict) -> CacheEntry:
     return entry
 
 
+def test_get_cache_calls_repo_with_db_and_key(mocker):
+    db = mocker.Mock()
+    payload = {"hello": "world"}
+
+    entry = make_entry(
+        expires_at=datetime.now(UTC) + timedelta(minutes=5),
+        payload=payload,
+    )
+
+    get_cache_entry_mock = mocker.patch(
+        "app.api.v1.services.cache.cache_repo.get_cache_entry",
+        return_value=entry,
+    )
+
+    result = cache_service.get_cache(db, "standings:1")
+
+    assert result == payload
+    get_cache_entry_mock.assert_called_once_with(db, "standings:1")
+
+
 def test_get_cache_returns_none_when_not_found(mocker):
     db = Mock()
     mocker.patch(
@@ -39,6 +59,29 @@ def test_get_cache_returns_none_when_expired(mocker):
     result = cache_service.get_cache(db, "standings:1")
 
     assert result is None
+
+
+def test_get_cache_returns_payload_when_expiry_equals_now(mocker):
+    db = Mock()
+    now = datetime.now(UTC)
+    payload = {"A": []}
+
+    entry = make_entry(
+        expires_at=now,
+        payload=payload,
+    )
+
+    mocker.patch(
+        "app.api.v1.services.cache.cache_repo.get_cache_entry",
+        return_value=entry,
+    )
+
+    datetime_mock = mocker.patch("app.api.v1.services.cache.datetime")
+    datetime_mock.now.return_value = now
+
+    result = cache_service.get_cache(db, "standings:1")
+
+    assert result == payload
 
 
 def test_get_cache_returns_deserialized_payload_when_valid(mocker):

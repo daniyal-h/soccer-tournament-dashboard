@@ -1,5 +1,6 @@
 # virtual environments
 venv/
+wsl-venv/
 .venv/
 
 # python cache
@@ -23,6 +24,8 @@ alembic/versions/__pycache__/
 .coverage
 htmlcov/
 .pytest_cache/
+.mutmut-cache/
+mutants/
 
 # IDE stuff (if you didn’t already handle at root)
 .vscode/

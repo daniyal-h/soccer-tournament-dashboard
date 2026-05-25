@@ -5,3 +5,17 @@ line-length = 100
 select = ["E", "F", "I"]  # pycodestyle, pyflakes, isort
 
 [tool.ruff.format]
+
+[tool.mutmut]
+paths_to_mutate = ["app"]
+tests_dir = ["tests/unit"]
+runner = "pytest"
+do_not_mutate = [
+    "app/api/v1/repositories/*",
+    "app/models/*",
+    "app/schemas/*",
+    "app/core/config.py",
+    "app/core/database.py",
+    "app/middleware/*",
+]
+debug = true

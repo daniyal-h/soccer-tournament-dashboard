@@ -43,6 +43,17 @@ def test_build_zero_state_standings_returns_zeroed_stats():
     result = standings_service.build_zero_state_standings([tt1, tt2])
 
     assert len(result) == 2
+
+    assert result[0].tournament_id == 1
+    assert result[0].team_id == 1
+    assert result[0].group == "A"
+    assert result[0].team == tt1.team
+
+    assert result[1].tournament_id == 1
+    assert result[1].team_id == 2
+    assert result[1].group == "A"
+    assert result[1].team == tt2.team
+
     assert all(row.points == 0 for row in result)
     assert all(row.goals_for == 0 for row in result)
     assert all(row.goals_against == 0 for row in result)
@@ -66,6 +77,43 @@ def test_build_zero_state_standings_preserves_group_and_team():
 def test_build_zero_state_standings_returns_empty_for_no_teams():
     result = standings_service.build_zero_state_standings([])
     assert result == []
+
+
+def test_get_standings_calls_tournament_service_with_db_and_id(mocker):
+    db = Mock()
+
+    get_tournament = mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=Mock(start_date=date(2022, 11, 20), end_date=date(2022, 12, 18)),
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[Mock(group="A", points=0, goals_for=0, goals_against=0)],
+    )
+
+    standings_service.get_standings(db, tournament_id=7)
+
+    get_tournament.assert_called_once_with(db, 7)
+
+
+def test_get_standings_uses_tournament_teams_for_zero_state(mocker):
+    db = Mock()
+    tournament_team = Mock(tournament_id=7, team_id=3, group="A", team=Mock())
+
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[],
+    )
+    get_tournament_teams = mocker.patch(
+        "app.api.v1.services.standings.tournament_teams_service.get_tournament_teams",
+        return_value=[tournament_team],
+    )
+
+    result = standings_service.get_standings(db, tournament_id=7)
+
+    get_tournament_teams.assert_called_once_with(db, 7)
+    assert result["A"][0].tournament_id == 7
+    assert result["A"][0].team_id == 3
 
 
 def test_get_standings_returns_grouped_by_group(mocker):
@@ -123,7 +171,7 @@ def test_get_standings_raises_not_found_when_no_rows(mocker):
         side_effect=NotFoundError("No teams found in tournament"),
     )
 
-    with pytest.raises(NotFoundError):
+    with pytest.raises(NotFoundError, match="No standings found for tournament 1"):
         standings_service.get_standings(db, tournament_id=1)
 
 
@@ -138,6 +186,23 @@ def test_get_standings_calls_repo_with_correct_args(mocker):
     standings_service.get_standings(db, tournament_id=42)
 
     get_all_standings.assert_called_once_with(db, 42)
+
+
+def test_get_standings_sorts_by_goal_difference_not_total_goals(mocker):
+    db = Mock()
+
+    row1 = Mock(group="A", points=6, goals_for=5, goals_against=5)  # GD 0, total 10
+    row2 = Mock(group="A", points=6, goals_for=3, goals_against=0)  # GD +3, total 3
+    row3 = Mock(group="A", points=6, goals_for=2, goals_against=1)  # GD +1, total 3
+
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[row1, row2, row3],
+    )
+
+    result = standings_service.get_standings(db, tournament_id=1)
+
+    assert result["A"] == [row2, row3, row1]
 
 
 def test_get_standings_sorts_by_points(mocker):
@@ -203,6 +268,69 @@ def test_get_standings_returns_cached_result(mocker):
     mock_repo.assert_not_called()
 
 
+def test_get_standings_cache_hit_filters_requested_group(mocker):
+    db = Mock()
+    cached = {"A": [{"points": 9}], "B": [{"points": 3}]}
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=cached,
+    )
+    mock_repo = mocker.patch("app.api.v1.services.standings.standings_repo.get_all_standings")
+
+    result = standings_service.get_standings(db, tournament_id=1, group="A")
+
+    assert result == {"A": [{"points": 9}]}
+    mock_repo.assert_not_called()
+
+
+def test_get_standings_cache_hit_raises_for_missing_group(mocker):
+    db = Mock()
+    cached = {"A": [{"points": 9}]}
+
+    mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=cached,
+    )
+
+    with pytest.raises(NotFoundError, match="Group Z not found"):
+        standings_service.get_standings(db, tournament_id=1, group="Z")
+
+
+def test_get_standings_uses_correct_cache_key(mocker):
+    db = Mock()
+
+    get_cache = mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value={"A": []},
+    )
+
+    standings_service.get_standings(db, tournament_id=42)
+
+    get_cache.assert_called_once_with(db, "standings:42")
+
+
+def test_get_standings_writes_expected_grouped_payload_to_cache(mocker):
+    db = Mock()
+    row_a = Mock(group="A", points=3, goals_for=2, goals_against=1)
+    row_b = Mock(group="B", points=6, goals_for=4, goals_against=2)
+
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[row_a, row_b],
+    )
+    set_cache = mocker.patch("app.api.v1.services.standings.cache_service.set_cache")
+
+    standings_service.get_standings(db, tournament_id=7)
+
+    args, kwargs = set_cache.call_args
+
+    assert args[0] == db
+    assert args[1] == "standings:7"
+    assert args[2] == {"A": [row_a], "B": [row_b]}
+    assert kwargs["expires_at"] is not None
+
+
 def test_get_standings_writes_to_cache_on_miss(mocker):
     db = Mock()
 
@@ -222,6 +350,56 @@ def test_get_standings_writes_to_cache_on_miss(mocker):
     standings_service.get_standings(db, tournament_id=1)
 
     mock_set_cache.assert_called_once()
+
+
+def test_get_standings_passes_has_rows_true_for_persisted_rows(mocker):
+    db = Mock()
+    tournament = Mock(start_date=date(2022, 11, 20), end_date=date(2022, 12, 18))
+
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=tournament,
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[Mock(group="A", points=3, goals_for=1, goals_against=0)],
+    )
+
+    get_ttl = mocker.patch(
+        "app.api.v1.services.standings.get_standings_ttl",
+        return_value=STANDINGS_TTL,
+    )
+
+    standings_service.get_standings(db, tournament_id=1)
+
+    get_ttl.assert_called_once_with(tournament, has_rows=True)
+
+
+def test_get_standings_passes_has_rows_false_for_zero_state(mocker):
+    db = Mock()
+    tournament = Mock(start_date=date(2026, 6, 11), end_date=date(2026, 7, 19))
+
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=tournament,
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+        return_value=[],
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.tournament_teams_service.get_tournament_teams",
+        return_value=[Mock(tournament_id=1, team_id=1, group="A", team=Mock())],
+    )
+
+    get_ttl = mocker.patch(
+        "app.api.v1.services.standings.get_standings_ttl",
+        return_value=STANDINGS_PRE_TOURNAMENT_TTL,
+    )
+
+    standings_service.get_standings(db, tournament_id=1)
+
+    get_ttl.assert_called_once_with(tournament, has_rows=False)
 
 
 def test_get_standings_uses_finished_tournament_ttl(mocker):
@@ -329,6 +507,145 @@ def test_update_standings_resolves_team_ids_and_calls_repo(mocker):
     assert rows_passed[0].team_id == 10
 
 
+def test_update_standings_calls_repo_with_db_tournament_and_rows(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    update_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
+    )
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=5, data=data)
+
+    args = update_repo.call_args[0]
+
+    assert args[0] == db
+    assert args[1] == 5
+    assert len(args[2]) == 1
+
+
+def test_update_standings_builds_rows_with_all_fields(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    update_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
+    )
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=2,
+            points=7,
+            wins=2,
+            draws=1,
+            losses=0,
+            goals_for=8,
+            goals_against=3,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=5, data=data)
+
+    rows_passed = update_repo.call_args[0][2]
+    row = rows_passed[0]
+
+    assert row.tournament_id == 5
+    assert row.team_id == 10
+    assert row.group == "A"
+    assert row.position == 2
+    assert row.points == 7
+    assert row.wins == 2
+    assert row.draws == 1
+    assert row.losses == 0
+    assert row.goals_for == 8
+    assert row.goals_against == 3
+
+
+def test_update_standings_resolves_each_external_team_id(mocker):
+    db = Mock()
+
+    get_team_id = mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        side_effect=[10, 20],
+    )
+    update_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
+    )
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
+    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        ),
+        StandingRefreshRow(
+            external_team_id=88,
+            group="B",
+            position=2,
+            points=4,
+            wins=1,
+            draws=1,
+            losses=1,
+            goals_for=2,
+            goals_against=2,
+        ),
+    ]
+
+    standings_service.update_standings(db, tournament_id=5, data=data)
+
+    assert get_team_id.call_args_list == [
+        mocker.call(db, 99),
+        mocker.call(db, 88),
+    ]
+
+    rows_passed = update_repo.call_args[0][2]
+    assert [row.team_id for row in rows_passed] == [10, 20]
+    assert [row.group for row in rows_passed] == ["A", "B"]
+
+
 def test_update_standings_invalidates_cache(mocker):
     db = Mock()
 
@@ -398,3 +715,89 @@ def test_update_standings_logs_success_job(mocker):
 
     mock_create.assert_called_once()
     mock_complete.assert_called_once_with(db, 1, success=True)
+
+
+def test_update_standings_creates_refresh_job_with_expected_name(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+    mocker.patch("app.api.v1.services.standings.standings_repo.update_standings_in_tournament")
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+
+    create_job = mocker.patch(
+        "app.api.v1.services.standings.refresh_jobs_repo.create_job",
+        return_value=123,
+    )
+    complete_job = mocker.patch(
+        "app.api.v1.services.standings.refresh_jobs_repo.complete_job",
+    )
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    standings_service.update_standings(db, tournament_id=5, data=data)
+
+    create_job.assert_called_once_with(db, "standings_refresh")
+    complete_job.assert_called_once_with(db, 123, success=True)
+
+
+def test_update_standings_logs_failed_job_when_update_fails(mocker):
+    db = Mock()
+
+    mocker.patch(
+        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
+        return_value=10,
+    )
+
+    mocker.patch(
+        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
+        side_effect=Exception("database exploded"),
+    )
+
+    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
+
+    create_job = mocker.patch(
+        "app.api.v1.services.standings.refresh_jobs_repo.create_job",
+        return_value=123,
+    )
+    complete_job = mocker.patch(
+        "app.api.v1.services.standings.refresh_jobs_repo.complete_job",
+    )
+
+    from app.schemas.standings import StandingRefreshRow
+
+    data = [
+        StandingRefreshRow(
+            external_team_id=99,
+            group="A",
+            position=1,
+            points=9,
+            wins=3,
+            draws=0,
+            losses=0,
+            goals_for=5,
+            goals_against=1,
+        )
+    ]
+
+    with pytest.raises(Exception, match="database exploded"):
+        standings_service.update_standings(db, tournament_id=5, data=data)
+
+    create_job.assert_called_once()
+    complete_job.assert_called_once_with(db, 123, success=False)

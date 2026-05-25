@@ -154,14 +154,21 @@ jobs:
                   pip install -r requirements.txt -r requirements-dev.txt
               working-directory: backend
 
-            - name: Run pytest
-              run: pytest -v
+            - name: Run pytest with coverage
+              run: pytest -v --cov=app --cov-report=term-missing --cov-report=xml:coverage.xml
               working-directory: backend
               env:
                   ENVIRONMENT: test
                   SENTRY_DSN: ""
                   DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
-                  ALLOWED_ORIGINS: '["http://localhost:5173"]'
+                  ALLOWED_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+                  ADMIN_TOKEN: test_token
+
+            - name: Upload coverage report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: backend-coverage
+                  path: backend/coverage.xml
 
     frontend-tests:
         name: Frontend tests
@@ -237,16 +244,22 @@ jobs:
               run: docker compose down -v
 
     # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
-    # TODO: add back coverage download steps and update needs to include tests jobs
+    # TODO: add frontend coverage download steps and update needs to include tests jobs
     sonarcloud:
         name: SonarCloud scan
-        needs: [build]
+        needs: [build, backend-tests]
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v5
               with:
                   fetch-depth: 0
+
+            - name: Download coverage report
+              uses: actions/download-artifact@v4
+              with:
+                  name: backend-coverage
+                  path: backend
 
             - name: SonarCloud scan
               uses: SonarSource/sonarcloud-github-action@master
