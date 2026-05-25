@@ -25,6 +25,7 @@ Thumbs.db
 
 # testing
 coverage
+coverage/
 
 # typescript
 *.tsbuildinfo

@@ -23,6 +23,10 @@ dist-ssr
 *.sln
 *.sw?
 
+# vitest coverage
+coverage
+coverage/
+
 # stryker mutation testing
 .stryker-tmp/
 reports/mutation/
