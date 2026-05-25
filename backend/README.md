@@ -336,6 +336,7 @@ Initial limits:
 
 ```txt
 General endpoints: 100/min/IP
+Standings endpoint: 60/min/IP
 Search endpoint: 30/min/IP
 Admin endpoints: 3/min/IP
 ```
@@ -394,6 +395,8 @@ Run mutation tests:
 mutmut run
 mutmut results
 ```
+
+Results found in: [Mutation Testing Reports](/backend/reports/mutation-testing.md)
 
 ---
 
