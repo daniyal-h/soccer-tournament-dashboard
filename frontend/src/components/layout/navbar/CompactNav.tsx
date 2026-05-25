@@ -6,7 +6,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/com
 
 import { type NavProps } from '@/types/navbar';
 
-const MobileNav = ({ navItems }: NavProps) => {
+const CompactNav = ({ navItems }: NavProps) => {
   return (
     <div className="flex items-center">
       <Sheet>
@@ -45,4 +45,4 @@ const MobileNav = ({ navItems }: NavProps) => {
   );
 };
 
-export default MobileNav;
+export default CompactNav;
