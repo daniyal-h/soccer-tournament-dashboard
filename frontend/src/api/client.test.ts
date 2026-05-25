@@ -25,6 +25,14 @@ describe('apiGet', () => {
     expect(mockFetch).toHaveBeenCalledOnce();
   });
 
+  it('uses default status and code when omitted', () => {
+    const error = new ApiError('Boom');
+
+    expect(error.message).toBe('Boom');
+    expect(error.status).toBe(500);
+    expect(error.code).toBe('UNKNOWN_ERROR');
+  });
+
   it('throws a safe backend error message for whitelisted error codes', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,
@@ -79,5 +87,303 @@ describe('apiGet', () => {
     mockFetch.mockRejectedValueOnce(new Error('Failed to fetch'));
 
     await expect(apiGet('/tournaments/')).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it('calls fetch with the API base URL and path', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ ok: true }),
+    });
+
+    await apiGet('/standings/1');
+
+    expect(mockFetch).toHaveBeenCalledWith(`${import.meta.env.VITE_API_BASE_URL}/standings/1`);
+  });
+
+  it('throws ApiError with safe backend status and code', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => ({
+        error: {
+          status: 404,
+          code: 'NOT_FOUND',
+          message: 'No tournaments found',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/tournaments/');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).message).toBe('No tournaments found');
+      expect((error as ApiError).status).toBe(404);
+      expect((error as ApiError).code).toBe('NOT_FOUND');
+    }
+  });
+
+  it('keeps response status when backend error status is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: {
+          code: 'BAD_REQUEST',
+          message: 'Bad request from backend',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/bad-request');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(400);
+      expect((error as ApiError).code).toBe('BAD_REQUEST');
+      expect((error as ApiError).message).toBe('Bad request from backend');
+    }
+  });
+
+  it('uses UNKNOWN_ERROR when backend error code is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({
+        error: {
+          status: 500,
+          message: 'Hidden backend details',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/server-error');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(500);
+      expect((error as ApiError).code).toBe('UNKNOWN_ERROR');
+      expect((error as ApiError).message).toBe('Something went wrong.');
+    }
+  });
+
+  it('uses backend error status when provided', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: {
+          status: 404,
+          code: 'NOT_FOUND',
+          message: 'Not found',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/missing');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).status).toBe(404);
+    }
+  });
+
+  it('falls back to response status when backend error status is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      json: async () => ({
+        error: {
+          code: 'RATE_LIMITED',
+          message: 'Too many requests.',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/limited');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect((error as ApiError).status).toBe(429);
+    }
+  });
+
+  it('uses backend error code when provided', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 429,
+      json: async () => ({
+        error: {
+          status: 429,
+          code: 'RATE_LIMITED',
+          message: 'Too many requests.',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/limited');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect((error as ApiError).code).toBe('RATE_LIMITED');
+    }
+  });
+
+  it('falls back to UNKNOWN_ERROR when backend error code is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({
+        error: {
+          status: 500,
+          message: 'Server exploded',
+        },
+      }),
+    });
+
+    try {
+      await apiGet('/server-error');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect((error as ApiError).code).toBe('UNKNOWN_ERROR');
+    }
+  });
+
+  it('uses safe backend error messages', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => ({
+        error: {
+          status: 404,
+          code: 'NOT_FOUND',
+          message: 'Tournament not found.',
+        },
+      }),
+    });
+
+    await expect(apiGet('/missing')).rejects.toThrow('Tournament not found.');
+  });
+
+  it('does not expose unsafe backend error messages', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({
+        error: {
+          status: 500,
+          code: 'INTERNAL_ERROR',
+          message: 'database password is abc123',
+        },
+      }),
+    });
+
+    await expect(apiGet('/server-error')).rejects.toThrow('Something went wrong.');
+  });
+
+  it('does not expose backend message when code is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: {
+          status: 400,
+          message: 'Backend detail without code',
+        },
+      }),
+    });
+
+    await expect(apiGet('/bad-request')).rejects.toThrow('Something went wrong.');
+  });
+
+  it('falls back to generic ApiError when error body cannot be parsed', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => {
+        throw new Error('Invalid JSON');
+      },
+    });
+
+    try {
+      await apiGet('/broken-json');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).message).toBe('Something went wrong.');
+      expect((error as ApiError).status).toBe(500);
+      expect((error as ApiError).code).toBe('UNKNOWN_ERROR');
+    }
+  });
+
+  it('falls back to generic error when response body has no error object', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({}),
+    });
+
+    try {
+      await apiGet('/server-error');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).message).toBe('Something went wrong.');
+      expect((error as ApiError).status).toBe(500);
+      expect((error as ApiError).code).toBe('UNKNOWN_ERROR');
+    }
+  });
+
+  it('falls back to generic error when error object is null', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({
+        error: null,
+      }),
+    });
+
+    try {
+      await apiGet('/server-error');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).message).toBe('Something went wrong.');
+      expect((error as ApiError).status).toBe(500);
+      expect((error as ApiError).code).toBe('UNKNOWN_ERROR');
+    }
+  });
+
+  it('does not expose safe-code message when message is missing', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      json: async () => ({
+        error: {
+          status: 404,
+          code: 'NOT_FOUND',
+        },
+      }),
+    });
+
+    await expect(apiGet('/missing-message')).rejects.toThrow('Something went wrong.');
+  });
+
+  it('wraps fetch failures as network ApiError', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Failed to fetch'));
+
+    try {
+      await apiGet('/tournaments/');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBeInstanceOf(ApiError);
+      expect((error as ApiError).message).toBe('Unable to reach the server.');
+      expect((error as ApiError).status).toBe(0);
+      expect((error as ApiError).code).toBe('NETWORK_ERROR');
+    }
   });
 });
