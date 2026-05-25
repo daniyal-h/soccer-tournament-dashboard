@@ -17,6 +17,6 @@ export default {
   },
 
   vitest: {
-    configFile: 'vitest.config.ts',
+    configFile: 'vite.config.ts',
   },
 };
