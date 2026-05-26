@@ -106,6 +106,19 @@ describe('GroupTable', () => {
     expect(cells[9]).toHaveTextContent('9'); // Pts
   });
 
+  it('only renders points cells in bold', () => {
+    render(<GroupTable rows={rows} />);
+
+    const argentinaRow = screen.getByText('Argentina').closest('tr');
+    expect(argentinaRow).not.toBeNull();
+
+    const cells = within(argentinaRow!).getAllByRole('cell');
+
+    expect(cells[2]).not.toHaveClass('font-bold'); // MP
+    expect(cells[3]).not.toHaveClass('font-bold'); // W
+    expect(cells[9]).toHaveClass('font-bold'); // Pts
+  });
+
   it('renders a dash instead of zero position for pre-tournament rows', () => {
     const zeroStateRows = rows.map((row) => ({ ...row, position: 0 }));
 
@@ -151,5 +164,23 @@ describe('GroupTable', () => {
 
     expect(canadaRow).not.toHaveClass('bg-accent');
     expect(canadaRow).not.toHaveClass('Stryker was here!');
+  });
+
+  it('hides mobile-hidden columns on small screens', () => {
+    render(<GroupTable rows={rows} />);
+
+    expect(screen.getByRole('columnheader', { name: 'MP' })).toHaveClass(
+      'hidden',
+      'min-[450px]:table-cell',
+    );
+  });
+
+  it('renders points cells in bold', () => {
+    render(<GroupTable rows={rows} />);
+
+    const argentinaRow = screen.getByText('Argentina').closest('tr');
+    const cells = within(argentinaRow!).getAllByRole('cell');
+
+    expect(cells[9]).toHaveClass('font-bold');
   });
 });
