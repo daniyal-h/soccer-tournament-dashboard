@@ -1,0 +1,63 @@
+BEGIN TRANSACTION;
+
+INSERT INTO teams (
+    external_api_id,
+    name,
+    short_name,
+    type,
+    logo_url,
+    country
+)
+VALUES
+(1, 'Belgium', 'BEL', 'national', 'https://media.api-sports.io/football/teams/1.png', 'Belgium'),
+(2, 'France', 'FRA', 'national', 'https://media.api-sports.io/football/teams/2.png', 'France'),
+(3, 'Croatia', 'CRO', 'national', 'https://media.api-sports.io/football/teams/3.png', 'Croatia'),
+(5, 'Sweden', 'SWE', 'national', 'https://media.api-sports.io/football/teams/5.png', 'Sweden'),
+(6, 'Brazil', 'BRA', 'national', 'https://media.api-sports.io/football/teams/6.png', 'Brazil'),
+(7, 'Uruguay', 'URU', 'national', 'https://media.api-sports.io/football/teams/7.png', 'Uruguay'),
+(8, 'Colombia', 'COL', 'national', 'https://media.api-sports.io/football/teams/8.png', 'Colombia'),
+(9, 'Spain', 'SPA', 'national', 'https://media.api-sports.io/football/teams/9.png', 'Spain'),
+(10, 'England', 'ENG', 'national', 'https://media.api-sports.io/football/teams/10.png', 'England'),
+(11, 'Panama', 'PAN', 'national', 'https://media.api-sports.io/football/teams/11.png', 'Panama'),
+(12, 'Japan', 'JAP', 'national', 'https://media.api-sports.io/football/teams/12.png', 'Japan'),
+(13, 'Senegal', 'SEN', 'national', 'https://media.api-sports.io/football/teams/13.png', 'Senegal'),
+(15, 'Switzerland', 'SWI', 'national', 'https://media.api-sports.io/football/teams/15.png', 'Switzerland'),
+(16, 'Mexico', 'MEX', 'national', 'https://media.api-sports.io/football/teams/16.png', 'Mexico'),
+(17, 'South Korea', 'KOR', 'national', 'https://media.api-sports.io/football/teams/17.png', 'South-Korea'),
+(20, 'Australia', 'AUS', 'national', 'https://media.api-sports.io/football/teams/20.png', 'Australia'),
+(22, 'Iran', 'IRA', 'national', 'https://media.api-sports.io/football/teams/22.png', 'Iran'),
+(23, 'Saudi Arabia', 'SAU', 'national', 'https://media.api-sports.io/football/teams/23.png', 'Saudi-Arabia'),
+(25, 'Germany', 'GER', 'national', 'https://media.api-sports.io/football/teams/25.png', 'Germany'),
+(26, 'Argentina', 'ARG', 'national', 'https://media.api-sports.io/football/teams/26.png', 'Argentina'),
+(27, 'Portugal', 'POR', 'national', 'https://media.api-sports.io/football/teams/27.png', 'Portugal'),
+(28, 'Tunisia', 'TUN', 'national', 'https://media.api-sports.io/football/teams/28.png', 'Tunisia'),
+(31, 'Morocco', 'MOR', 'national', 'https://media.api-sports.io/football/teams/31.png', 'Morocco'),
+(32, 'Egypt', 'EGY', 'national', 'https://media.api-sports.io/football/teams/32.png', 'Egypt'),
+(770, 'Czech Republic', 'CZE', 'national', 'https://media.api-sports.io/football/teams/770.png', 'Czech-Republic'),
+(775, 'Austria', 'AUS', 'national', 'https://media.api-sports.io/football/teams/775.png', 'Austria'),
+(777, 'Türkiye', 'TUR', 'national', 'https://media.api-sports.io/football/teams/777.png', 'Turkey'),
+(1090, 'Norway', 'NOR', 'national', 'https://media.api-sports.io/football/teams/1090.png', 'Norway'),
+(1108, 'Scotland', 'SCO', 'national', 'https://media.api-sports.io/football/teams/1108.png', 'Scotland'),
+(1113, 'Bosnia & Herzegovina', 'BOS', 'national', 'https://media.api-sports.io/football/teams/1113.png', 'Bosnia'),
+(1118, 'Netherlands', 'NET', 'national', 'https://media.api-sports.io/football/teams/1118.png', 'Netherlands'),
+(1501, 'Ivory Coast', 'IVO', 'national', 'https://media.api-sports.io/football/teams/1501.png', 'Ivory-Coast'),
+(1504, 'Ghana', 'GHA', 'national', 'https://media.api-sports.io/football/teams/1504.png', 'Ghana'),
+(1508, 'Congo DR', 'CON', 'national', 'https://media.api-sports.io/football/teams/1508.png', 'Congo-DR'),
+(1531, 'South Africa', 'SOU', 'national', 'https://media.api-sports.io/football/teams/1531.png', 'South-Africa'),
+(1532, 'Algeria', 'ALG', 'national', 'https://media.api-sports.io/football/teams/1532.png', 'Algeria'),
+(1533, 'Cape Verde Islands', 'CAP', 'national', 'https://media.api-sports.io/football/teams/1533.png', 'Cape-Verde-Islands'),
+(1548, 'Jordan', 'JOR', 'national', 'https://media.api-sports.io/football/teams/1548.png', 'Jordan'),
+(1567, 'Iraq', 'IRA', 'national', 'https://media.api-sports.io/football/teams/1567.png', 'Iraq'),
+(1568, 'Uzbekistan', 'UZB', 'national', 'https://media.api-sports.io/football/teams/1568.png', 'Uzbekistan'),
+(1569, 'Qatar', 'QAT', 'national', 'https://media.api-sports.io/football/teams/1569.png', 'Qatar'),
+(2380, 'Paraguay', 'PAR', 'national', 'https://media.api-sports.io/football/teams/2380.png', 'Paraguay'),
+(2382, 'Ecuador', 'ECU', 'national', 'https://media.api-sports.io/football/teams/2382.png', 'Ecuador'),
+(2384, 'USA', 'USA', 'national', 'https://media.api-sports.io/football/teams/2384.png', 'USA'),
+(2386, 'Haiti', 'HAI', 'national', 'https://media.api-sports.io/football/teams/2386.png', 'Haiti'),
+(4673, 'New Zealand', 'ZEA', 'national', 'https://media.api-sports.io/football/teams/4673.png', 'New-Zealand'),
+(5529, 'Canada', 'CAN', 'national', 'https://media.api-sports.io/football/teams/5529.png', 'Canada'),
+(5530, 'Curaçao', 'CUW', 'national', 'https://media.api-sports.io/football/teams/5530.png', 'Curacao')
+ON CONFLICT (external_api_id)
+DO NOTHING;
+
+COMMIT TRANSACTION;
