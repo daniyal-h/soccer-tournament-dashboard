@@ -44,7 +44,9 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
 
     const parsedTournamentId = Number(storedTournamentId);
 
-    return Number.isInteger(parsedTournamentId) ? parsedTournamentId : DEFAULT_TOURNAMENT_ID;
+    return Number.isInteger(parsedTournamentId) && parsedTournamentId > 0
+      ? parsedTournamentId
+      : DEFAULT_TOURNAMENT_ID;
   });
 
   // persist selected tournament whenever it changes

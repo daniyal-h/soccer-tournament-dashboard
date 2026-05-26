@@ -29,9 +29,12 @@ const StandingsSkeleton = () => {
                 <div className="mb-2 grid grid-cols-[2rem_minmax(0,1fr)_repeat(4,2rem)] items-center gap-2 px-2">
                   <Skeleton className="h-4 w-4" />
                   <Skeleton className="h-4 w-12" />
-                  {skeletonStats.map((statKey) => (
-                    <Skeleton key={statKey} className="h-4 w-6 justify-self-center" />
-                  ))}
+                  {
+                    // Stryker disable next-line ArrowFunction: skeleton is just a visual placeholder
+                    skeletonStats.map((statKey) => (
+                      <Skeleton key={statKey} className="h-4 w-6 justify-self-center" />
+                    ))
+                  }
                 </div>
 
                 <div className="space-y-2">
@@ -48,12 +51,16 @@ const StandingsSkeleton = () => {
                         <Skeleton className="h-4 w-12 sm:w-24" />
                       </div>
 
-                      {skeletonStats.map((statKey) => (
-                        <Skeleton
-                          key={`${rowKey}-${statKey}`}
-                          className="h-4 w-5 justify-self-center"
-                        />
-                      ))}
+                      {
+                        // Stryker disable next-line ArrowFunction: skeleton is just a visual placeholder
+                        skeletonStats.map((statKey) => (
+                          <Skeleton
+                            // Stryker disable next-line StringLiteral: skeleton is just a visual placeholder
+                            key={`${rowKey}-${statKey}`}
+                            className="h-4 w-5 justify-self-center"
+                          />
+                        ))
+                      }
                     </div>
                   ))}
                 </div>

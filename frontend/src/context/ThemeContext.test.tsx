@@ -1,4 +1,4 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -21,6 +21,18 @@ describe('ThemeContext', () => {
 
     expect(result.current.selectedTheme).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
+  it('restores light theme from localStorage', () => {
+    localStorage.setItem('selectedTheme', 'light');
+
+    render(
+      <ThemeProvider>
+        <div>test</div>
+      </ThemeProvider>,
+    );
+
+    expect(document.body.classList.contains('dark')).toBe(false);
   });
 
   it('falls back to default theme when stored theme is invalid', () => {

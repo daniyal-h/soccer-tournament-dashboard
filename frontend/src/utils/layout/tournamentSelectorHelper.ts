@@ -9,6 +9,7 @@ export function formatSeason(tournament: Tournament): string {
   if (startYear === endYear) {
     return tournament.season;
   } else {
-    return `${startYear}/${String(endYear).slice(-2)}`;
+    // Stryker disable next-line UnaryOperator: equivalent slice mutant
+    return `${startYear}/${String(endYear).slice(-2)}`; // -2 and +2 are equivalent results
   }
 }

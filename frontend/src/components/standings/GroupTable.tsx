@@ -28,7 +28,10 @@ export function GroupTable({ rows }: GroupTableProps) {
           {COLUMNS.map((col) => (
             <TableHead
               key={col.key}
-              className={cn('text-center', col.mobileHidden && 'hidden min-[450px]:table-cell')}
+              className={
+                // Stryker disable next-line StringLiteral, LogicalOperator, ConditionalExpression
+                cn('text-center', col.mobileHidden && 'hidden min-[450px]:table-cell') // visual only
+              }
             >
               {col.label}
             </TableHead>
@@ -69,8 +72,10 @@ export function GroupTable({ rows }: GroupTableProps) {
               <TableCell
                 key={col.key}
                 className={cn(
+                  // Stryker disable next-line StringLiteral: base table cell spacing/alignment is visual-only
                   'px-2 py-1 text-center',
-                  col.mobileHidden && 'hidden min-[450px]:table-cell',
+                  // Stryker disable next-line StringLiteral, LogicalOperator, ConditionalExpression
+                  col.mobileHidden && 'hidden min-[450px]:table-cell', // visual only
                   col.key === 'pts' && 'font-bold',
                 )}
               >

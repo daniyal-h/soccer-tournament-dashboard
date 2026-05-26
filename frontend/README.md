@@ -130,6 +130,52 @@ Use flags to:
 
 ---
 
+## Testing
+
+Vitest is used for frontend unit and integration-style tests. StrykerJS is used for mutation testing to validate test quality.
+
+Run the full frontend test suite once:
+
+```bash
+npm run test:run
+```
+
+Run tests in watch mode during development:
+
+```bash
+npm run test
+```
+
+Run unit-focused tests for hooks, utilities, context, API helpers, and isolated components:
+
+```bash
+npm run test:run -- src/hooks src/utils src/lib src/context src/api src/components
+```
+
+Run integration-style tests for routed pages and component interactions:
+
+```bash
+npm run test:run -- src/pages src/components
+```
+
+Run coverage:
+
+```bash
+npm run test:coverage
+```
+
+Run mutation testing:
+
+```bash
+npm run test:mutation
+```
+
+Results found in: [Mutation Testing Reports](/frontend/reports/mutation-testing.md).
+
+Local focused mutation runs may use `stryker.local.config.mjs`, which should remain untracked.
+
+---
+
 ## Formatting
 
 Prettier is used for consistent formatting.

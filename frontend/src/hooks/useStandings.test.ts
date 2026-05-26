@@ -94,7 +94,7 @@ describe('useStandings', () => {
 
   it('handles network errors', async () => {
     vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
-      new ApiError('Unable to reach the server.', 0, 'NETWORK_ERROR'),
+      new ApiError('raw network failure from API client', 0, 'NETWORK_ERROR'),
     );
 
     const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
@@ -103,7 +103,22 @@ describe('useStandings', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
+    expect(result.current.standings).toEqual({});
     expect(result.current.error?.message).toBe('Unable to reach the server.');
+  });
+
+  it('does not treat unknown API errors as network errors', async () => {
+    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
+      new ApiError('some weird API failure', 500, 'SERVER_ERROR'),
+    );
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.error?.message).toBe('Failed to load standings.');
   });
 
   it('handles unknown errors', async () => {
@@ -116,5 +131,47 @@ describe('useStandings', () => {
     });
 
     expect(result.current.error?.message).toBe('Failed to load standings.');
+  });
+
+  it('reloads standings when tournamentId changes', async () => {
+    const getStandingsSpy = vi
+      .spyOn(standingsApi, 'getStandings')
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({});
+
+    const { rerender } = renderHook(({ tournamentId }) => useStandings({ tournamentId }), {
+      initialProps: { tournamentId: 1 },
+    });
+
+    await waitFor(() => {
+      expect(getStandingsSpy).toHaveBeenCalledWith({ tournamentId: 1, group: undefined });
+    });
+
+    rerender({ tournamentId: 2 });
+
+    await waitFor(() => {
+      expect(getStandingsSpy).toHaveBeenCalledWith({ tournamentId: 2, group: undefined });
+    });
+  });
+
+  it('reloads standings when group changes', async () => {
+    const getStandingsSpy = vi
+      .spyOn(standingsApi, 'getStandings')
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({});
+
+    const { rerender } = renderHook(({ group }) => useStandings({ tournamentId: 1, group }), {
+      initialProps: { group: undefined as string | undefined },
+    });
+
+    await waitFor(() => {
+      expect(getStandingsSpy).toHaveBeenCalledWith({ tournamentId: 1, group: undefined });
+    });
+
+    rerender({ group: 'A' });
+
+    await waitFor(() => {
+      expect(getStandingsSpy).toHaveBeenCalledWith({ tournamentId: 1, group: 'A' });
+    });
   });
 });
