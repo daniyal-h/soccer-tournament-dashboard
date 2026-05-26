@@ -27,6 +27,7 @@ export default {
     '!src/pages/Schedule.tsx',
     '!src/pages/TeamProfile.tsx',
     '!src/pages/Teams.tsx',
+    '!src/pages/Bracket.tsx',
 
     // ShadCN components
     '!src/components/ui/**', 
