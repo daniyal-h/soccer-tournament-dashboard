@@ -30,7 +30,7 @@ export default {
     '!src/pages/Bracket.tsx',
 
     // ShadCN components
-    '!src/components/ui/**', 
+    '!src/components/ui/**',
 
     // static config/constants
     '!src/constants/**',

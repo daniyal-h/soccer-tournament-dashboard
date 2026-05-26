@@ -149,8 +149,6 @@ describe('getTournaments', () => {
 
     vi.spyOn(client, 'apiGet').mockResolvedValue([fakeTournament]);
 
-    await expect(getTournaments()).rejects.toThrow(
-      'Invalid tournaments response',
-    );
+    await expect(getTournaments()).rejects.toThrow('Invalid tournaments response');
   });
 });

@@ -1,6 +1,7 @@
 # Frontend Mutation Testing
 
 Tooling:
+
 - StrykerJS
 - Vitest
 - React + TypeScript
@@ -16,11 +17,13 @@ Date of Test: Mon May 25 19:17:51 CDT 2026
 ## Notes
 
 Excluded files:
+
 - shadcn/ui components
 - layout wrappers
 - placeholder pages
 
 Focused mutation coverage areas:
+
 - hooks
 - API parsing
 - conditional rendering

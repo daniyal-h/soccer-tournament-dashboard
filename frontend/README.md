@@ -170,7 +170,7 @@ Run mutation testing:
 npm run test:mutation
 ```
 
-Results found in: [Mutation Testing Reports](/frontend/reports/mutation-testing.md). 
+Results found in: [Mutation Testing Reports](/frontend/reports/mutation-testing.md).
 
 Local focused mutation runs may use `stryker.local.config.mjs`, which should remain untracked.
 
