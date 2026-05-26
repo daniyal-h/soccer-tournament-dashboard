@@ -18,7 +18,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.drop_index("ix_tournaments_external_api_id", table_name="tournaments")
+    op.drop_index("ix_tournaments_external_api_id", table_name="tournaments", if_exists=True)
     op.create_unique_constraint(
         "uq_tournament_api_id_season", "tournaments", ["external_api_id", "season"]
     )

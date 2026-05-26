@@ -1,6 +1,13 @@
 BEGIN TRANSACTION;
 
-INSERT INTO tournaments (external_api_id, name, season, logo_url, start_date, end_date)
+INSERT INTO tournaments (
+    external_api_id,
+    name,
+    season,
+    logo_url,
+    start_date,
+    end_date
+)
 VALUES
   -- FIFA World Cup
   (1, 'FIFA World Cup', '2026', 'https://media.api-sports.io/football/leagues/1.png', '2026-06-11', '2026-07-19'),
@@ -16,6 +23,9 @@ VALUES
   (6, 'Africa Cup of Nations', '2025', 'https://media.api-sports.io/football/leagues/6.png', '2025-12-21', '2026-01-18'),
 
   -- FIFA Club World Cup
-  (15, 'FIFA Club World Cup', '2025', 'https://media.api-sports.io/football/leagues/15.png', '2025-06-15', '2025-07-13');
+  (15, 'FIFA Club World Cup', '2025', 'https://media.api-sports.io/football/leagues/15.png', '2025-06-15', '2025-07-13')
+
+ON CONFLICT (external_api_id, season)
+DO NOTHING;
 
 COMMIT TRANSACTION;

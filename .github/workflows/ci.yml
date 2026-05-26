@@ -200,7 +200,7 @@ jobs:
                 name: frontend-coverage
                 path: frontend/coverage/lcov.info
 
-    # ── Stage 3: Build (disabled until Dockerfile exists) ─────────────────────
+    # ── Stage 3: Build ─────────────────────────────────────────────────────────
 
     build:
         name: Build Docker images
@@ -249,7 +249,7 @@ jobs:
               if: always()
               run: docker compose down -v
 
-    # ── Stage 4: Quality gate (disabled until SonarCloud project is created) ───
+    # ── Stage 4: Quality gate ─────────────────────────────────────────────────────────
     sonarcloud:
         name: SonarCloud scan
         needs: [build, backend-tests, frontend-tests]
