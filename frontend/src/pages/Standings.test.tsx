@@ -28,10 +28,23 @@ vi.mock('@/components/standings/GroupGrid', () => ({
 }));
 
 vi.mock('@/components/feedback/ErrorState', () => ({
-  default: ({ title, description }: { title: string; description: string }) => (
+  default: ({
+    title,
+    description,
+    onAction,
+  }: {
+    title: string;
+    description: string;
+    onAction?: () => void | Promise<void>;
+  }) => (
     <div>
       <h2>{title}</h2>
       <p>{description}</p>
+      {onAction && (
+        <button type="button" onClick={() => void onAction()}>
+          Try again
+        </button>
+      )}
     </div>
   ),
 }));
@@ -68,6 +81,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -82,6 +97,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -95,6 +112,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: true,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -109,6 +128,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -123,6 +144,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: false,
       error: new Error('Failed to load standings.'),
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -149,7 +172,13 @@ describe('Standings', () => {
       error: null,
     });
 
-    mockedUseStandings.mockReturnValue({ standings: {}, isLoading: false, error: null });
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      canRetry: true,
+    });
     render(<Standings />);
 
     expect(screen.getByText(/FIFA World Cup 2026/i)).toBeInTheDocument();
@@ -180,6 +209,8 @@ describe('Standings', () => {
       },
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -212,6 +243,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: true,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -246,6 +279,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -274,6 +309,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: true,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -296,6 +333,8 @@ describe('Standings', () => {
       standings: {},
       isLoading: true,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     render(<Standings />);
@@ -305,5 +344,40 @@ describe('Standings', () => {
         "The group stage hasn't started yet. Check back once the tournament kicks off.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it('passes retry action to ErrorState when the error is retryable', async () => {
+    const refetch = vi.fn();
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      error: new Error('Unable to reach the server.'),
+      refetch,
+      canRetry: true,
+    });
+
+    render(<Standings />);
+
+    screen.getByRole('button', { name: 'Try again' }).click();
+
+    expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render retry action when the error is not retryable', () => {
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      error: new Error('Groups and rankings will appear once tournament data is available.'),
+      refetch: vi.fn(),
+      canRetry: false,
+    });
+
+    render(<Standings />);
+
+    expect(
+      screen.getByText('Groups and rankings will appear once tournament data is available.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 });
