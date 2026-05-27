@@ -10,6 +10,10 @@ def get_cache_entry(db: Session, key: str) -> CacheEntry | None:
 
 
 def set_cache_entry(db: Session, key: str, payload: str, expires_at: datetime) -> None:
+    """
+    Set a cache entry given the key
+    If a key exists, update that cache
+    """
     now = datetime.now(UTC)
     existing = db.query(CacheEntry).where(CacheEntry.cache_key == key).first()
 
