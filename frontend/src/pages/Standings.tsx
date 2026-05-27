@@ -7,6 +7,11 @@ import { useTournament } from '@/context/TournamentContext';
 
 import { useStandings } from '@/hooks/useStandings';
 
+/**
+ * Renders the title and dynamic subtitle depending on tournaments status
+ * If standings are available, display its legend and table-wise data
+ * Render a skeleton when loading or error state upon error
+ */
 const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();
   const { standings, isLoading, error, refetch, canRetry } = useStandings({
@@ -24,6 +29,7 @@ const Standings = () => {
       ? `View group standings for ${tournamentName}.`
       : "The group stage hasn't started yet. Check back once the tournament kicks off.";
 
+  // render error state with possible retry logic
   if (error) {
     return (
       <ErrorState
@@ -35,6 +41,7 @@ const Standings = () => {
     );
   }
 
+  // render skeleton of data being loaded
   if (isLoading) {
     return (
       <section className="space-y-3">

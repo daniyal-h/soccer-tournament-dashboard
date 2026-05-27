@@ -17,6 +17,10 @@ interface GroupTableProps {
   rows: Standing[];
 }
 
+/**
+ * A table of given standings for a specific group of teams
+ * Highlight top-two for non-zero-state standings
+ */
 export function GroupTable({ rows }: GroupTableProps) {
   return (
     <Table className="text-xs sm:text-sm">

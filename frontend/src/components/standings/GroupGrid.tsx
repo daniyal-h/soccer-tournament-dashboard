@@ -6,6 +6,7 @@ interface GroupGridProps {
   standings: Record<string, Standing[]>;
 }
 
+/** A grid of 1-2 cards per row depending on screen size */
 const GroupGrid = ({ standings }: GroupGridProps) => {
   return (
     <div className="min-h-screen p-6">

@@ -5,6 +5,11 @@ const skeletonCards = ['card-1', 'card-2', 'card-3', 'card-4'];
 const skeletonRows = ['row-1', 'row-2', 'row-3', 'row-4'];
 const skeletonStats = ['stat-1', 'stat-2', 'stat-3', 'stat-4'];
 
+/**
+ * A skeleton for the standings data being loaded in
+ * Has a top legends line and a grid of cards
+ * Match the same sizing and resizing as the actual component
+ */
 const StandingsSkeleton = () => {
   return (
     <div className="min-h-screen space-y-4 pt-2" data-testid="standings-skeleton">
