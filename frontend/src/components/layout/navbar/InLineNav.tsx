@@ -4,12 +4,12 @@ import { type NavProps } from '@/types/navbar';
 
 import { cn } from '@/lib/utils';
 
-interface DesktopNavProps extends NavProps {
+interface InLineNavProps extends NavProps {
   className?: string;
 }
 
 /** A row of buttons for the given navigation items */
-const DesktopNav = ({ navItems, className }: DesktopNavProps) => {
+const InLineNav = ({ navItems, className }: InLineNavProps) => {
   return (
     <div className={cn('flex items-center', className)}>
       {navItems.map((item) => (
@@ -33,4 +33,4 @@ const DesktopNav = ({ navItems, className }: DesktopNavProps) => {
   );
 };
 
-export default DesktopNav;
+export default InLineNav;

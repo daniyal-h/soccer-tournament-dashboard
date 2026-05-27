@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import CompactNav from './CompactNav';
-import DesktopNav from './InLineNav';
+import InLineNav from './InLineNav';
 
 const navItems = [
   { label: 'Standings', to: '/standings' },
@@ -16,9 +16,9 @@ function renderWithRouter(ui: React.ReactElement, initialEntry = '/standings') {
   return render(<MemoryRouter initialEntries={[initialEntry]}>{ui}</MemoryRouter>);
 }
 
-describe('DesktopNav', () => {
+describe('InLineNav', () => {
   it('renders every navigation item as a link', () => {
-    renderWithRouter(<DesktopNav navItems={navItems} />);
+    renderWithRouter(<InLineNav navItems={navItems} />);
 
     expect(screen.getByRole('link', { name: 'Standings' })).toHaveAttribute('href', '/standings');
     expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/teams');
@@ -26,7 +26,7 @@ describe('DesktopNav', () => {
   });
 
   it('applies active styling to the current route', () => {
-    renderWithRouter(<DesktopNav navItems={navItems} />, '/teams');
+    renderWithRouter(<InLineNav navItems={navItems} />, '/teams');
 
     expect(screen.getByRole('link', { name: 'Teams' })).toHaveClass(
       'bg-accent',
