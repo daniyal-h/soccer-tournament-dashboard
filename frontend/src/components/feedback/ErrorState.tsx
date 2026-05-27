@@ -7,6 +7,11 @@ interface ErrorStateProps {
   actionLabel?: string;
 }
 
+/**
+ * Can be a generic error state or a specified one
+ * given a title, description and action label
+ * Can be given an action to retry the failed process
+ */
 const ErrorState = ({
   title = 'Something went wrong',
   description = 'An unexpected error occurred. Please try again later.',
