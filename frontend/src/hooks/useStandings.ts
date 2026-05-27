@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { ApiError } from '@/api/client';
 import { getStandings } from '@/api/standingsApi';
@@ -9,18 +9,20 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [standings, setStandings] = useState<Record<string, Standing[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [canRetry, setCanRetry] = useState(true);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+  const loadStandings = useCallback(() => {
     setIsLoading(true);
-
     setError(null);
 
-    getStandings({ tournamentId, group })
+    return getStandings({ tournamentId, group })
       .then(setStandings)
       .catch((err) => {
+        setStandings({}); // clear data
+
         if (err instanceof ApiError && err.code === 'NOT_FOUND') {
           setError(new Error('Groups and rankings will appear once tournament data is available.'));
+          setCanRetry(false);
           return;
         }
 
@@ -41,5 +43,16 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
       });
   }, [tournamentId, group]);
 
-  return { standings, isLoading, error };
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadStandings();
+  }, [loadStandings]);
+
+  return {
+    standings,
+    isLoading,
+    error,
+    refetch: loadStandings,
+    canRetry,
+  };
 }

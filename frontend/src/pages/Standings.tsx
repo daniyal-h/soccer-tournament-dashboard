@@ -9,7 +9,9 @@ import { useStandings } from '@/hooks/useStandings';
 
 const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();
-  const { standings, isLoading, error } = useStandings({ tournamentId: selectedTournamentId });
+  const { standings, isLoading, error, refetch, canRetry } = useStandings({
+    tournamentId: selectedTournamentId,
+  });
 
   const hasStarted = selectedTournament
     ? new Date() > new Date(selectedTournament.start_date)
@@ -23,7 +25,14 @@ const Standings = () => {
       : "The group stage hasn't started yet. Check back once the tournament kicks off.";
 
   if (error) {
-    return <ErrorState title="Standings unavailable" description={error.message} />;
+    return (
+      <ErrorState
+        title="Standings unavailable"
+        description={error.message}
+        // show retry button if allowed
+        onAction={canRetry ? refetch : undefined}
+      />
+    );
   }
 
   if (isLoading) {

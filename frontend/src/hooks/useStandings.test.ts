@@ -1,5 +1,5 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ApiError } from '@/api/client';
 import * as standingsApi from '@/api/standingsApi';
@@ -7,6 +7,10 @@ import * as standingsApi from '@/api/standingsApi';
 import { useStandings } from './useStandings';
 
 describe('useStandings', () => {
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
+
   it('loads standings successfully', async () => {
     vi.spyOn(standingsApi, 'getStandings').mockResolvedValue({
       A: [
@@ -173,5 +177,100 @@ describe('useStandings', () => {
     await waitFor(() => {
       expect(getStandingsSpy).toHaveBeenCalledWith({ tournamentId: 1, group: 'A' });
     });
+  });
+
+  it('allows standings to be refetched manually', async () => {
+    const getStandingsSpy = vi
+      .spyOn(standingsApi, 'getStandings')
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({
+        A: [
+          {
+            team: {
+              id: 1,
+              name: 'Argentina',
+              short_name: 'ARG',
+              logo_url: 'https://flagcdn.com/w40/ar.png',
+            },
+            position: 1,
+            matches_played: 3,
+            wins: 3,
+            draws: 0,
+            losses: 0,
+            goals_for: 8,
+            goals_against: 2,
+            goal_difference: 6,
+            points: 9,
+          },
+        ],
+      });
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    expect(getStandingsSpy).toHaveBeenCalledTimes(2);
+    expect(result.current.error).toBeNull();
+    expect(result.current.standings.A[0].team.short_name).toBe('ARG');
+  });
+
+  it('clears an existing error when refetch succeeds', async () => {
+    vi.spyOn(standingsApi, 'getStandings')
+      .mockRejectedValueOnce(new ApiError('raw network failure', 0, 'NETWORK_ERROR'))
+      .mockResolvedValueOnce({ A: [] });
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.error?.message).toBe('Unable to reach the server.');
+    });
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    expect(result.current.error).toBeNull();
+    expect(result.current.standings).toEqual({ A: [] });
+    expect(result.current.canRetry).toBe(true);
+  });
+
+  it('sets canRetry to false for missing standings errors', async () => {
+    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
+      new ApiError('No standings found', 404, 'NOT_FOUND'),
+    );
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.canRetry).toBe(false);
+    expect(result.current.error?.message).toBe(
+      'Groups and rankings will appear once tournament data is available.',
+    );
+  });
+
+  it('keeps canRetry true for retryable API errors', async () => {
+    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
+      new ApiError('Rate limit exceeded', 429, 'RATE_LIMITED'),
+    );
+
+    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.canRetry).toBe(true);
+    expect(result.current.error?.message).toBe(
+      'Too many requests. Please wait a moment and try again.',
+    );
   });
 });
