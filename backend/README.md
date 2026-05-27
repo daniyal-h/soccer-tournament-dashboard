@@ -396,7 +396,87 @@ mutmut run
 mutmut results
 ```
 
-Results found in: [Mutation Testing Reports](/backend/reports/mutation-testing.md)
+### Mutation Testing Report
+
+Reports and analysis are stored in:
+
+```txt
+backend/reports/
+```
+
+---
+
+## Load Testing
+
+k6 is used for backend load, spike, rate-limit, and stress testing.
+
+Load tests are organized by feature area:
+
+```txt
+load-tests/
+  standings/
+    normalTest.js
+    spikeTest.js
+    rateLimitTest.js
+    stressTest.js
+```
+
+Current coverage includes standings endpoint performance and rate limiting behaviour.
+
+### Install k6
+
+Windows (winget):
+
+```bash
+winget install GrafanaLabs.k6
+```
+
+Verify installation:
+
+```bash
+k6 version
+```
+
+### Run Load Tests
+
+Run the normal load test:
+
+```bash
+k6 run load-tests/standings/normalTest.js
+```
+
+Run the spike test:
+
+```bash
+k6 run load-tests/standings/spikeTest.js
+```
+
+Run the rate-limit validation test:
+
+```bash
+k6 run load-tests/standings/rateLimitTest.js
+```
+
+Run the stress test:
+
+```bash
+k6 run load-tests/standings/stressTest.js
+```
+
+### Load Testing Report
+
+Reports and analysis are stored in:
+
+```txt
+backend/reports/
+```
+
+### Notes
+
+- Normal load tests remain below configured endpoint rate limits
+- Spike and stress tests intentionally trigger HTTP 429 responses
+- HTTP 429 responses are considered expected behaviour during overload scenarios
+- Heavy stress testing should be performed locally against Dockerized PostgreSQL rather than hosted environments
 
 ---
 

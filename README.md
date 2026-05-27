@@ -1,6 +1,6 @@
 # Soccer Tournament Dashboard
 
-**[Live Demo](https://soccer-tournament-dashboard.vercel.app)** · [Architecture](docs/architecture.md) · [Test Plan](docs/test-plan.pdf) · [Decisions](docs/decisions.md)
+**[Live Demo](https://soccer-tournament-dashboard.vercel.app)** · [Architecture](docs/architecture.md) · [Test Plan](docs/test-plan.md) · [Decisions](docs/decisions.md)
 
 A tournament-agnostic soccer dashboard built with World Cup 2026 as the primary use case. Inspired by Fotmob and SofaScore. Features live match schedules, group standings, player stats, and a knockout bracket, all backed by a cached and monitored production deployment.
 
@@ -207,7 +207,7 @@ docker compose down -v
 
 ## Testing
 
-See [docs/test-plan.pdf](docs/test-plan.pdf) for the full strategy and live status.
+See [docs/test-plan.md](docs/test-plan.md) for the full strategy and live status.
 
 | Type            | Tool           | Scope                                                             |
 | --------------- | -------------- | ----------------------------------------------------------------- |
