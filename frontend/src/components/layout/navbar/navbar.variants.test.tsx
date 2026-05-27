@@ -4,8 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import CompactNav from './CompactNav';
-import DesktopNav from './DesktopNav';
-import QuickNav from './QuickNav';
+import DesktopNav from './InLineNav';
 
 const navItems = [
   { label: 'Standings', to: '/standings' },
@@ -35,27 +34,6 @@ describe('DesktopNav', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Standings' })).toHaveClass('text-muted-foreground');
-  });
-});
-
-describe('QuickNav', () => {
-  it('renders every quick navigation item as a link', () => {
-    renderWithRouter(<QuickNav navItems={navItems} />);
-
-    expect(screen.getByRole('link', { name: 'Standings' })).toHaveAttribute('href', '/standings');
-    expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/teams');
-    expect(screen.getByRole('link', { name: 'Matches' })).toHaveAttribute('href', '/matches');
-  });
-
-  it('applies active styling to the current route', () => {
-    renderWithRouter(<QuickNav navItems={navItems} />, '/matches');
-
-    expect(screen.getByRole('link', { name: 'Matches' })).toHaveClass(
-      'bg-accent',
-      'text-accent-foreground',
-    );
-
-    expect(screen.getByRole('link', { name: 'Teams' })).toHaveClass('text-muted-foreground');
   });
 });
 

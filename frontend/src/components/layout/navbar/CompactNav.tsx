@@ -7,6 +7,11 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/s
 
 import { type NavProps } from '@/types/navbar';
 
+
+/**
+ * A compact form of Desktop Nav menu
+ * Renders a side menu through button-click to show navigation items
+ */
 const CompactNav = ({ navItems }: NavProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
