@@ -62,11 +62,11 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full breakdown.
 
 ## Features
 
-### Tournament Selection & Standings (in-progress)
+### Tournament Selection & Standings (completed)
 
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
-### Match Schedule (planned)
+### Match Schedule (in-progress)
 
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 to 3 columns on desktop). Live matches auto-refresh only when an active match is in progress. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
