@@ -7,6 +7,11 @@ import DesktopNav from './navbar/InLineNav';
 import ThemeToggle from './ThemeToggle';
 import TournamentSelector from './TournamentSelector';
 
+/**
+ * Render the Navbar which contains the site name, tournament selector,
+ * navigation quick-links and theme selector
+ * Dynamically render and resize to fit smaller screens
+ */
 const Navbar = () => {
   return (
     <header className="border-b border-border bg-background">
