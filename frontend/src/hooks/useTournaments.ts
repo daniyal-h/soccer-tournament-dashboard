@@ -5,7 +5,6 @@ import { getTournaments } from '@/api/tournamentsApi';
 
 import type { Tournament } from '@/types/tournament';
 
-
 /**
  * Logic for getting and processing available tournaments
  * Catch and wrap known errors, otherwise keep them generic
