@@ -9,6 +9,7 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [standings, setStandings] = useState<Record<string, Standing[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [canRetry, setCanRetry] = useState(true);
 
   const loadStandings = useCallback(() => {
     setIsLoading(true);
@@ -21,6 +22,7 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
 
         if (err instanceof ApiError && err.code === 'NOT_FOUND') {
           setError(new Error('Groups and rankings will appear once tournament data is available.'));
+          setCanRetry(false);
           return;
         }
 
@@ -51,5 +53,6 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
     isLoading,
     error,
     refetch: loadStandings,
+    canRetry,
   };
 }
