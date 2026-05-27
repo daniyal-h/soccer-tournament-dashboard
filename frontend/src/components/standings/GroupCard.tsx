@@ -15,7 +15,7 @@ interface GroupCardProps {
   rows: Standing[];
 }
 
-// a card contains an accordion with its group identifier to show a group table
+//** a card contains an accordion with its group identifier to show a group table */
 const GroupCard = ({ group, rows }: GroupCardProps) => {
   return (
     <Card className="w-full shadow-sm">

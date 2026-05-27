@@ -2,9 +2,16 @@ import { NavLink } from 'react-router-dom';
 
 import { type NavProps } from '@/types/navbar';
 
-const DesktopNav = ({ navItems }: NavProps) => {
+import { cn } from '@/lib/utils';
+
+interface InLineNavProps extends NavProps {
+  className?: string;
+}
+
+/** A row of buttons for the given navigation items */
+const InLineNav = ({ navItems, className }: InLineNavProps) => {
   return (
-    <div className="flex items-center gap-2">
+    <div className={cn('flex items-center', className)}>
       {navItems.map((item) => (
         <NavLink
           key={item.to}
@@ -26,4 +33,4 @@ const DesktopNav = ({ navItems }: NavProps) => {
   );
 };
 
-export default DesktopNav;
+export default InLineNav;

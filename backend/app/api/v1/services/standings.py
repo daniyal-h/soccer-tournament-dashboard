@@ -15,8 +15,11 @@ from app.schemas.standings import StandingRefreshRow
 from app.utils.cache import get_expires_at, get_standings_ttl
 
 
-# return a standings of teams in zero state
 def build_zero_state_standings(tournament_teams: list[TournamentTeam]) -> list[Standing]:
+    """
+    Given a list of tournament teams,
+    return a list of standing objects in zero-state
+    """
     return [
         Standing(
             tournament_id=tt.tournament_id,
@@ -35,10 +38,15 @@ def build_zero_state_standings(tournament_teams: list[TournamentTeam]) -> list[S
     ]
 
 
-# return a dictionary of all groups (unless specified) and their standings
 def get_standings(
     db: Session, tournament_id: int, group: str | None = None
 ) -> dict[str, list[Standing]]:
+    """
+    Returns a dictionary of all groups (unless specified) and their standings
+    Uses cache if valid
+    If the standings table is empty, try to generate a zero-state standings
+    """
+
     # check cache for a valid entry
     cache_key = f"standings:{tournament_id}"
     cached = cache_service.get_cache(db, cache_key)

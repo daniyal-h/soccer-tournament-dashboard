@@ -5,9 +5,7 @@ if (!API_BASE_URL) {
   throw new Error('VITE_API_BASE_URL is not defined');
 }
 
-/*
-Centralized HTTP layer 
-*/
+/** Centralized HTTP layer */
 
 type ApiErrorResponse = {
   error?: {
@@ -30,7 +28,10 @@ export class ApiError extends Error {
 
 const SAFE_ERROR_CODES = new Set(['NOT_FOUND', 'BAD_REQUEST', 'CONFLICT', 'TOO_MANY_REQUESTS']);
 
-// GET requests with deliberate error throwing
+/**
+ * A generic GET request runner for the given path
+ * Can throw safe or generic errors depending on response
+ */
 export async function apiGet<T>(path: string): Promise<T> {
   try {
     const response = await fetch(`${API_BASE_URL}${path}`);

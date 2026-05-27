@@ -3,11 +3,15 @@ import { NavLink } from 'react-router-dom';
 import { NAV_ITEMS, PRIMARY_NAV_ITEMS } from '@/constants/navigation';
 
 import CompactNav from './navbar/CompactNav';
-import DesktopNav from './navbar/DesktopNav';
-import QuickNav from './navbar/QuickNav';
+import InLineNav from './navbar/InLineNav';
 import ThemeToggle from './ThemeToggle';
 import TournamentSelector from './TournamentSelector';
 
+/**
+ * Render the Navbar which contains the site name, tournament selector,
+ * navigation quick-links and theme selector
+ * Dynamically render and resize to fit smaller screens
+ */
 const Navbar = () => {
   return (
     <header className="border-b border-border bg-background">
@@ -21,7 +25,7 @@ const Navbar = () => {
         </div>
 
         <div className="hidden min-[500px]:flex items-center gap-4 justify-between">
-          <DesktopNav navItems={NAV_ITEMS} />
+          <InLineNav navItems={NAV_ITEMS} className="gap-4" />
 
           <ThemeToggle />
         </div>
@@ -30,7 +34,7 @@ const Navbar = () => {
           <CompactNav navItems={NAV_ITEMS} />
 
           <div className="flex justify-center">
-            <QuickNav navItems={PRIMARY_NAV_ITEMS} />
+            <InLineNav navItems={PRIMARY_NAV_ITEMS} className="gap-2" />
           </div>
 
           <ThemeToggle />

@@ -4,8 +4,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import CompactNav from './CompactNav';
-import DesktopNav from './DesktopNav';
-import QuickNav from './QuickNav';
+import InLineNav from './InLineNav';
 
 const navItems = [
   { label: 'Standings', to: '/standings' },
@@ -17,9 +16,9 @@ function renderWithRouter(ui: React.ReactElement, initialEntry = '/standings') {
   return render(<MemoryRouter initialEntries={[initialEntry]}>{ui}</MemoryRouter>);
 }
 
-describe('DesktopNav', () => {
+describe('InLineNav', () => {
   it('renders every navigation item as a link', () => {
-    renderWithRouter(<DesktopNav navItems={navItems} />);
+    renderWithRouter(<InLineNav navItems={navItems} />);
 
     expect(screen.getByRole('link', { name: 'Standings' })).toHaveAttribute('href', '/standings');
     expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/teams');
@@ -27,7 +26,7 @@ describe('DesktopNav', () => {
   });
 
   it('applies active styling to the current route', () => {
-    renderWithRouter(<DesktopNav navItems={navItems} />, '/teams');
+    renderWithRouter(<InLineNav navItems={navItems} />, '/teams');
 
     expect(screen.getByRole('link', { name: 'Teams' })).toHaveClass(
       'bg-accent',
@@ -35,27 +34,6 @@ describe('DesktopNav', () => {
     );
 
     expect(screen.getByRole('link', { name: 'Standings' })).toHaveClass('text-muted-foreground');
-  });
-});
-
-describe('QuickNav', () => {
-  it('renders every quick navigation item as a link', () => {
-    renderWithRouter(<QuickNav navItems={navItems} />);
-
-    expect(screen.getByRole('link', { name: 'Standings' })).toHaveAttribute('href', '/standings');
-    expect(screen.getByRole('link', { name: 'Teams' })).toHaveAttribute('href', '/teams');
-    expect(screen.getByRole('link', { name: 'Matches' })).toHaveAttribute('href', '/matches');
-  });
-
-  it('applies active styling to the current route', () => {
-    renderWithRouter(<QuickNav navItems={navItems} />, '/matches');
-
-    expect(screen.getByRole('link', { name: 'Matches' })).toHaveClass(
-      'bg-accent',
-      'text-accent-foreground',
-    );
-
-    expect(screen.getByRole('link', { name: 'Teams' })).toHaveClass('text-muted-foreground');
   });
 });
 

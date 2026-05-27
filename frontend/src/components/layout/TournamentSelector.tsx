@@ -13,6 +13,10 @@ import { useTournament } from '@/context/TournamentContext';
 
 import { formatSeason } from '@/utils/layout/tournamentSelectorHelper';
 
+/**
+ * Render a Combobox for all available tournaments
+ * Display API response errors within the same components
+ */
 const TournamentSelector = () => {
   const { tournaments, selectedTournament, setSelectedTournamentId, isLoading, error } =
     useTournament();

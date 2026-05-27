@@ -32,7 +32,7 @@ VALUES
 (980, 'ES Tunis', 'EST', 'national', 'https://media.api-sports.io/football/teams/980.png', 'Tunisia'),
 (1577, 'Al Ahly', 'AHL', 'national', 'https://media.api-sports.io/football/teams/1577.png', 'Egypt'),
 (1595, 'Seattle Sounders', 'SEA', 'national', 'https://media.api-sports.io/football/teams/1595.png', 'USA'),
-(1616, 'Los Angeles FC', '', 'national', 'https://media.api-sports.io/football/teams/1616.png', 'USA'),
+(1616, 'Los Angeles FC', 'LAFC', 'national', 'https://media.api-sports.io/football/teams/1616.png', 'USA'),
 (2282, 'Monterrey', 'MON', 'national', 'https://media.api-sports.io/football/teams/2282.png', 'Mexico'),
 (2292, 'CF Pachuca', 'PAC', 'national', 'https://media.api-sports.io/football/teams/2292.png', 'Mexico'),
 (2537, 'Auckland City', 'AUC', 'national', 'https://media.api-sports.io/football/teams/2537.png', 'New-Zealand'),
@@ -40,7 +40,7 @@ VALUES
 (2767, 'Ulsan Hyundai FC', 'ULS', 'national', 'https://media.api-sports.io/football/teams/2767.png', 'South-Korea'),
 (2865, 'Al Ain', 'AIN', 'national', 'https://media.api-sports.io/football/teams/2865.png', 'United-Arab-Emirates'),
 (2932, 'Al-Hilal Saudi FC', 'HIL', 'national', 'https://media.api-sports.io/football/teams/2932.png', 'Saudi-Arabia'),
-(9568, 'Inter Miami', '', 'national', 'https://media.api-sports.io/football/teams/9568.png', 'USA')
+(9568, 'Inter Miami', 'MIA', 'national', 'https://media.api-sports.io/football/teams/9568.png', 'USA')
 ON CONFLICT (external_api_id)
 DO NOTHING;
 

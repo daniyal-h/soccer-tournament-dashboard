@@ -5,6 +5,11 @@ import { getStandings } from '@/api/standingsApi';
 
 import type { Standing, StandingsOptions } from '@/types/standings';
 
+/**
+ * Logic for getting and processing standings data for a given tournament
+ * Catch and wrap known errors, otherwise keep them generic
+ * Include retry logic triggered upon error state rendering
+ */
 export function useStandings({ tournamentId, group }: StandingsOptions) {
   const [standings, setStandings] = useState<Record<string, Standing[]>>({});
   const [isLoading, setIsLoading] = useState(true);
