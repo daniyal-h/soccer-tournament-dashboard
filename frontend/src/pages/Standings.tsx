@@ -9,7 +9,7 @@ import { useStandings } from '@/hooks/useStandings';
 
 const Standings = () => {
   const { selectedTournament, selectedTournamentId } = useTournament();
-  const { standings, isLoading, error, refetch } = useStandings({
+  const { standings, isLoading, error, refetch, canRetry } = useStandings({
     tournamentId: selectedTournamentId,
   });
 
@@ -26,7 +26,12 @@ const Standings = () => {
 
   if (error) {
     return (
-      <ErrorState title="Standings unavailable" description={error.message} onAction={refetch} />
+      <ErrorState
+        title="Standings unavailable"
+        description={error.message}
+        // show retry button if allowed
+        onAction={canRetry ? refetch : undefined}
+      />
     );
   }
 
