@@ -74,7 +74,7 @@ describe('getStandings', () => {
 
     const result = await getStandings({ tournamentId: 1 });
 
-    expect(mockApiGet).toHaveBeenCalledWith('/standings/1');
+    expect(mockApiGet).toHaveBeenCalledWith('/tournaments/1/standings');
     expect(result).toEqual(standings);
   });
 
@@ -83,7 +83,7 @@ describe('getStandings', () => {
 
     const result = await getStandings({ tournamentId: 1, group: 'A' });
 
-    expect(mockApiGet).toHaveBeenCalledWith('/standings/1?group=A');
+    expect(mockApiGet).toHaveBeenCalledWith('/tournaments/1/standings?group=A');
     expect(result).toEqual(standings);
   });
 
@@ -92,7 +92,7 @@ describe('getStandings', () => {
 
     await getStandings({ tournamentId: 1, group: '' });
 
-    expect(mockApiGet).toHaveBeenCalledWith('/standings/1');
+    expect(mockApiGet).toHaveBeenCalledWith('/tournaments/1/standings');
   });
 
   it('throws when response is null', async () => {

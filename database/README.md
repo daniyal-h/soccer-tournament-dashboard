@@ -149,7 +149,7 @@ The standings refresh script:
 1. Iterates over all supported tournaments
 2. Fetches fresh standings from API-Football
 3. Transforms the response into the backend's expected shape
-4. Calls `PUT /api/v1/admin/standings/{tournament_id}` on the backend
+4. Calls `PUT /api/v1/admin/tournaments/{tournament_id}/standings` on the backend
 5. Backend upserts standings rows and invalidates cache
 
 ---
