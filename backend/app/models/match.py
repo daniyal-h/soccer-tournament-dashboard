@@ -51,13 +51,13 @@ class Match(TimestampMixin, Base):
     team_a_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     team_b_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
-    team_a_id: Mapped[Team] = relationship(
+    team_a: Mapped[Team] = relationship(
         "Team",
         foreign_keys=[team_a_id],
         lazy="joined",
     )
 
-    team_b_id: Mapped[Team] = relationship(
+    team_b: Mapped[Team] = relationship(
         "Team",
         foreign_keys=[team_b_id],
         lazy="joined",
