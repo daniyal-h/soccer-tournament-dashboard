@@ -3,9 +3,10 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin
+from .team import Team
 
 
 class StatusType(str, enum.Enum):
@@ -49,6 +50,18 @@ class Match(TimestampMixin, Base):
 
     team_a_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     team_b_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    team_a_id: Mapped[Team] = relationship(
+        "Team",
+        foreign_keys=[team_a_id],
+        lazy="joined",
+    )
+
+    team_b_id: Mapped[Team] = relationship(
+        "Team",
+        foreign_keys=[team_b_id],
+        lazy="joined",
+    )
 
     __table_args__ = (
         Index("ix_matches_tournament_id", "tournament_id"),
