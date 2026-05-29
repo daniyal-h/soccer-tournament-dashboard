@@ -21,3 +21,7 @@ def get_tournament(db: Session, tournament_id: int) -> Tournament:
         raise NotFoundError(f"Tournament {tournament_id} was not found")
 
     return tournament
+
+
+def validate_tournament_exists(db: Session, tournament_id: int) -> None:
+    get_tournament(db, tournament_id)  # invalid if error raised
