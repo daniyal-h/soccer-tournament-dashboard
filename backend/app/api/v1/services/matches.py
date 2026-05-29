@@ -12,4 +12,4 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
     """
     tournaments_service.validate_tournament_exists(db, tournament_id)
 
-    return matches_repo.get_all_matches_by_tournament(db, tournament_id)
+    return matches_repo.get_matches_by_tournament(db, tournament_id)
