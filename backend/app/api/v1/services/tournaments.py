@@ -15,7 +15,7 @@ def get_tournaments(db: Session) -> list[Tournament]:
 
 
 def get_tournament(db: Session, tournament_id: int) -> Tournament:
-    tournament = tournaments_repo.get_tournament(db, tournament_id)
+    tournament = tournaments_repo.get_tournament_by_id(db, tournament_id)
 
     if not tournament:
         raise NotFoundError(f"Tournament {tournament_id} was not found")
