@@ -109,7 +109,9 @@ def test_refresh_standings_updates_db(client, db_session, seeded_refresh_tournam
     ]
 
     response = client.put(
-        "/api/v1/admin/standings/10", json=payload, headers={"Authorization": "Bearer test_token"}
+        "/api/v1/admin/tournaments/10/standings",
+        json=payload,
+        headers={"Authorization": "Bearer test_token"},
     )
     assert response.status_code == 200
 
@@ -153,7 +155,9 @@ def test_refresh_standings_invalidates_cache(client, db_session, seeded_refresh_
     ]
 
     client.put(
-        "/api/v1/admin/standings/10", json=payload, headers={"Authorization": "Bearer test_token"}
+        "/api/v1/admin/tournaments/10/standings",
+        json=payload,
+        headers={"Authorization": "Bearer test_token"},
     )
 
     cache_entry = db_session.query(CacheEntry).where(CacheEntry.cache_key == "standings:10").first()
@@ -162,7 +166,7 @@ def test_refresh_standings_invalidates_cache(client, db_session, seeded_refresh_
 
 def test_refresh_standings_rejects_invalid_token(client, seeded_refresh_tournament):
     response = client.put(
-        "/api/v1/admin/standings/10",
+        "/api/v1/admin/tournaments/10/standings",
         json=[],
         headers={"Authorization": "Bearer wrong_token"},
     )

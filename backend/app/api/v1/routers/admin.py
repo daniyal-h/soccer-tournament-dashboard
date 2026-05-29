@@ -50,7 +50,7 @@ async def update_match(match_id: int) -> dict:
     return {"message": "not yet implemented"}
 
 
-@router.put("/standings/{tournament_id}")
+@router.put("/tournaments/{tournament_id}/standings")
 async def update_standings(
     db: Annotated[Session, Depends(get_db)], tournament_id: int, data: list[StandingRefreshRow]
 ) -> dict:
