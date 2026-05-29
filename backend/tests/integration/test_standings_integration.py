@@ -68,7 +68,7 @@ def seeded_tournament(db_session):
 
 # validate that empty standings returns zero-state
 def test_standings_zero_state(client, db_session, seeded_tournament):
-    response = client.get("/api/v1/standings/1")
+    response = client.get("/api/v1/tournaments/1/standings")
     assert response.status_code == 200
 
     group_a = response.json()["A"]
@@ -94,7 +94,7 @@ def test_standings_filter_by_group(client, db_session, seeded_tournament):
     )
     db_session.commit()
 
-    response = client.get("/api/v1/standings/1?group=A")
+    response = client.get("/api/v1/tournaments/1/standings?group=A")
 
     assert response.status_code == 200
     assert list(response.json().keys()) == ["A"]
@@ -145,7 +145,7 @@ def test_standings_ranked_correctly(client, db_session, seeded_tournament):
     )
     db_session.commit()
 
-    response = client.get("/api/v1/standings/1")
+    response = client.get("/api/v1/tournaments/1/standings")
     assert response.status_code == 200
 
     group_a = response.json()["A"]
@@ -159,6 +159,6 @@ def test_standings_invalid_group_returns_422(
     db_session,
     seeded_tournament,
 ):
-    response = client.get("/api/v1/standings/1?group=Z")
+    response = client.get("/api/v1/tournaments/1/standings?group=Z")
 
     assert response.status_code == 422

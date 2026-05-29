@@ -26,13 +26,13 @@ def test_get_standings_rejects_invalid_tournament_id(client):
 
 
 def test_get_standings_rejects_invalid_group(client):
-    response = client.get("/api/v1/standings/1?group=Z")
+    response = client.get("/api/v1/tournaments/1/standings?group=Z")
     assert response.status_code == 422
 
     response = client.get("/api/v1/standings/-1?group=A")
     assert response.status_code == 422
 
-    response = client.get("/api/v1/standings/1?group=AZ")
+    response = client.get("/api/v1/tournaments/1/standings?group=AZ")
     assert response.status_code == 422
 
 

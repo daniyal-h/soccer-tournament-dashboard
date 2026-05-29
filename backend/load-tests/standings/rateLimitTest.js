@@ -26,7 +26,7 @@ export const options = {
 };
 
 export default function standingsRateLimitTest() {
-    const response = http.get(`${BASE_URL}/api/v1/standings/1`);
+    const response = http.get(`${BASE_URL}/api/v1/tournaments/1/standings`);
 
     if (response.status === 429) {
         rateLimitedResponses.add(1);
