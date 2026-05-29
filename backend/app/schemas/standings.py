@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, computed_field
-from teams import TeamsSummary
+
+from .teams import TeamsSummary
 
 
 class StandingResponse(BaseModel):

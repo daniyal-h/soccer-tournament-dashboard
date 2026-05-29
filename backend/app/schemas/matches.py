@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
-from teams import TeamsSummary
 
 from app.models.match import StatusType
+
+from .teams import TeamsSummary
 
 
 class MatchesResponse(BaseModel):
