@@ -50,7 +50,7 @@ def test_get_tournament_returns_tournament(mocker):
     fake_tournament = Mock()
 
     get_tournament = mocker.patch(
-        "app.api.v1.services.tournaments.tournaments_repo.get_tournament",
+        "app.api.v1.services.tournaments.tournaments_repo.get_tournament_by_id",
         return_value=fake_tournament,
     )
 
@@ -64,7 +64,7 @@ def test_get_tournament_raises_not_found_when_missing(mocker):
     db = Mock()
 
     mocker.patch(
-        "app.api.v1.services.tournaments.tournaments_repo.get_tournament",
+        "app.api.v1.services.tournaments.tournaments_repo.get_tournament_by_id",
         return_value=None,
     )
 
@@ -76,7 +76,7 @@ def test_get_tournament_treats_falsy_result_as_not_found(mocker):
     db = Mock()
 
     mocker.patch(
-        "app.api.v1.services.tournaments.tournaments_repo.get_tournament",
+        "app.api.v1.services.tournaments.tournaments_repo.get_tournament_by_id",
         return_value=None,
     )
 

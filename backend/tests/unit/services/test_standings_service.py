@@ -20,7 +20,7 @@ def mock_cache(mocker):
 
 
 def test_get_standings_rejects_invalid_tournament_id(client):
-    response = client.get("/api/v1/standings/0")
+    response = client.get("/api/v1/tournaments/0/standings")
 
     assert response.status_code == 422
 
@@ -29,7 +29,7 @@ def test_get_standings_rejects_invalid_group(client):
     response = client.get("/api/v1/tournaments/1/standings?group=Z")
     assert response.status_code == 422
 
-    response = client.get("/api/v1/standings/-1?group=A")
+    response = client.get("/api/v1/tournaments/-1/standings?group=A")
     assert response.status_code == 422
 
     response = client.get("/api/v1/tournaments/1/standings?group=AZ")
