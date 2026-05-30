@@ -5,7 +5,7 @@ import { MATCH_STAGE_LABELS } from '@/constants/schedule';
 export function getMatchCenterDisplay(match: Match): string {
   switch (match.status) {
     case 'scheduled':
-      return match.kickoff_time;
+      return formatKickoffTime(match.kickoff_time);
 
     case 'live':
     case 'finished':
@@ -22,6 +22,16 @@ export function getMatchCenterDisplay(match: Match): string {
       return _exhaustiveCheck;
     }
   }
+}
+
+// convert timestamp to local hourly (e.g. 02:00 pm)
+function formatKickoffTime(kickoffTime: string): string {
+  const formattedKickoffTime = new Date(kickoffTime).toLocaleString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return formattedKickoffTime;
 }
 
 export function getMatchMetaDisplay(match: Match): string {
