@@ -1,4 +1,4 @@
-import { type MatchStatus } from '@/types/matches';
+import { type MatchStage, type MatchStatus } from '@/types/matches';
 
 export const MATCH_STATUS_BADGE = {
   scheduled: {
@@ -28,3 +28,14 @@ export const MATCH_STATUS_BADGE = {
     className: string;
   }
 >;
+
+export const MATCH_STAGE_LABELS: Record<MatchStage, string> = {
+  group: 'Group',
+  round_of_32: 'Round of 32',
+  round_of_16: 'Round of 16',
+  quarter_final: 'Quarter-Finals',
+  semi_final: 'Semi-Finals',
+  third_place: 'Third Place',
+  final: 'Final',
+  other: 'Other',
+};
