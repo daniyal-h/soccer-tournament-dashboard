@@ -26,3 +26,8 @@ export interface Match {
   team_a_score?: number;
   team_b_score?: number;
 }
+
+export interface MatchGroup {
+  day: string;
+  matches: Match[];
+}
