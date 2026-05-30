@@ -5,7 +5,7 @@ import { getMatches } from '@/api/matchesApi';
 
 import type { MatchesOptions, MatchGroup } from '@/types/matches';
 
-import { groupMatchesByDay } from '@/utils/schedule/matchCardHelper';
+import { groupMatchesByDay } from '@/utils/matches/matchCardHelper';
 
 /**
  * Logic for getting and processing available matches

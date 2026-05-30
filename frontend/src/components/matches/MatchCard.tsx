@@ -4,7 +4,7 @@ import { type Match } from '@/types/matches';
 
 import MatchStatusBadge from './MatchStatusBadge';
 
-import { getMatchCenterDisplay, getMatchMetaDisplay } from '@/utils/schedule/matchCardHelper';
+import { getMatchCenterDisplay, getMatchMetaDisplay } from '@/utils/matches/matchCardHelper';
 
 interface MatchCardProps {
   match: Match;
