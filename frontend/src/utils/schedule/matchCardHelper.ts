@@ -21,3 +21,9 @@ export function getMatchCenterDisplay(match: Match): string {
     }
   }
 }
+
+export function getMatchMetaDisplay(match: Match): string {
+  const stage = match.stage === 'group' && match.group ? `Group ${match.group}` : match.stage;
+
+  return match.venue ? `${stage} · ${match.venue}` : stage;
+}

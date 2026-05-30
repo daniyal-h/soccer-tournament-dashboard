@@ -44,6 +44,9 @@ const MatchCard = ({ match }: MatchCardProps) => {
               <span>{match.team_b.name}</span>
             </div>
           </div>
+
+          {/* stage and venue */}
+          <p className="text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
         </div>
       </CardContent>
     </Card>
