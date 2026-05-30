@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.match import StatusType
+from app.models.match import StageType, StatusType
 
 from .teams import TeamsSummary
 
@@ -12,7 +12,7 @@ class MatchesResponse(BaseModel):
     team_a: TeamsSummary
     team_b: TeamsSummary
     kickoff_time: datetime
-    stage: str
+    stage: StageType
     group: str | None = None
     status: StatusType
     venue: str | None = None

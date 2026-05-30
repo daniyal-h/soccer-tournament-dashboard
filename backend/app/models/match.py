@@ -17,6 +17,17 @@ class StatusType(str, enum.Enum):
     CANCELLED = "cancelled"
 
 
+class StageType(str, enum.Enum):
+    GROUP = "group"
+    ROUND_OF_32 = "round_of_32"
+    ROUND_OF_16 = "round_of_16"
+    QUARTER_FINAL = "quarter_final"
+    SEMI_FINAL = "semi_final"
+    THIRD_PLACE = "third_place"
+    FINAL = "final"
+    OTHER = "other"
+
+
 class Match(TimestampMixin, Base):
     __tablename__ = "matches"
 
@@ -32,7 +43,14 @@ class Match(TimestampMixin, Base):
 
     kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    stage: Mapped[str] = mapped_column(String(20), nullable=False)
+    stage: Mapped[StageType] = mapped_column(
+        SQLAlchemyEnum(
+            StageType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="stage_type_enum",
+        ),
+        nullable=False,
+    )
 
     # knockout matches don't belong in groups (nullable)
     group: Mapped[str | None] = mapped_column(String(10), nullable=True)
