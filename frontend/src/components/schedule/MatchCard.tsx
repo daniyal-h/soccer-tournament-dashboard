@@ -1,7 +1,48 @@
-const MatchCard = () => {
-  return (
-    <div>MatchCard</div>
-  )
+import { Card, CardContent } from '@/components/ui/card';
+
+import { type Match } from '@/types/matches';
+
+import { getMatchCenterDisplay } from '@/utils/schedule/matchCardHelper';
+
+interface MatchCardProps {
+  match: Match;
 }
 
-export default MatchCard
+const MatchCard = ({ match }: MatchCardProps) => {
+  return (
+    <Card className="w-full shadow-sm">
+      <CardContent className="space-y-3 p-4">
+        <div className="flex justify-center">
+          {/* teams, score/time */}
+          <div className="grid w-fit grid-cols-[auto_auto_auto] items-center gap-4">
+            {/* team A details */}
+            <div className="flex items-center gap-2">
+              <span>{match.team_a.name}</span>
+
+              <img
+                src={match.team_a.logo_url}
+                alt={match.team_a.name}
+                className="h-4 w-4 shrink-0 object-contain"
+              />
+            </div>
+
+            {/* time, score or special status */}
+            <span className="text-center">{getMatchCenterDisplay(match)}</span>
+
+            {/* team B details */}
+            <div className="flex items-center gap-2">
+              <img
+                src={match.team_b.logo_url}
+                alt={match.team_b.name}
+                className="h-4 w-4 shrink-0 object-contain"
+              />
+              <span>{match.team_b.name}</span>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default MatchCard;
