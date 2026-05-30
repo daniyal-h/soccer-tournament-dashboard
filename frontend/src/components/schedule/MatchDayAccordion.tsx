@@ -12,7 +12,9 @@ interface MatchDayAccordionProps {
 const MatchDayAccordion = ({ day, matches }: MatchDayAccordionProps) => {
   return (
     <AccordionItem value={day}>
-      <AccordionTrigger>{day}</AccordionTrigger>
+      <AccordionTrigger className="py-2">
+        <span className="text-muted-foreground text-lg font-medium">{day}</span>
+      </AccordionTrigger>
       <AccordionContent className="px-1 pt-2 pb-4">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {matches.map((match) => (
