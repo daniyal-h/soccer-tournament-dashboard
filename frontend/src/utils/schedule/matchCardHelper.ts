@@ -1,6 +1,6 @@
 import type { Match, MatchGroup } from '@/types/matches';
 
-import { MATCH_STAGE_LABELS } from '@/constants/schedule';
+import { MATCH_STAGE_LABELS } from '@/constants/matches';
 
 /** Return matches grouped by days */
 export function groupMatchesByDay(matches: Match[]): MatchGroup[] {

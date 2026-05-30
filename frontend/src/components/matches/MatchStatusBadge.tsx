@@ -1,6 +1,6 @@
 import { type MatchStatus } from '@/types/matches';
 
-import { MATCH_STATUS_BADGE } from '@/constants/schedule';
+import { MATCH_STATUS_BADGE } from '@/constants/matches';
 
 import { cn } from '@/lib/utils';
 
