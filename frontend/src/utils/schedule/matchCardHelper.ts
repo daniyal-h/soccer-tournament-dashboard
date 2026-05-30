@@ -1,5 +1,7 @@
 import { type Match } from '@/types/matches';
 
+import { MATCH_STAGE_LABELS } from '@/constants/schedule';
+
 export function getMatchCenterDisplay(match: Match): string {
   switch (match.status) {
     case 'scheduled':
@@ -23,7 +25,21 @@ export function getMatchCenterDisplay(match: Match): string {
 }
 
 export function getMatchMetaDisplay(match: Match): string {
-  const stage = match.stage === 'group' && match.group ? `Group ${match.group}` : match.stage;
+  const parts: string[] = [];
 
-  return match.venue ? `${stage} · ${match.venue}` : stage;
+  parts.push(
+    match.stage === 'group' && match.group
+      ? `Group ${match.group}`
+      : MATCH_STAGE_LABELS[match.stage],
+  );
+
+  if (match.venue) {
+    parts.push(match.venue);
+  }
+
+  if (match.city) {
+    parts.push(match.city);
+  }
+
+  return parts.join(' · ');
 }
