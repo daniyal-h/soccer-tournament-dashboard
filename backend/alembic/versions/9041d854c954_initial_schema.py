@@ -476,7 +476,7 @@ def downgrade() -> None:
     enum_names = [
         "event_type_enum",
         "position_type_enum",
-        # "stage_type_enum", <- removed, owned by next migration
+        "stage_type_enum",
         "status_type_enum",
         "job_status_enum",
         "team_type_enum",
