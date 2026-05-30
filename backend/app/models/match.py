@@ -47,6 +47,9 @@ class Match(TimestampMixin, Base):
     )
 
     venue: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    city: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    elapsed: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     team_a_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     team_b_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
