@@ -2,7 +2,9 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { type Match } from '@/types/matches';
 
-import { getMatchCenterDisplay } from '@/utils/schedule/matchCardHelper';
+import MatchStatusBadge from './MatchStatusBadge';
+
+import { getMatchCenterDisplay, getMatchMetaDisplay } from '@/utils/schedule/matchCardHelper';
 
 interface MatchCardProps {
   match: Match;
@@ -12,7 +14,10 @@ const MatchCard = ({ match }: MatchCardProps) => {
   return (
     <Card className="w-full shadow-sm">
       <CardContent className="space-y-3 p-4">
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center gap-4">
+          {/* match status badge */}
+          <MatchStatusBadge status={match.status} />
+
           {/* teams, score/time */}
           <div className="grid w-fit grid-cols-[auto_auto_auto] items-center gap-4">
             {/* team A details */}
