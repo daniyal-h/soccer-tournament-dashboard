@@ -12,7 +12,13 @@ interface MatchCardProps {
 
 const MatchCard = ({ match }: MatchCardProps) => {
   return (
-    <Card className="w-full shadow-sm">
+    <Card
+      // role='button'
+      tabIndex={0}
+      className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md"
+      //onClick={}
+      //onKeyDown={}
+    >
       <CardContent className="min-w-0 space-y-3 p-4">
         <div className="flex flex-col items-center gap-4">
           {/* match status badge */}
@@ -46,7 +52,9 @@ const MatchCard = ({ match }: MatchCardProps) => {
           </div>
 
           {/* stage and venue */}
-          <p className="max-w-full truncate text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
+          <p className="max-w-full truncate text-sm text-muted-foreground">
+            {getMatchMetaDisplay(match)}
+          </p>
         </div>
       </CardContent>
     </Card>
