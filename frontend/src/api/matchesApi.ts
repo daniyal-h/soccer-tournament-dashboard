@@ -6,6 +6,8 @@ function isMatch(value: unknown): value is Match {
   return (
     typeof value === 'object' &&
     value !== null &&
+    (value as Match).team_a !== null &&
+    (value as Match).team_b !== null &&
     typeof (value as Match).id === 'number' &&
     typeof (value as Match).kickoff_time === 'string' &&
     typeof (value as Match).stage === 'string' &&
