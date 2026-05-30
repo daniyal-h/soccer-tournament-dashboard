@@ -16,7 +16,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
       <CardContent className="space-y-3 p-4">
         <div className="flex flex-col items-center gap-4">
           {/* match status badge */}
-          <MatchStatusBadge status={match.status} />
+          <MatchStatusBadge status={match.status} elapsed={match.elapsed} />
 
           {/* teams, score/time */}
           <div className="grid w-fit grid-cols-[auto_auto_auto] items-center gap-4">
