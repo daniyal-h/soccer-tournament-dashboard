@@ -15,7 +15,8 @@ const Schedule = () => {
 
   const tournamentName = selectedTournament?.name;
 
-  const description = `View the schedule for the ${tournamentName}`;
+  const description = `View upcoming and completed tournament matches for the 
+        ${tournamentName ?? 'the selected tournament'}.`;
 
   // render error state with possible retry logic
   if (error) {
@@ -33,7 +34,7 @@ const Schedule = () => {
   if (isLoading) {
     return (
       <section className="space-y-3">
-        <h1 className="text-3xl font-bold tracking-tight">Standings</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Schedule (stub!)</h1>
         <p className="text-muted-foreground">{description}</p>
 
         <ScheduleSkeleton />
@@ -49,10 +50,7 @@ const Schedule = () => {
     <section className="space-y-3">
       <h1 className="text-3xl font-bold tracking-tight">Schedule (stub!)</h1>
 
-      <p className="text-muted-foreground">
-        View upcoming and completed tournament matches for the{' '}
-        {selectedTournament?.name ?? 'the selected tournament'}.
-      </p>
+      <p className="text-muted-foreground">{description}</p>
 
       <MatchSchedule groupedMatches={groupedMatches} />
     </section>
