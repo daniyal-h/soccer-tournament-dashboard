@@ -6,26 +6,38 @@ import { getMatches } from '@/api/matchesApi';
 import type { Match, MatchesOptions } from '@/types/matches';
 
 /**
- * Logic for getting and processing available tournaments
+ * Logic for getting and processing available matches
  * Catch and wrap known errors, otherwise keep them generic
  */
 export function useMatches({ tournament_id }: MatchesOptions) {
   const [matches, setMatches] = useState<Match[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [emptyState, setEmptyState] = useState<string | null>(null);
   const [canRetry, setCanRetry] = useState(true);
 
   const loadMatches = useCallback(() => {
     setIsLoading(true);
     setError(null);
+    setEmptyState(null);
+    setCanRetry(true);
 
     return getMatches({ tournament_id })
-      .then(setMatches)
+      .then((data) => {
+        // check for empty state
+        if (data.length === 0) {
+          setEmptyState('The schedule will appear once tournament data is available.');
+          setCanRetry(false);
+          return;
+        }
+
+        setMatches(data);
+      })
       .catch((err) => {
         setMatches([]); // clear data
 
         if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('No matches available.'));
+          setError(new Error('No matches were found.'));
           setCanRetry(false);
           return;
         }
@@ -52,5 +64,5 @@ export function useMatches({ tournament_id }: MatchesOptions) {
     void loadMatches();
   }, [loadMatches]);
 
-  return { matches, isLoading, error, refetch: loadMatches, canRetry };
+  return { matches, isLoading, error, emptyState, refetch: loadMatches, canRetry };
 }
