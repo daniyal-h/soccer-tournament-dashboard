@@ -17,7 +17,7 @@ class MatchesResponse(BaseModel):
     status: StatusType
     venue: str | None = None
     city: str | None = None
-    elapse: int | None = None
+    elapsed: int | None = None
     team_a_score: int | None = None
     team_b_score: int | None = None
 
