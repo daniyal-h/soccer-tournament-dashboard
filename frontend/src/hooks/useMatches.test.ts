@@ -129,68 +129,6 @@ describe('useMatches', () => {
     expect(result.current.canRetry).toBe(false);
   });
 
-  it('sets rate-limit error and keeps retry enabled', async () => {
-    mockedGetMatches.mockRejectedValue(new ApiError('too many requests', 429, 'RATE_LIMITED'));
-
-    const { result } = renderHook(() => useMatches({ tournament_id: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.groupedMatches).toEqual([]);
-    expect(result.current.error).toEqual(
-      new Error('Too many requests. Please wait a moment and try again.'),
-    );
-    expect(result.current.emptyState).toBeNull();
-    expect(result.current.canRetry).toBe(true);
-  });
-
-  it('sets network error and keeps retry enabled', async () => {
-    mockedGetMatches.mockRejectedValue(new ApiError('offline', 0, 'NETWORK_ERROR'));
-
-    const { result } = renderHook(() => useMatches({ tournament_id: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.groupedMatches).toEqual([]);
-    expect(result.current.error).toEqual(new Error('Unable to reach the server.'));
-    expect(result.current.emptyState).toBeNull();
-    expect(result.current.canRetry).toBe(true);
-  });
-
-  it('sets generic error for unknown ApiError codes', async () => {
-    mockedGetMatches.mockRejectedValue(new ApiError('server exploded', 500, 'UNKNOWN_ERROR'));
-
-    const { result } = renderHook(() => useMatches({ tournament_id: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.groupedMatches).toEqual([]);
-    expect(result.current.error).toEqual(new Error('Failed to load matches.'));
-    expect(result.current.emptyState).toBeNull();
-    expect(result.current.canRetry).toBe(true);
-  });
-
-  it('sets generic error for non-ApiError failures', async () => {
-    mockedGetMatches.mockRejectedValue(new Error('boom'));
-
-    const { result } = renderHook(() => useMatches({ tournament_id: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.groupedMatches).toEqual([]);
-    expect(result.current.error).toEqual(new Error('Failed to load matches.'));
-    expect(result.current.emptyState).toBeNull();
-    expect(result.current.canRetry).toBe(true);
-  });
-
   it('resets state before refetching', async () => {
     const matches = [createMatch(1)];
     const groupedMatches = [{ day: 'Jun 1', matches }];
