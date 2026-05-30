@@ -19,6 +19,7 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
   const loadStandings = useCallback(() => {
     setIsLoading(true);
     setError(null);
+    setCanRetry(true);
 
     return getStandings({ tournamentId, group })
       .then(setStandings)
