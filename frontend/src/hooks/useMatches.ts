@@ -5,12 +5,17 @@ import { getMatches } from '@/api/matchesApi';
 
 import type { Match, MatchesOptions, MatchGroup } from '@/types/matches';
 
+//** return the local day on the match in the form MMM DD */
 function getMatchDay(match: Match): string {
   const { kickoff_time } = match;
-  return new Date(kickoff_time).toLocaleString([], {
-    hour: '2-digit',
-    minute: '2-digit',
+  const utcDate = new Date(kickoff_time);
+
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    day: 'numeric',
+    month: 'short',
   });
+
+  return formatter.format(utcDate);
 }
 
 /**
