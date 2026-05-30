@@ -1,7 +1,27 @@
-const MatchDayAccordion = () => {
-  return (
-    <div>MatchDate</div>
-  )
+import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
+import type { Match } from '@/types/matches';
+
+import MatchCard from './MatchCard';
+
+interface MatchDayAccordionProps {
+  day: string;
+  matches: Match[];
 }
 
-export default MatchDayAccordion
+const MatchDayAccordion = ({ day, matches }: MatchDayAccordionProps) => {
+  return (
+    <AccordionItem value={day}>
+      <AccordionTrigger>{day}</AccordionTrigger>
+      <AccordionContent className="px-1 pt-2 pb-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {matches.map((match) => (
+            <MatchCard key={match.id} match={match} />
+          ))}
+        </div>
+      </AccordionContent>
+    </AccordionItem>
+  );
+};
+
+export default MatchDayAccordion;
