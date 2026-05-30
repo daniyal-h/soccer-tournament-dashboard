@@ -1,9 +1,33 @@
-import { type Match } from '@/types/matches';
+import type { Match, MatchGroup } from '@/types/matches';
 
 import { MATCH_STAGE_LABELS } from '@/constants/schedule';
 
-//** return the local day on the match in the form MMM DD */
-export function getMatchDay(match: Match): string {
+/** Return matches grouped by days */
+export function groupMatchesByDay(matches: Match[]): MatchGroup[] {
+  const sortedMatches = [...matches].sort(
+    (a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime(),
+  );
+
+  const groupedMatchesMap: Record<string, Match[]> = {};
+
+  sortedMatches.forEach((match) => {
+    const day = getMatchDay(match);
+
+    if (!groupedMatchesMap[day]) {
+      groupedMatchesMap[day] = [];
+    }
+
+    groupedMatchesMap[day].push(match);
+  });
+
+  return Object.entries(groupedMatchesMap).map(([day, matches]) => ({
+    day,
+    matches,
+  }));
+}
+
+//** Return the local day on the match in the form MMM DD */
+function getMatchDay(match: Match): string {
   const { kickoff_time } = match;
   const utcDate = new Date(kickoff_time);
 

@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { ApiError } from '@/api/client';
 import { getMatches } from '@/api/matchesApi';
 
-import type { Match, MatchesOptions, MatchGroup } from '@/types/matches';
+import type { MatchesOptions, MatchGroup } from '@/types/matches';
 
-import { getMatchDay } from '@/utils/schedule/matchCardHelper';
+import { groupMatchesByDay } from '@/utils/schedule/matchCardHelper';
 
 /**
  * Logic for getting and processing available matches
@@ -27,40 +27,14 @@ export function useMatches({ tournament_id }: MatchesOptions) {
 
     return getMatches({ tournament_id })
       .then((matches) => {
-        // check for empty state
         if (matches.length === 0) {
+          setGroupedMatches([]);
           setEmptyState('The schedule will appear once tournament data is available.');
           setCanRetry(false);
           return;
         }
 
-        // defensively UI
-        const sortedMatches = [...matches].sort(
-          (a, b) => new Date(a.kickoff_time).getTime() - new Date(b.kickoff_time).getTime(),
-        );
-
-        // group all matches on the same day with a map
-        const groupedMatchesMap: Record<string, Match[]> = {};
-
-        sortedMatches.forEach((match: Match) => {
-          const day = getMatchDay(match); // in the form "June 11"
-
-          if (!groupedMatchesMap[day]) {
-            groupedMatchesMap[day] = [];
-          }
-
-          groupedMatchesMap[day].push(match);
-        });
-
-        // convert map to list of match groups
-        const groupedMatches: MatchGroup[] = Object.entries(groupedMatchesMap).map(
-          ([day, matches]) => ({
-            day,
-            matches,
-          }),
-        );
-
-        setGroupedMatches(groupedMatches);
+        setGroupedMatches(groupMatchesByDay(matches));
       })
       .catch((err) => {
         setGroupedMatches([]); // clear data
