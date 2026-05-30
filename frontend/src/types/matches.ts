@@ -31,3 +31,7 @@ export interface MatchGroup {
   day: string;
   matches: Match[];
 }
+
+export interface MatchesOptions {
+  tournament_id: number;
+}
