@@ -11,6 +11,8 @@ export interface Match {
   group?: string;
   status: MatchStatus;
   venue?: string;
+  city?: string;
+  elapsed?: number;
   team_a_score?: number;
   team_b_score?: number;
 }
