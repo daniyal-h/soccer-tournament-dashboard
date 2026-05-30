@@ -2,7 +2,7 @@ import { type Match, type MatchesOptions } from '@/types/matches';
 
 import { apiGet } from './client';
 
-function isMatchesResponse(value: unknown): value is Match {
+function isMatch(value: unknown): value is Match {
   return (
     typeof value === 'object' &&
     value !== null &&
@@ -13,6 +13,10 @@ function isMatchesResponse(value: unknown): value is Match {
     typeof (value as Match).team_a === 'object' &&
     typeof (value as Match).team_b === 'object'
   );
+}
+
+function isMatchesResponse(value: unknown): value is Match[] {
+  return Array.isArray(value) && value.every(isMatch);
 }
 
 export async function getMatches({ tournament_id }: MatchesOptions) {
