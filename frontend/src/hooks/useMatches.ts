@@ -5,18 +5,7 @@ import { getMatches } from '@/api/matchesApi';
 
 import type { Match, MatchesOptions, MatchGroup } from '@/types/matches';
 
-//** return the local day on the match in the form MMM DD */
-function getMatchDay(match: Match): string {
-  const { kickoff_time } = match;
-  const utcDate = new Date(kickoff_time);
-
-  const formatter = new Intl.DateTimeFormat(undefined, {
-    day: 'numeric',
-    month: 'short',
-  });
-
-  return formatter.format(utcDate);
-}
+import { getMatchDay } from '@/utils/schedule/matchCardHelper';
 
 /**
  * Logic for getting and processing available matches

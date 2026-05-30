@@ -2,6 +2,19 @@ import { type Match } from '@/types/matches';
 
 import { MATCH_STAGE_LABELS } from '@/constants/schedule';
 
+//** return the local day on the match in the form MMM DD */
+export function getMatchDay(match: Match): string {
+  const { kickoff_time } = match;
+  const utcDate = new Date(kickoff_time);
+
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    day: 'numeric',
+    month: 'short',
+  });
+
+  return formatter.format(utcDate);
+}
+
 export function getMatchCenterDisplay(match: Match): string {
   switch (match.status) {
     case 'scheduled':
