@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError } from '@/api/client';
 import { getStandings } from '@/api/standingsApi';
 
 import type { Standing, StandingsOptions } from '@/types/standings';
+
+import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 
 /**
  * Logic for getting and processing standings data for a given tournament
@@ -24,25 +25,15 @@ export function useStandings({ tournamentId, group }: StandingsOptions) {
     return getStandings({ tournamentId, group })
       .then(setStandings)
       .catch((err) => {
-        setStandings({}); // clear data
+        setStandings({});
 
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('Groups and rankings will appear once tournament data is available.'));
-          setCanRetry(false);
-          return;
-        }
+        const errorState = getApiErrorState(err, {
+          notFound: 'Groups and rankings will appear once tournament data is available.',
+          generic: 'Failed to load standings.',
+        });
 
-        if (err instanceof ApiError && err.code === 'RATE_LIMITED') {
-          setError(new Error('Too many requests. Please wait a moment and try again.'));
-          return;
-        }
-
-        if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
-          setError(new Error('Unable to reach the server.'));
-          return;
-        }
-
-        setError(new Error('Failed to load standings.'));
+        setError(new Error(errorState.message));
+        setCanRetry(errorState.canRetry);
       })
       .finally(() => {
         setIsLoading(false);

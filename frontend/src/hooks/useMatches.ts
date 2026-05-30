@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { ApiError } from '@/api/client';
 import { getMatches } from '@/api/matchesApi';
 
 import type { MatchesOptions, MatchGroup } from '@/types/matches';
 
+import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 import { groupMatchesByDay } from '@/utils/matches/matchCardHelper';
 
 /**
@@ -37,25 +37,15 @@ export function useMatches({ tournament_id }: MatchesOptions) {
         setGroupedMatches(groupMatchesByDay(matches));
       })
       .catch((err) => {
-        setGroupedMatches([]); // clear data
+        setGroupedMatches([]);
 
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('No matches were found.'));
-          setCanRetry(false);
-          return;
-        }
+        const errorState = getApiErrorState(err, {
+          notFound: 'No matches were found.',
+          generic: 'Failed to load matches.',
+        });
 
-        if (err instanceof ApiError && err.code === 'RATE_LIMITED') {
-          setError(new Error('Too many requests. Please wait a moment and try again.'));
-          return;
-        }
-
-        if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
-          setError(new Error('Unable to reach the server.'));
-          return;
-        }
-
-        setError(new Error('Failed to load matches.'));
+        setError(new Error(errorState.message));
+        setCanRetry(errorState.canRetry);
       })
       .finally(() => {
         setIsLoading(false);
