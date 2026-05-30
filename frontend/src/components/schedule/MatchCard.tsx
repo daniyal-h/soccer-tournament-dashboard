@@ -27,7 +27,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
               <img
                 src={match.team_a.logo_url}
                 alt={match.team_a.name}
-                className="h-4 w-4 shrink-0 object-contain"
+                className="h-6 w-6 shrink-0 object-contain"
               />
             </div>
 
@@ -39,7 +39,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
               <img
                 src={match.team_b.logo_url}
                 alt={match.team_b.name}
-                className="h-4 w-4 shrink-0 object-contain"
+                className="h-6 w-6 shrink-0 object-contain"
               />
               <span>{match.team_b.name}</span>
             </div>
