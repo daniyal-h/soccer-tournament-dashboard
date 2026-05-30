@@ -3,9 +3,10 @@ from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin
+from .team import Team
 
 
 class StatusType(str, enum.Enum):
@@ -14,6 +15,17 @@ class StatusType(str, enum.Enum):
     FINISHED = "finished"
     POSTPONED = "postponed"
     CANCELLED = "cancelled"
+
+
+class StageType(str, enum.Enum):
+    GROUP = "group"
+    ROUND_OF_32 = "round_of_32"
+    ROUND_OF_16 = "round_of_16"
+    QUARTER_FINAL = "quarter_final"
+    SEMI_FINAL = "semi_final"
+    THIRD_PLACE = "third_place"
+    FINAL = "final"
+    OTHER = "other"
 
 
 class Match(TimestampMixin, Base):
@@ -31,7 +43,14 @@ class Match(TimestampMixin, Base):
 
     kickoff_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    stage: Mapped[str] = mapped_column(String(20), nullable=False)
+    stage: Mapped[StageType] = mapped_column(
+        SQLAlchemyEnum(
+            StageType,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="stage_type_enum",
+        ),
+        nullable=False,
+    )
 
     # knockout matches don't belong in groups (nullable)
     group: Mapped[str | None] = mapped_column(String(10), nullable=True)
@@ -46,9 +65,24 @@ class Match(TimestampMixin, Base):
     )
 
     venue: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    city: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    elapsed: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     team_a_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     team_b_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    team_a: Mapped[Team] = relationship(
+        "Team",
+        foreign_keys=[team_a_id],
+        lazy="joined",
+    )
+
+    team_b: Mapped[Team] = relationship(
+        "Team",
+        foreign_keys=[team_b_id],
+        lazy="joined",
+    )
 
     __table_args__ = (
         Index("ix_matches_tournament_id", "tournament_id"),

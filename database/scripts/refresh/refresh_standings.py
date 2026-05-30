@@ -1,7 +1,7 @@
 import sys
 import time
-from pathlib import Path
 from datetime import date
+from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
@@ -14,7 +14,7 @@ def refresh_standings() -> None:
         # do not refresh finished tournaments
         if date.today() > end_date:
             continue
-        
+
         # fetch fresh standings from API-Football
         data = api_get("/standings", {"league": tournament_api_id, "season": season})
         responses = data.get("response", [])
@@ -51,7 +51,7 @@ def refresh_standings() -> None:
 
         # get local tournament id and send to backend
         tournament_id = local_id
-        api_put(f"/api/v1/admin/standings/{tournament_id}", standings_data)
+        api_put(f"/api/v1/admin/tournaments/{tournament_id}/standings", standings_data)
 
         time.sleep(0.5)  # API-Football rate limits
 

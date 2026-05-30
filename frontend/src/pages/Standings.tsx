@@ -33,7 +33,7 @@ const Standings = () => {
   if (error) {
     return (
       <ErrorState
-        title="Standings unavailable"
+        title="Standings Unavailable"
         description={error.message}
         // show retry button if allowed
         onAction={canRetry ? refetch : undefined}

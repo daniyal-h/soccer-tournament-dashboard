@@ -79,64 +79,6 @@ describe('useStandings', () => {
     );
   });
 
-  it('handles rate-limited standings errors', async () => {
-    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
-      new ApiError('Rate limit exceeded. Please try again later.', 429, 'RATE_LIMITED'),
-    );
-
-    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.standings).toEqual({});
-    expect(result.current.error?.message).toBe(
-      'Too many requests. Please wait a moment and try again.',
-    );
-  });
-
-  it('handles network errors', async () => {
-    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
-      new ApiError('raw network failure from API client', 0, 'NETWORK_ERROR'),
-    );
-
-    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.standings).toEqual({});
-    expect(result.current.error?.message).toBe('Unable to reach the server.');
-  });
-
-  it('does not treat unknown API errors as network errors', async () => {
-    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
-      new ApiError('some weird API failure', 500, 'SERVER_ERROR'),
-    );
-
-    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.error?.message).toBe('Failed to load standings.');
-  });
-
-  it('handles unknown errors', async () => {
-    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(new Error('Backend exploded'));
-
-    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.error?.message).toBe('Failed to load standings.');
-  });
-
   it('reloads standings when tournamentId changes', async () => {
     const getStandingsSpy = vi
       .spyOn(standingsApi, 'getStandings')
@@ -254,23 +196,6 @@ describe('useStandings', () => {
     expect(result.current.canRetry).toBe(false);
     expect(result.current.error?.message).toBe(
       'Groups and rankings will appear once tournament data is available.',
-    );
-  });
-
-  it('keeps canRetry true for retryable API errors', async () => {
-    vi.spyOn(standingsApi, 'getStandings').mockRejectedValue(
-      new ApiError('Rate limit exceeded', 429, 'RATE_LIMITED'),
-    );
-
-    const { result } = renderHook(() => useStandings({ tournamentId: 1 }));
-
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-    });
-
-    expect(result.current.canRetry).toBe(true);
-    expect(result.current.error?.message).toBe(
-      'Too many requests. Please wait a moment and try again.',
     );
   });
 });

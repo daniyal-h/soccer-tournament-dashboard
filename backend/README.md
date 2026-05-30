@@ -149,10 +149,14 @@ Example routes:
 
 ```txt
 GET /api/v1/health
-GET /api/v1/standings/{tournament_id}
-GET /api/v1/matches/{tournament_id}
+GET /api/v1/tournaments
+GET /api/v1/tournaments/{tournament_id}
+GET /api/v1/tournaments/{tournament_id}/standings
+GET /api/v1/tournaments/{tournament_id}/matches
+GET /api/v1/tournaments/{tournament_id}/player-stats
 GET /api/v1/teams/{team_id}
-GET /api/v1/player_stats/{tournament_id}
+GET /api/v1/teams/{team_id}/roster?tournament_id={tournament_id}
+GET /api/v1/teams/{team_id}/matches?tournament_id={tournament_id}
 GET /api/v1/search
 ```
 

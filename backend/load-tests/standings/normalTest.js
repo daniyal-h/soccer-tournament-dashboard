@@ -24,7 +24,7 @@ export const options = {
 };
 
 export default function standingsNormalLoadTest() {
-    const response = http.get(`${BASE_URL}/api/v1/standings/1`);
+    const response = http.get(`${BASE_URL}/api/v1/tournaments/1/standings`);
 
     check(response, {
         "status is 200": (r) => r.status === 200,

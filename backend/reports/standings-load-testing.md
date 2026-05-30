@@ -10,13 +10,13 @@ The current sprint only includes the standings endpoint, so load testing was lim
 
 ## Environment
 
-| Component         | Configuration             |
-| ----------------- | ------------------------- |
-| Backend           | FastAPI                   |
-| Database          | PostgreSQL (Docker)       |
-| Load Testing Tool | k6                        |
-| Endpoint Tested   | `GET /api/v1/standings/1` |
-| Rate Limit        | 60 requests/min/IP        |
+| Component         | Configuration                         |
+| ----------------- | ------------------------------------- |
+| Backend           | FastAPI                               |
+| Database          | PostgreSQL (Docker)                   |
+| Load Testing Tool | k6                                    |
+| Endpoint Tested   | `GET /api/v1/tournaments/1/standings` |
+| Rate Limit        | 60 requests/min/IP                    |
 
 ---
 

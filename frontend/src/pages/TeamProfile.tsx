@@ -5,7 +5,7 @@ const TeamProfile = () => {
 
   return (
     <section className="space-y-3">
-      <h1 className="text-3xl font-bold tracking-tight">Team: {teamId}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Team: {teamId} (coming soon!)</h1>
 
       <p className="text-muted-foreground">Profile for team: {teamId}</p>
     </section>

@@ -95,9 +95,11 @@ describe('apiGet', () => {
       json: async () => ({ ok: true }),
     });
 
-    await apiGet('/standings/1');
+    await apiGet('/tournaments/1/standings');
 
-    expect(mockFetch).toHaveBeenCalledWith(`${import.meta.env.VITE_API_BASE_URL}/standings/1`);
+    expect(mockFetch).toHaveBeenCalledWith(
+      `${import.meta.env.VITE_API_BASE_URL}/tournaments/1/standings`,
+    );
   });
 
   it('throws ApiError with safe backend status and code', async () => {

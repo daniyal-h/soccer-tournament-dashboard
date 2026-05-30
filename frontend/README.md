@@ -11,9 +11,13 @@ Built with Vite, Tailwind CSS, React Router, and Sentry. The frontend communicat
 - React
 - TypeScript
 - Vite
-- Tailwind CSS
+- Tailwind CSS v4
 - React Router
+- Vitest + Testing Library
+- StrykerJS
 - Sentry
+- Radix UI
+- shadcn/ui
 
 ---
 
@@ -58,6 +62,17 @@ Notes:
 
 ---
 
+## Theme System
+
+The application supports light and dark themes.
+
+- Theme preference is stored in localStorage
+- Theme state is managed through ThemeContext
+- Styling is driven through CSS variables
+- Theme transitions are animated for colors, borders, and shadows
+
+---
+
 ## Project Structure
 
 ```txt
@@ -85,7 +100,7 @@ src/
 - The frontend never calls API-Football directly
 - Base URL is configured via `VITE_API_BASE_URL`
 - Requests should be defined in `src/api/`
-- Business logic should live in `src/services/`
+- Business logic should live in `src/hooks/`
 
 ---
 
@@ -173,6 +188,19 @@ npm run test:mutation
 Results found in: [Mutation Testing Reports](/frontend/reports/mutation-testing.md).
 
 Local focused mutation runs may use `stryker.local.config.mjs`, which should remain untracked.
+
+---
+
+## Error Handling
+
+The frontend distinguishes between:
+
+- Loading states
+- Empty states
+- Recoverable API failures
+- Non-recoverable failures
+
+User-facing feedback is provided through reusable ErrorState and EmptyState components.
 
 ---
 

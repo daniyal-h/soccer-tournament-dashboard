@@ -1,6 +1,6 @@
 # Soccer Tournament Dashboard
 
-**[Live Demo](https://soccer-tournament-dashboard.vercel.app)** · [Architecture](docs/architecture.md) · [Test Plan](docs/test-plan.md) · [Decisions](docs/decisions.md)
+**[Live Demo](https://soccer-tournament-dashboard.vercel.app)** · [Test Plan](docs/test-plan.md) · [Decisions](docs/decisions.md)
 
 A tournament-agnostic soccer dashboard built with World Cup 2026 as the primary use case. Inspired by Fotmob and SofaScore. Features live match schedules, group standings, player stats, and a knockout bracket, all backed by a cached and monitored production deployment.
 
@@ -55,8 +55,6 @@ PostgreSQL      API-Football
 ```
 
 The API key never leaves the backend. The frontend is entirely agnostic to the data source and calls only the FastAPI backend over HTTP. Switching from the free to paid API tier requires a single environment variable change and no code modifications.
-
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full breakdown.
 
 ---
 
