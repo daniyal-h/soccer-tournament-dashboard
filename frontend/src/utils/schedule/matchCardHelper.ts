@@ -14,5 +14,10 @@ export function getMatchCenterDisplay(match: Match): string {
 
     case 'postponed':
       return 'POSTPONED';
+
+    default: {
+      const _exhaustiveCheck: never = match.status;
+      return _exhaustiveCheck;
+    }
   }
 }
