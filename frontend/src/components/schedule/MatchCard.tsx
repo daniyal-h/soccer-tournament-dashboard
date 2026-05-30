@@ -13,16 +13,16 @@ interface MatchCardProps {
 const MatchCard = ({ match }: MatchCardProps) => {
   return (
     <Card className="w-full shadow-sm">
-      <CardContent className="space-y-3 p-4">
+      <CardContent className="min-w-0 space-y-3 p-4">
         <div className="flex flex-col items-center gap-4">
           {/* match status badge */}
           <MatchStatusBadge status={match.status} elapsed={match.elapsed} />
 
           {/* teams, score/time */}
-          <div className="grid w-fit grid-cols-[auto_auto_auto] items-center gap-4">
+          <div className="grid w-fit grid-cols-[1fr_auto_1fr] items-center">
             {/* team A details */}
-            <div className="flex items-center gap-2">
-              <span>{match.team_a.name}</span>
+            <div className="flex items-center justify-end gap-2 min-w-0">
+              <span className="truncate">{match.team_a.name}</span>
 
               <img
                 src={match.team_a.logo_url}
@@ -32,21 +32,21 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </div>
 
             {/* time, score or special status */}
-            <span className="text-center">{getMatchCenterDisplay(match)}</span>
+            <span className="px-4 text-center">{getMatchCenterDisplay(match)}</span>
 
             {/* team B details */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-start gap-2 min-w-0">
               <img
                 src={match.team_b.logo_url}
                 alt={match.team_b.name}
                 className="h-6 w-6 shrink-0 object-contain"
               />
-              <span>{match.team_b.name}</span>
+              <span className="truncate">{match.team_b.name}</span>
             </div>
           </div>
 
           {/* stage and venue */}
-          <p className="text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
+          <p className="max-w-full truncate text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
         </div>
       </CardContent>
     </Card>
