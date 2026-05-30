@@ -1,4 +1,4 @@
-import MatchSchedule from '@/components/schedule/MatchSchedule';
+import MatchSchedule from '@/components/matches/MatchSchedule';
 
 import { useTournament } from '@/context/TournamentContext';
 
