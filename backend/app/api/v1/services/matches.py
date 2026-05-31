@@ -5,7 +5,7 @@ from app.api.v1.repositories import matches as matches_repo
 from app.api.v1.services import cache as cache_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.models.match import Match
-from app.utils.cache import get_expires_at, get_matches_ttl
+from backend.app.utils.cache_helper import get_expires_at, get_matches_ttl
 
 
 def get_matches(db: Session, tournament_id: int) -> list[Match]:
