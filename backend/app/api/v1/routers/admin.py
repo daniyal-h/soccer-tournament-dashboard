@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
+from app.middleware.rate_limit import limiter
 from app.schemas.standings import StandingRefreshRow
 
 router = APIRouter()
@@ -48,7 +49,9 @@ def create_match_event() -> dict:
 
 # get all refreshable tournaments within the margin (defaults to 1 day)
 @router.get("/tournaments/refreshable")
+@limiter.limit("10/minute")
 def get_refreshable_tournaments(
+    request: Request,
     db: Annotated[Session, Depends(get_db)],
     margin_days: Annotated[int, Query(ge=0)] = 1,
 ):
@@ -56,8 +59,12 @@ def get_refreshable_tournaments(
 
 
 @router.put("/tournaments/{tournament_id}/standings")
+@limiter.limit("3/minute")
 def update_standings(
-    db: Annotated[Session, Depends(get_db)], tournament_id: int, data: list[StandingRefreshRow]
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: int,
+    data: list[StandingRefreshRow],
 ) -> dict:
     standings_service.update_standings(db, tournament_id, data)
     return {"message": "Standings updated successfully"}
