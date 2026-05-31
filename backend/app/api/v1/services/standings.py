@@ -1,4 +1,3 @@
-from backend.app.utils.cache_helper import get_expires_at, get_standings_ttl
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -13,6 +12,7 @@ from app.models.standing import Standing
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
 from app.schemas.standings import StandingRefreshRow
+from app.utils.cache_helper import get_expires_at, get_standings_ttl
 
 
 def build_zero_state_standings(tournament_teams: list[TournamentTeam]) -> list[Standing]:
