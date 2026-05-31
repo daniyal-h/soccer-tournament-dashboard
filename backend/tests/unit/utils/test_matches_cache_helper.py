@@ -2,6 +2,7 @@ from datetime import UTC, date, datetime, timedelta
 from types import SimpleNamespace
 
 import pytest
+from backend.app.utils.cache_helper import get_matches_ttl
 
 from app.constants.cache_ttl import (
     MATCHES_CANCELLED_TTL,
@@ -15,7 +16,6 @@ from app.constants.cache_ttl import (
     MATCHES_SOON_SCHEDULED_TTL,
 )
 from app.models.match import StatusType
-from backend.app.utils.cache_helper import get_matches_ttl
 
 CURRENT_TIME = datetime(2026, 6, 15, 12, 0, tzinfo=UTC)
 

@@ -18,6 +18,7 @@ def get_cache(db: Session, key: str) -> dict | None:
 
 JsonPayload = dict[str, Any] | list[Any]
 
+
 def set_cache(db: Session, key: str, payload: JsonPayload, expires_at: datetime) -> None:
     cache_repo.set_cache_entry(db, key, json.dumps(payload), expires_at)
 
