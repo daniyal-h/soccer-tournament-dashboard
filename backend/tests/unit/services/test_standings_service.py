@@ -4,7 +4,11 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services import standings as standings_service
-from app.constants.cache_ttl import STANDINGS_PRE_TOURNAMENT_TTL, STANDINGS_TTL
+from app.constants.cache_ttl import (
+    STANDINGS_FINISHED_TOURNAMENT_TTL,
+    STANDINGS_PRE_TOURNAMENT_SOON_TTL,
+    STANDINGS_TTL,
+)
 from app.schemas.errors import NotFoundError
 
 
@@ -316,8 +320,20 @@ def test_get_standings_writes_expected_grouped_payload_to_cache(mocker):
     row_b = Mock(group="B", points=6, goals_for=4, goals_against=2)
 
     mocker.patch(
+        "app.api.v1.services.standings.cache_service.get_cache",
+        return_value=None,
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.tournaments_service.get_tournament",
+        return_value=Mock(start_date=date(2026, 6, 11), end_date=date(2026, 7, 19)),
+    )
+    mocker.patch(
         "app.api.v1.services.standings.standings_repo.get_all_standings",
         return_value=[row_a, row_b],
+    )
+    mocker.patch(
+        "app.api.v1.services.standings.jsonable_encoder",
+        side_effect=lambda value: value,
     )
     set_cache = mocker.patch("app.api.v1.services.standings.cache_service.set_cache")
 
@@ -327,7 +343,7 @@ def test_get_standings_writes_expected_grouped_payload_to_cache(mocker):
 
     assert args[0] == db
     assert args[1] == "standings:7"
-    assert args[2] == {"A": [row_a], "B": [row_b]}
+    assert kwargs["payload"] == {"A": [row_a], "B": [row_b]}
     assert kwargs["expires_at"] is not None
 
 
@@ -394,7 +410,7 @@ def test_get_standings_passes_has_rows_false_for_zero_state(mocker):
 
     get_ttl = mocker.patch(
         "app.api.v1.services.standings.get_standings_ttl",
-        return_value=STANDINGS_PRE_TOURNAMENT_TTL,
+        return_value=STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     )
 
     standings_service.get_standings(db, tournament_id=1)
@@ -404,6 +420,7 @@ def test_get_standings_passes_has_rows_false_for_zero_state(mocker):
 
 def test_get_standings_uses_finished_tournament_ttl(mocker):
     db = Mock()
+    fixed_expires_at = datetime(2026, 1, 1, tzinfo=UTC)
 
     mocker.patch(
         "app.api.v1.services.standings.cache_service.get_cache",
@@ -420,20 +437,22 @@ def test_get_standings_uses_finished_tournament_ttl(mocker):
         "app.api.v1.services.standings.standings_repo.get_all_standings",
         return_value=[Mock(group="A", points=3, goals_for=1, goals_against=0)],
     )
+    mock_get_expires_at = mocker.patch(
+        "app.api.v1.services.standings.get_expires_at",
+        return_value=fixed_expires_at,
+    )
 
     standings_service.get_standings(db, tournament_id=1)
 
+    mock_get_expires_at.assert_called_once_with(STANDINGS_FINISHED_TOURNAMENT_TTL)
+
     _, kwargs = mock_set_cache.call_args
-
-    now = datetime.now(UTC)
-    live_expires = now + STANDINGS_TTL
-    actual_expires = kwargs["expires_at"]
-
-    assert actual_expires > live_expires
+    assert kwargs["expires_at"] == fixed_expires_at
 
 
-def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
+def test_get_standings_uses_pre_tournament_soon_ttl_for_zero_state(mocker):
     db = Mock()
+    fixed_expires_at = datetime(2026, 6, 10, 12, 0, tzinfo=UTC)
 
     mocker.patch(
         "app.api.v1.services.standings.cache_service.get_cache",
@@ -456,17 +475,25 @@ def test_get_standings_uses_pre_tournament_ttl_for_zero_state(mocker):
     )
     mocker.patch("app.api.v1.services.standings.jsonable_encoder", side_effect=lambda x: x)
 
+    mock_get_standings_ttl = mocker.patch(
+        "app.api.v1.services.standings.get_standings_ttl",
+        return_value=STANDINGS_PRE_TOURNAMENT_SOON_TTL,
+    )
+    mock_get_expires_at = mocker.patch(
+        "app.api.v1.services.standings.get_expires_at",
+        return_value=fixed_expires_at,
+    )
+
     standings_service.get_standings(db, tournament_id=1)
 
-    _, kwargs = mock_set_cache.call_args
-    assert kwargs["expires_at"] is not None
-    # pre-tournament TTL should be longer than live TTL
+    mock_get_standings_ttl.assert_called_once()
+    _, kwargs = mock_get_standings_ttl.call_args
+    assert kwargs["has_rows"] is False
 
-    now = datetime.now(UTC)
-    live_expires = now + STANDINGS_TTL
-    _ = now + STANDINGS_PRE_TOURNAMENT_TTL
-    actual_expires = kwargs["expires_at"]
-    assert actual_expires > live_expires
+    mock_get_expires_at.assert_called_once_with(STANDINGS_PRE_TOURNAMENT_SOON_TTL)
+
+    _, kwargs = mock_set_cache.call_args
+    assert kwargs["expires_at"] == fixed_expires_at
 
 
 def test_update_standings_resolves_team_ids_and_calls_repo(mocker):
