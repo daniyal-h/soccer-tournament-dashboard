@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 from app.constants.cache_ttl import (
     MATCHES_CANCELLED_TTL,
@@ -11,7 +11,8 @@ from app.constants.cache_ttl import (
     MATCHES_PRE_TOURNAMENT_TTL,
     MATCHES_SOON_SCHEDULED_TTL,
     STANDINGS_FINISHED_TOURNAMENT_TTL,
-    STANDINGS_PRE_TOURNAMENT_TTL,
+    STANDINGS_PRE_TOURNAMENT_FAR_TTL,
+    STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     STANDINGS_TTL,
 )
 from app.models.match import Match, StatusType
@@ -22,15 +23,33 @@ def get_expires_at(ttl: timedelta) -> datetime:
     return datetime.now(UTC) + ttl
 
 
-# TTL for standings based on tournament status
-def get_standings_ttl(tournament: Tournament, has_rows: bool, today: date | None = None) -> int:
-    current_date = today or date.today()
+def get_standings_ttl(
+    tournament: Tournament,
+    has_rows: bool,
+    today: date | None = None,
+) -> timedelta:
+    """
+    Determine the cache TTL for tournament standings.
 
-    if not has_rows and current_date < tournament.start_date:
-        return STANDINGS_PRE_TOURNAMENT_TTL
+    Empty pre-tournament standings are cached longer when the tournament is far
+    away, but refreshed more often near the earliest possible UTC start time.
+    Finished tournament standings are effectively static.
+    """
+    current_date = today or date.today()
 
     if current_date > tournament.end_date:
         return STANDINGS_FINISHED_TOURNAMENT_TTL
+
+    if not has_rows and current_date < tournament.start_date:
+        # get times with date, assuming worst case (at 00:00:00 = time.min)
+        current_time = datetime.combine(current_date, time.min, tzinfo=UTC)
+        tournament_start = datetime.combine(tournament.start_date, time.min, tzinfo=UTC)
+
+        # within a day is considered "soon", otherwise far
+        if tournament_start - current_time <= timedelta(days=1):
+            return STANDINGS_PRE_TOURNAMENT_SOON_TTL
+
+        return STANDINGS_PRE_TOURNAMENT_FAR_TTL
 
     return STANDINGS_TTL
 
