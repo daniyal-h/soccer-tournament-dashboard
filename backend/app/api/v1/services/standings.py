@@ -87,7 +87,7 @@ def get_standings(
         group_rows.sort(key=lambda r: (-r.points, -(r.goals_for - r.goals_against), -r.goals_for))
 
     cache_service.set_cache(
-        db, cache_key, jsonable_encoder(grouped), expires_at=get_expires_at(ttl)
+        db, cache_key, payload=jsonable_encoder(grouped), expires_at=get_expires_at(ttl)
     )
 
     # if group was specified, return only those standings
