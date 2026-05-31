@@ -82,6 +82,20 @@ def test_set_cache_entry_does_not_create_duplicate_for_existing_key(db_session):
     assert count == 1
 
 
+def test_set_cache_entry_supports_list_payload(db_session):
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=5)
+    payload = json.dumps([{"id": 1}, {"id": 2}])
+
+    cache_repo.set_cache_entry(db_session, "matches:1", payload, expires_at)
+
+    result = db_session.query(CacheEntry).where(CacheEntry.cache_key == "matches:1").first()
+
+    assert result is not None
+    assert json.loads(result.payload) == [{"id": 1}, {"id": 2}]
+    assert result.expires_at.replace(tzinfo=UTC) == expires_at.replace(tzinfo=UTC)
+
+
 def test_invalidate_cache_entry_deletes_entry(db_session):
     now = datetime.now(UTC)
     db_session.add(

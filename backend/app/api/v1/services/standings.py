@@ -12,7 +12,7 @@ from app.models.standing import Standing
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
 from app.schemas.standings import StandingRefreshRow
-from app.utils.cache import get_expires_at, get_standings_ttl
+from app.utils.cache_helper import get_expires_at, get_standings_ttl
 
 
 def build_zero_state_standings(tournament_teams: list[TournamentTeam]) -> list[Standing]:
@@ -87,7 +87,7 @@ def get_standings(
         group_rows.sort(key=lambda r: (-r.points, -(r.goals_for - r.goals_against), -r.goals_for))
 
     cache_service.set_cache(
-        db, cache_key, jsonable_encoder(grouped), expires_at=get_expires_at(ttl)
+        db, cache_key, payload=jsonable_encoder(grouped), expires_at=get_expires_at(ttl)
     )
 
     # if group was specified, return only those standings

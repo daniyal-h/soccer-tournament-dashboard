@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy.orm import Session
 
@@ -15,7 +16,10 @@ def get_cache(db: Session, key: str) -> dict | None:
     return json.loads(entry.payload)
 
 
-def set_cache(db: Session, key: str, payload: dict, expires_at: datetime) -> None:
+JsonPayload = dict[str, Any] | list[Any]
+
+
+def set_cache(db: Session, key: str, payload: JsonPayload, expires_at: datetime) -> None:
     cache_repo.set_cache_entry(db, key, json.dumps(payload), expires_at)
 
 
