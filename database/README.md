@@ -16,7 +16,7 @@ database/
   scripts/
     generators/         one-time scripts that generate SQL seed files from API-Football
 
-    refresh/            scheduled scripts that refresh live data via the backend admin API
+    refresh/            scheduled scripts and its helpers that refresh live data via the backend admin API
 
     seeds/
       generated/        temporary generated SQL artifacts (gitignored)
@@ -24,7 +24,8 @@ database/
       seed-all.ps1      seeds all static SQL files into a target database
 
   utils/
-    api_client.py       shared HTTP client for API-Football and backend admin requests
+    backend_api_client.py        HTTP client for backend requests
+    football_api_client.py       HTTP client for API-Football requests
 
   .env                  local environment variables (never committed)
   .env.example          template for required environment variables
