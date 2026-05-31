@@ -1,9 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import standings as standings_service
+from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.schemas.standings import StandingRefreshRow
 
@@ -43,6 +44,15 @@ def create_player_stats() -> dict:
 @router.post("/match_events")
 def create_match_event() -> dict:
     return {"message": "not yet implemented"}
+
+
+# get all refreshable tournaments within the margin (defaults to 1 day)
+@router.get("/tournaments/refreshable")
+def get_refreshable_tournaments(
+    db: Annotated[Session, Depends(get_db)],
+    margin_days: Annotated[int, Query(ge=0)] = 1,
+):
+    return tournaments_service.get_refreshable_tournaments(db, margin_days)
 
 
 @router.put("/tournaments/{tournament_id}/standings")
