@@ -1,22 +1,25 @@
 import sys
 import time
-from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from database.constants.tournaments import SUPPORTED_TOURNAMENTS
-from database.utils.api_client import api_get, api_put
+from refresh_helper import get_refreshable_tournaments
+
+from database.constants.tournaments import STANDINGS_MARGIN_DAYS
+from database.utils.backend_api_client import backend_put
+from database.utils.football_api_client import football_get
 
 
 def refresh_standings() -> None:
-    for local_id, tournament_api_id, season, end_date in SUPPORTED_TOURNAMENTS:
-        # do not refresh finished tournaments
-        if date.today() > end_date:
-            continue
+    tournaments = get_refreshable_tournaments(margin_days=STANDINGS_MARGIN_DAYS)
 
-        # fetch fresh standings from API-Football
-        data = api_get("/standings", {"league": tournament_api_id, "season": season})
+    for tournament in tournaments:
+        data = football_get(
+            "/standings",
+            {"league": tournament.external_api_id, "season": tournament.season},
+        )
+
         responses = data.get("response", [])
 
         if not responses:
@@ -49,9 +52,9 @@ def refresh_standings() -> None:
                     }
                 )
 
-        # get local tournament id and send to backend
-        tournament_id = local_id
-        api_put(f"/api/v1/admin/tournaments/{tournament_id}/standings", standings_data)
+        backend_put(
+            f"/api/v1/admin/tournaments/{tournament.id}/standings", standings_data
+        )
 
         time.sleep(0.5)  # API-Football rate limits
 

@@ -7,5 +7,7 @@ SUPPORTED_TOURNAMENTS = [
     (3, 4, "2024", date(2024, 7, 14)),  # UEFA Euro 2024
     (4, 9, "2024", date(2024, 7, 14)),  # Copa America 2024
     (5, 6, "2025", date(2025, 12, 21)),  # Africa Cup of Nations 2025
-    (6, 15, "2025", date(2025, 7, 13)), # Fifa Club World Cup 2025
+    (6, 15, "2025", date(2025, 7, 13)),  # Fifa Club World Cup 2025
 ]
+
+STANDINGS_MARGIN_DAYS = 1

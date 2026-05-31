@@ -6,7 +6,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 
 from database.constants.tournaments import SUPPORTED_TOURNAMENTS
-from database.utils.api_client import api_get
+from database.utils.football_api_client import football_get
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SCRIPTS_DIR = SCRIPT_DIR.parent
@@ -31,7 +31,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
         "season": season,
     }
 
-    data = api_get("/standings", params)
+    data = football_get("/standings", params)
     responses = data.get("response", [])
 
     if not responses:
