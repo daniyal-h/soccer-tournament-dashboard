@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from database.constants.tournaments import SUPPORTED_TOURNAMENTS
-from database.utils.api_client import api_get
+from database.utils.football_api_client import football_get
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SCRIPTS_DIR = SCRIPT_DIR.parent
@@ -25,7 +25,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
         "season": season,
     }
 
-    data = api_get("/teams", params)
+    data = football_get("/teams", params)
 
     for entry in data["response"]:
         team = entry["team"]
@@ -45,7 +45,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
                 f"'national', '{logo_url}', '{country}')"
             )
 
-    time.sleep(0.5) # API-Football rate limits
+    time.sleep(0.5)  # API-Football rate limits
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
     f.write("BEGIN TRANSACTION;\n\n")

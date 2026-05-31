@@ -1,3 +1,5 @@
+from datetime import date
+
 from sqlalchemy.orm import Session
 
 from app.api.v1.repositories import tournaments as tournaments_repo
@@ -25,3 +27,10 @@ def get_tournament(db: Session, tournament_id: int) -> Tournament:
 
 def validate_tournament_exists(db: Session, tournament_id: int) -> None:
     get_tournament(db, tournament_id)  # invalid if error raised
+
+
+# return all tournaments which will need refreshing within the margin
+def get_refreshable_tournaments(db: Session, margin_days: int) -> list[Tournament]:
+    today = date.today()
+
+    return tournaments_repo.get_refreshable_tournaments(db, today=today, margin_days=margin_days)
