@@ -13,3 +13,14 @@ def get_teams_in_tournament(db: Session, tournament_id: int) -> list[TournamentT
         .order_by(TournamentTeam.group.asc(), Team.name.asc())
         .all()
     )
+
+
+def get_team_in_tournament(
+    db: Session, tournament_id: int, team_id: int
+) -> TournamentTeam | None:
+    return (
+        db.query(TournamentTeam)
+        .where(TournamentTeam.tournament_id == tournament_id)
+        .where(TournamentTeam.team_id == team_id)
+        .first()
+    )

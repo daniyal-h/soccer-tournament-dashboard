@@ -11,3 +11,9 @@ def get_tournament_teams(db: Session, tournament_id: int):
         raise NotFoundError(f"No teams found in tournament {tournament_id}")
 
     return tournament_teams
+
+
+def get_team_group(db: Session, tournament_id: int, team_id: int) -> str | None:
+    row = tournament_teams_repo.get_team_in_tournament(db, tournament_id, team_id)
+
+    return row.group if row else None
