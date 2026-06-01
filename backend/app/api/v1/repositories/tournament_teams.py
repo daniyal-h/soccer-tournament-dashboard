@@ -15,9 +15,7 @@ def get_teams_in_tournament(db: Session, tournament_id: int) -> list[TournamentT
     )
 
 
-def get_team_in_tournament(
-    db: Session, tournament_id: int, team_id: int
-) -> TournamentTeam | None:
+def get_team_in_tournament(db: Session, tournament_id: int, team_id: int) -> TournamentTeam | None:
     return (
         db.query(TournamentTeam)
         .where(TournamentTeam.tournament_id == tournament_id)
