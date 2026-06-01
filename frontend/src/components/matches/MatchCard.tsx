@@ -2,9 +2,10 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { type Match } from '@/types/matches';
 
+import MatchCenter from './MatchCenter';
 import MatchStatusBadge from './MatchStatusBadge';
 
-import { getMatchCenterDisplay, getMatchMetaDisplay } from '@/utils/matches/matchCardHelper';
+import { getMatchMetaDisplay } from '@/utils/matches/matchCardHelper';
 
 interface MatchCardProps {
   match: Match;
@@ -38,7 +39,9 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </div>
 
             {/* time, score or special status */}
-            <span className="px-4 text-center">{getMatchCenterDisplay(match)}</span>
+            <div className="px-4 text-center">
+              <MatchCenter match={match} />
+            </div>
 
             {/* team B details */}
             <div className="flex items-center justify-start gap-2 min-w-0">
