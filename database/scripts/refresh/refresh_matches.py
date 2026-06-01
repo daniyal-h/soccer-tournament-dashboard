@@ -74,6 +74,8 @@ def transform_fixture(fixture_row: dict) -> dict:
     league = fixture_row["league"]
     teams = fixture_row["teams"]
     goals = fixture_row["goals"]
+    score = fixture_row["score"] or {}
+    penalty = score.get("penalty") or {}
 
     return {
         "external_api_id": fixture["id"],
@@ -87,6 +89,8 @@ def transform_fixture(fixture_row: dict) -> dict:
         "elapsed": fixture.get("status", {}).get("elapsed"),
         "team_a_score": goals.get("home"),
         "team_b_score": goals.get("away"),
+        "team_a_penalties": penalty["home"],
+        "team_b_penalties": penalty["away"],
     }
 
 
