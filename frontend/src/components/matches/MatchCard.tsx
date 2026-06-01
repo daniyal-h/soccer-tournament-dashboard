@@ -2,16 +2,20 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { type Match } from '@/types/matches';
 
+import { cn } from '@/lib/utils';
+
 import MatchCenter from './MatchCenter';
 import MatchStatusBadge from './MatchStatusBadge';
 
-import { getMatchMetaDisplay } from '@/utils/matches/matchCardHelper';
+import { getMatchMetaDisplay, getWinnerSide } from '@/utils/matches/matchCardHelper';
 
 interface MatchCardProps {
   match: Match;
 }
 
 const MatchCard = ({ match }: MatchCardProps) => {
+  const winner = getWinnerSide(match);
+
   return (
     <Card
       // role='button'
@@ -29,7 +33,15 @@ const MatchCard = ({ match }: MatchCardProps) => {
           <div className="grid w-fit grid-cols-[1fr_auto_1fr] items-center">
             {/* team A details */}
             <div className="flex items-center justify-end gap-2 min-w-0">
-              <span className="truncate">{match.team_a.name}</span>
+              <span
+                className={cn(
+                  winner === 'team_a' && 'font-semibold',
+                  winner && winner !== 'team_a' && 'text-muted-foreground',
+                  'truncate',
+                )}
+              >
+                {match.team_a.name}
+              </span>
 
               <img
                 src={match.team_a.logo_url}
@@ -50,7 +62,15 @@ const MatchCard = ({ match }: MatchCardProps) => {
                 alt={match.team_b.name}
                 className="h-6 w-6 shrink-0 object-contain"
               />
-              <span className="truncate">{match.team_b.name}</span>
+              <span
+                className={cn(
+                  winner === 'team_b' && 'font-semibold',
+                  winner && winner !== 'team_b' && 'text-muted-foreground',
+                  'truncate',
+                )}
+              >
+                {match.team_b.name}
+              </span>
             </div>
           </div>
 
