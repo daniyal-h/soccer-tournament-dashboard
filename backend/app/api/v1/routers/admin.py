@@ -61,7 +61,7 @@ def get_refreshable_tournaments(
 
 
 @router.put("/tournaments/{tournament_id}/standings")
-@limiter.limit("3/minute")
+@limiter.limit("10/minute")
 def update_standings(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
