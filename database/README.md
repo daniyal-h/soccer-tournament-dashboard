@@ -93,8 +93,6 @@ Files are executed in numeric order due to FK dependencies.
 
 ### Generators
 
-### Generators
-
 Generators fetch tournament data from API-Football and output SQL files to:
 
 ```txt
@@ -123,7 +121,7 @@ After verifying generated output locally, promote stable snapshots into `scripts
 
 ### Local Docker Database
 
-Seed all committed static data:
+Seed all committed static data from root:
 
 ```powershell
 .\database\scripts\seeds\seed-all.ps1
