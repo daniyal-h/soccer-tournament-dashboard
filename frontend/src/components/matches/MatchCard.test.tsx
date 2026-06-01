@@ -5,11 +5,16 @@ import { type Match } from '@/types/matches';
 
 import MatchCard from './MatchCard';
 
-import { getMatchCenterDisplay, getMatchMetaDisplay } from '@/utils/matches/matchCardHelper';
+import {
+  getMatchCenterDisplay,
+  getMatchMetaDisplay,
+  getWinnerSide,
+} from '@/utils/matches/matchCardHelper';
 
 vi.mock('@/utils/matches/matchCardHelper', () => ({
   getMatchCenterDisplay: vi.fn(),
   getMatchMetaDisplay: vi.fn(),
+  getWinnerSide: vi.fn(),
 }));
 
 vi.mock('./MatchStatusBadge', () => ({
@@ -23,6 +28,7 @@ vi.mock('./MatchStatusBadge', () => ({
 
 const mockGetMatchCenterDisplay = vi.mocked(getMatchCenterDisplay);
 const mockGetMatchMetaDisplay = vi.mocked(getMatchMetaDisplay);
+const mockGetWinnerSide = vi.mocked(getWinnerSide);
 
 const baseMatch: Match = {
   id: 1,
@@ -50,6 +56,7 @@ describe('MatchCard', () => {
     vi.clearAllMocks();
     mockGetMatchCenterDisplay.mockReturnValue('19:00');
     mockGetMatchMetaDisplay.mockReturnValue('Group A · Estadio Azteca, Mexico City');
+    mockGetWinnerSide.mockReturnValue(null);
   });
 
   it('renders both team names and logos', () => {
@@ -128,104 +135,106 @@ describe('MatchCard', () => {
     expect(teamA.compareDocumentPosition(center)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(center.compareDocumentPosition(teamB)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
-});
 
-it('renders penalty shootout details through MatchCenter', () => {
-  vi.clearAllMocks();
-  const penaltyMatch: Match = {
-    ...baseMatch,
-    status: 'finished',
-    team_a_score: 0,
-    team_b_score: 0,
-    team_a_penalties: 4,
-    team_b_penalties: 2,
-  };
+  it('does not mute either team when there is no winner', () => {
+    render(
+      <MatchCard
+        match={{
+          ...baseMatch,
+          status: 'scheduled',
+          team_a_score: undefined,
+          team_b_score: undefined,
+          team_a_penalties: undefined,
+          team_b_penalties: undefined,
+        }}
+      />,
+    );
 
-  render(<MatchCard match={penaltyMatch} />);
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
 
-  expect(screen.getByText('0 - 0')).toBeInTheDocument();
-  expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+  });
 
-  expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
-  expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
-});
+  it('does not mute either team for a finished draw without penalties', () => {
+    render(
+      <MatchCard
+        match={{
+          ...baseMatch,
+          status: 'finished',
+          team_a_score: 1,
+          team_b_score: 1,
+        }}
+      />,
+    );
 
-it('bolds team A and mutes team B when team A wins', () => {
-  render(
-    <MatchCard
-      match={{
-        ...baseMatch,
-        status: 'finished',
-        team_a_score: 2,
-        team_b_score: 1,
-      }}
-    />,
-  );
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
 
-  expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+  });
 
-  expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('text-muted-foreground');
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
-});
+  it('renders penalty shootout details through MatchCenter', () => {
+    const penaltyMatch: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 0,
+      team_b_score: 0,
+      team_a_penalties: 4,
+      team_b_penalties: 2,
+    };
 
-it('bolds team B and mutes team A when team B wins on penalties', () => {
-  render(
-    <MatchCard
-      match={{
-        ...baseMatch,
-        status: 'finished',
-        team_a_score: 0,
-        team_b_score: 0,
-        team_a_penalties: 4,
-        team_b_penalties: 5,
-      }}
-    />,
-  );
+    render(<MatchCard match={penaltyMatch} />);
 
-  expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+    expect(screen.getByText('0 - 0')).toBeInTheDocument();
+    expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
 
-  expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('text-muted-foreground');
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
-});
+    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+    expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
+  });
 
-it('does not mute either team when there is no winner', () => {
-  render(
-    <MatchCard
-      match={{
-        ...baseMatch,
-        status: 'scheduled',
-        team_a_score: undefined,
-        team_b_score: undefined,
-        team_a_penalties: undefined,
-        team_b_penalties: undefined,
-      }}
-    />,
-  );
+  it('bolds team A and mutes team B when team A wins', () => {
+    mockGetWinnerSide.mockReturnValue('team_a');
 
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+    render(
+      <MatchCard
+        match={{
+          ...baseMatch,
+          status: 'finished',
+          team_a_score: 2,
+          team_b_score: 1,
+        }}
+      />,
+    );
 
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
-});
+    expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
 
-it('does not mute either team for a finished draw without penalties', () => {
-  render(
-    <MatchCard
-      match={{
-        ...baseMatch,
-        status: 'finished',
-        team_a_score: 1,
-        team_b_score: 1,
-      }}
-    />,
-  );
+    expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('text-muted-foreground');
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+  });
 
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+  it('bolds team B and mutes team A when team B wins on penalties', () => {
+    mockGetWinnerSide.mockReturnValue('team_b');
+    render(
+      <MatchCard
+        match={{
+          ...baseMatch,
+          status: 'finished',
+          team_a_score: 0,
+          team_b_score: 0,
+          team_a_penalties: 4,
+          team_b_penalties: 5,
+        }}
+      />,
+    );
 
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
-  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+    expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('font-semibold');
+    expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+
+    expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('text-muted-foreground');
+    expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+  });
 });
