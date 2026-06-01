@@ -1,6 +1,5 @@
 import re
 import sys
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
@@ -92,7 +91,6 @@ def transform_fixture(fixture_row: dict) -> dict:
         "external_team_b_id": teams["away"]["id"],
         "kickoff_time": datetime.fromisoformat(fixture["date"]).isoformat(),
         "stage": map_fixture_stage(league.get("round")),
-        "group": extract_group(league.get("round")),
         "status": map_fixture_status(fixture.get("status", {})),
         "venue": fixture.get("venue", {}).get("name"),
         "city": fixture.get("venue", {}).get("city"),
