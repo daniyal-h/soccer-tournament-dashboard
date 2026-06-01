@@ -1,12 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
+from app.api.v1.services import matches as matches_service
 from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
+from app.schemas.matches import MatchesRefreshRow
 from app.schemas.standings import StandingRefreshRow
 
 router = APIRouter()
@@ -63,11 +65,23 @@ def get_refreshable_tournaments(
 def update_standings(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    tournament_id: int,
+    tournament_id: Annotated[int, Path(gt=0)],
     data: list[StandingRefreshRow],
 ) -> dict:
     standings_service.update_standings(db, tournament_id, data)
     return {"message": "Standings updated successfully"}
+
+
+@router.put("/tournaments/{tournament_id}/matches")
+@limiter.limit("10/minute")
+def update_matches(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+    data: list[MatchesRefreshRow],
+) -> dict:
+    matches_service.update_matches(db, tournament_id, data)
+    return {"message": "Matches updated successfully"}
 
 
 @router.put("/matches/{match_id}")
