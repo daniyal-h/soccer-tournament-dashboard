@@ -41,6 +41,8 @@ def upsert_matches_in_tournament(
             "elapsed": row.elapsed,
             "team_a_score": row.team_a_score,
             "team_b_score": row.team_b_score,
+            "team_a_penalties": row.team_a_penalties,
+            "team_b_penalties": row.team_b_penalties,
         }
         for row in rows
     ]
@@ -61,6 +63,8 @@ def upsert_matches_in_tournament(
         "elapsed": stmt.excluded.elapsed,
         "team_a_score": stmt.excluded.team_a_score,
         "team_b_score": stmt.excluded.team_b_score,
+        "team_a_penalties": stmt.excluded.team_a_penalties,
+        "team_b_penalties": stmt.excluded.team_b_penalties,
     }
 
     stmt = stmt.on_conflict_do_update(

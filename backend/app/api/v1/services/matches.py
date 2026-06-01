@@ -89,6 +89,8 @@ def update_matches(db: Session, tournament_id: int, data: list[MatchesRefreshRow
                     elapsed=row.elapsed,
                     team_a_score=row.team_a_score,
                     team_b_score=row.team_b_score,
+                    team_a_penalties=row.team_a_penalties,
+                    team_b_penalties=row.team_b_penalties,
                 )
             )
 

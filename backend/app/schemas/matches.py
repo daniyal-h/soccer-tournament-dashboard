@@ -20,6 +20,8 @@ class MatchesResponse(BaseModel):
     elapsed: int | None = None
     team_a_score: int | None = None
     team_b_score: int | None = None
+    team_a_penalties: int | None = None
+    team_b_penalties: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -36,3 +38,5 @@ class MatchesRefreshRow(BaseModel):
     elapsed: int | None = None
     team_a_score: int | None = None
     team_b_score: int | None = None
+    team_a_penalties: int | None = None
+    team_b_penalties: int | None = None
