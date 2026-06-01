@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
+from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
@@ -47,6 +48,20 @@ def create_player_stats() -> dict:
 @router.post("/match_events")
 def create_match_event() -> dict:
     return {"message": "not yet implemented"}
+
+
+@router.post("/tournaments/refresh-standings")
+@limiter.limit("3/minute")
+def refresh_standings(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    margin_days: Annotated[int, Query(ge=0, le=30)] = 1,
+) -> dict:
+    """
+    Refresh all refreshable standings (live tournaments) with the given margin.
+    Return a summary of successful refreshes and any fails as a dict.
+    """
+    return refresh_standings_service.refresh_standings(db, margin_days)
 
 
 # get all refreshable tournaments within the margin (defaults to 1 day)
