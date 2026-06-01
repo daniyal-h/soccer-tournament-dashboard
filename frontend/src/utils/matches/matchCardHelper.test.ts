@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Match } from '@/types/matches';
 
-import { getMatchCenterDisplay, getMatchMetaDisplay, groupMatchesByDay } from './matchCardHelper';
+import {
+  getMatchCenterDisplay,
+  getMatchMetaDisplay,
+  getWinnerSide,
+  groupMatchesByDay,
+} from './matchCardHelper';
 
 vi.mock('@/constants/matches', () => ({
   MATCH_STAGE_LABELS: {
@@ -39,6 +44,27 @@ const createMatch = (overrides: Partial<Match> = {}): Match => ({
   city: 'Vancouver',
   ...overrides,
 });
+
+const baseMatch: Match = {
+  id: 1,
+  kickoff_time: '2026-06-11T19:00:00Z',
+  stage: 'group',
+  group: 'A',
+  status: 'scheduled',
+  venue: 'Estadio Azteca, Mexico City',
+  team_a: {
+    id: 10,
+    name: 'Canada',
+    short_name: 'CAN',
+    logo_url: 'https://example.com/canada.png',
+  },
+  team_b: {
+    id: 20,
+    name: 'Brazil',
+    short_name: 'BRA',
+    logo_url: 'https://example.com/brazil.png',
+  },
+};
 
 describe('matchCardHelper', () => {
   afterEach(() => {
@@ -226,5 +252,102 @@ describe('matchCardHelper', () => {
 
       expect(matches).toEqual([lateMatch, earlyMatch]);
     });
+  });
+});
+
+describe('getWinnerSide', () => {
+  it('returns team_a when team A wins by score', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 2,
+        team_b_score: 1,
+      }),
+    ).toBe('team_a');
+  });
+
+  it('returns team_b when team B wins by score', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 0,
+        team_b_score: 3,
+      }),
+    ).toBe('team_b');
+  });
+
+  it('returns team_a when tied score is decided by penalties', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+        team_a_penalties: 5,
+        team_b_penalties: 4,
+      }),
+    ).toBe('team_a');
+  });
+
+  it('returns team_b when tied score is decided by penalties', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 2,
+        team_b_score: 2,
+        team_a_penalties: 3,
+        team_b_penalties: 4,
+      }),
+    ).toBe('team_b');
+  });
+
+  it('supports zero penalty values', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 0,
+        team_b_score: 0,
+        team_a_penalties: 0,
+        team_b_penalties: 2,
+      }),
+    ).toBe('team_b');
+  });
+
+  it('returns null for a finished draw without penalties', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+      }),
+    ).toBeNull();
+  });
+
+  it('returns null when only one penalty value exists', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+        team_a_penalties: 4,
+      }),
+    ).toBeNull();
+  });
+
+  it('returns null for non-finished matches even if scores exist', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'live',
+        team_a_score: 2,
+        team_b_score: 1,
+      }),
+    ).toBeNull();
   });
 });

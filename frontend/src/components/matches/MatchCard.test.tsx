@@ -149,3 +149,83 @@ it('renders penalty shootout details through MatchCenter', () => {
   expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
   expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
 });
+
+it('bolds team A and mutes team B when team A wins', () => {
+  render(
+    <MatchCard
+      match={{
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 2,
+        team_b_score: 1,
+      }}
+    />,
+  );
+
+  expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+
+  expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('text-muted-foreground');
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+});
+
+it('bolds team B and mutes team A when team B wins on penalties', () => {
+  render(
+    <MatchCard
+      match={{
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 0,
+        team_b_score: 0,
+        team_a_penalties: 4,
+        team_b_penalties: 5,
+      }}
+    />,
+  );
+
+  expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+
+  expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('text-muted-foreground');
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+});
+
+it('does not mute either team when there is no winner', () => {
+  render(
+    <MatchCard
+      match={{
+        ...baseMatch,
+        status: 'scheduled',
+        team_a_score: undefined,
+        team_b_score: undefined,
+        team_a_penalties: undefined,
+        team_b_penalties: undefined,
+      }}
+    />,
+  );
+
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+});
+
+it('does not mute either team for a finished draw without penalties', () => {
+  render(
+    <MatchCard
+      match={{
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+      }}
+    />,
+  );
+
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
+
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('font-semibold');
+  expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');
+});
