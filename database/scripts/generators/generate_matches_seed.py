@@ -115,6 +115,8 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
         league = row["league"]
         teams = row["teams"]
         goals = row["goals"]
+        score = row["score"] or {}
+        penalty = score.get("penalty") or {}
 
         external_api_id = fixture["id"]
         external_team_a_id = teams["home"]["id"]
@@ -151,6 +153,8 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
         elapsed = fixture.get("status", {}).get("elapsed")
         team_a_score = goals.get("home")
         team_b_score = goals.get("away")
+        team_a_penalties = penalty.get("home")
+        team_b_penalties = penalty.get("away")
 
         matches_sql.append(
             f"({external_api_id}, {tournament_id_sql}, "
@@ -161,7 +165,9 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
             f"{sql_nullable_string(city)}, "
             f"{sql_nullable_int(elapsed)}, "
             f"{sql_nullable_int(team_a_score)}, "
-            f"{sql_nullable_int(team_b_score)})"
+            f"{sql_nullable_int(team_b_score)}), "
+            f"{sql_nullable_int(team_a_penalties)}, "
+            f"{sql_nullable_int(team_b_penalties)}"
         )
 
     time.sleep(0.5)  # API-Football rate limits
