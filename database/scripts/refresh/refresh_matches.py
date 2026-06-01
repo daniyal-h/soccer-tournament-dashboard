@@ -1,4 +1,3 @@
-import re
 import sys
 import time
 from datetime import datetime
@@ -67,15 +66,6 @@ def map_fixture_stage(round_name: str | None) -> str:
         return "final"
 
     return "other"
-
-
-def extract_group(round_name: str | None) -> str | None:
-    match = re.search(r"group\s+([a-z])", round_name or "", flags=re.IGNORECASE)
-
-    if not match:
-        return None
-
-    return match.group(1).upper()
 
 
 # extract matches data in desired form
