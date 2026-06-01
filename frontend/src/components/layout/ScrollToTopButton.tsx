@@ -26,13 +26,13 @@ export default function ScrollToTopButton() {
     <Button
       size="icon"
       className="fixed bottom-6 right-6 rounded-full shadow-lg"
+      aria-label="Scroll to top"
       onClick={() =>
         window.scrollTo({
           top: 0,
           behavior: 'smooth',
         })
       }
-      aria-label="Scroll to top"
     >
       <ArrowUp className="size-5" />
     </Button>
