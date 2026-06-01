@@ -129,3 +129,23 @@ describe('MatchCard', () => {
     expect(center.compareDocumentPosition(teamB)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 });
+
+it('renders penalty shootout details through MatchCenter', () => {
+  vi.clearAllMocks();
+  const penaltyMatch: Match = {
+    ...baseMatch,
+    status: 'finished',
+    team_a_score: 0,
+    team_b_score: 0,
+    team_a_penalties: 4,
+    team_b_penalties: 2,
+  };
+
+  render(<MatchCard match={penaltyMatch} />);
+
+  expect(screen.getByText('0 - 0')).toBeInTheDocument();
+  expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
+
+  expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+  expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
+});
