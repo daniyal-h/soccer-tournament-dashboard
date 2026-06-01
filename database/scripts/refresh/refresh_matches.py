@@ -1,6 +1,11 @@
 import re
+import sys
+import sys
 import time
 from datetime import datetime
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from database.constants.matches import (
     CANCELLED_STATUS_SHORT_CODES,
@@ -13,6 +18,7 @@ from database.constants.matches import (
 from database.scripts.refresh.refresh_helper import get_refreshable_tournaments
 from database.utils.backend_api_client import backend_put
 from database.utils.football_api_client import football_get
+
 
 # Football API fixture status converted to what backend expects
 def map_fixture_status(status: dict) -> str:
@@ -33,7 +39,7 @@ def map_fixture_status(status: dict) -> str:
     if status_short in CANCELLED_STATUS_SHORT_CODES:
         return "cancelled"
 
-    return "scheduled" # safe defaulting
+    return "scheduled"  # safe defaulting
 
 
 # Football API round names converted to what backend expects
@@ -127,3 +133,7 @@ def refresh_matches() -> None:
         )
 
         time.sleep(0.5)
+
+
+if __name__ == "__main__":
+    refresh_matches()
