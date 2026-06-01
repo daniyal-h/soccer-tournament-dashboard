@@ -1,14 +1,14 @@
-name: Refresh Standings
+name: Refresh Tournament Data
 
 on:
-#   schedule:
-#     - cron: '*/5 * * * *'  # every 5 minutes
-  workflow_dispatch:  # manual trigger
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions: {}
 
 jobs:
-  refresh-standings:
+  refresh-tournament-data:
     runs-on: ubuntu-latest
     environment: Production
     steps:
@@ -23,9 +23,16 @@ jobs:
       - name: Install dependencies
         run: pip install requests python-dotenv
 
-      - name: Run refresh script
+      - name: Refresh standings
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
           API_FOOTBALL_API_KEY: ${{ secrets.API_FOOTBALL_API_KEY }}
         run: python database/scripts/refresh/refresh_standings.py
+
+      - name: Refresh matches
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+          API_FOOTBALL_API_KEY: ${{ secrets.API_FOOTBALL_API_KEY }}
+        run: python database/scripts/refresh/refresh_matches.py

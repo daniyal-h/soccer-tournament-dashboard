@@ -103,7 +103,7 @@ describe('Schedule', () => {
 
     render(<Schedule />);
 
-    expect(screen.getByRole('heading', { name: 'Schedule (stub!)' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Schedule' })).toBeInTheDocument();
 
     expect(screen.getByText(/View upcoming and completed tournament matches/i)).toHaveTextContent(
       'FIFA World Cup 2026',
@@ -220,7 +220,7 @@ describe('Schedule', () => {
 
     render(<Schedule />);
 
-    expect(screen.getByRole('heading', { name: 'Schedule (stub!)' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Schedule' })).toBeInTheDocument();
 
     expect(screen.getByTestId('match-schedule')).toHaveAttribute('data-count', '2');
 

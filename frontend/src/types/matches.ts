@@ -25,6 +25,8 @@ export interface Match {
   elapsed?: number;
   team_a_score?: number;
   team_b_score?: number;
+  team_a_penalties?: number;
+  team_b_penalties?: number;
 }
 
 export interface MatchGroup {

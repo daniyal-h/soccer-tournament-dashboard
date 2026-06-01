@@ -34,7 +34,7 @@ const Schedule = () => {
   if (isLoading) {
     return (
       <section className="space-y-3">
-        <h1 className="text-3xl font-bold tracking-tight">Schedule (stub!)</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Schedule</h1>
         <p className="text-muted-foreground">{description}</p>
 
         <ScheduleSkeleton />
@@ -48,7 +48,7 @@ const Schedule = () => {
 
   return (
     <section className="space-y-3">
-      <h1 className="text-3xl font-bold tracking-tight">Schedule (stub!)</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Schedule</h1>
 
       <p className="text-muted-foreground">{description}</p>
 

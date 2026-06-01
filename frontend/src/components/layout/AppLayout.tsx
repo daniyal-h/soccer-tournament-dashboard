@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 
 import Navbar from './Navbar';
 import PageContainer from './PageContainer';
+import ScrollToTopButton from './ScrollToTopButton';
 
 const AppLayout = () => {
   return (
@@ -12,6 +13,8 @@ const AppLayout = () => {
         <PageContainer>
           <Outlet />
         </PageContainer>
+
+        <ScrollToTopButton />
       </main>
     </div>
   );
