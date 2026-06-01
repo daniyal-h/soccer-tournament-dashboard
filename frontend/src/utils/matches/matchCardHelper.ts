@@ -98,7 +98,11 @@ export function getWinnerSide(match: Match): 'team_a' | 'team_b' | null {
   }
 
   // if not tied, winner by most goals
-  if (match.team_a_score != null && match.team_b_score != null && match.team_a_score !== match.team_b_score) {
+  if (
+    match.team_a_score != null &&
+    match.team_b_score != null &&
+    match.team_a_score !== match.team_b_score
+  ) {
     return match.team_a_score > match.team_b_score ? 'team_a' : 'team_b';
   }
 
