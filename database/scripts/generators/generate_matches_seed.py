@@ -165,9 +165,9 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
             f"{sql_nullable_string(city)}, "
             f"{sql_nullable_int(elapsed)}, "
             f"{sql_nullable_int(team_a_score)}, "
-            f"{sql_nullable_int(team_b_score)}), "
+            f"{sql_nullable_int(team_b_score)}, "
             f"{sql_nullable_int(team_a_penalties)}, "
-            f"{sql_nullable_int(team_b_penalties)}"
+            f"{sql_nullable_int(team_b_penalties)})"
         )
 
     time.sleep(0.5)  # API-Football rate limits
@@ -190,7 +190,9 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             "    city,\n"
             "    elapsed,\n"
             "    team_a_score,\n"
-            "    team_b_score\n"
+            "    team_b_score,\n"
+            "    team_a_penalties,\n"
+            "    team_b_penalties\n"
             ")\n"
             "VALUES\n"
         )
@@ -211,7 +213,9 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             "    city = EXCLUDED.city,\n"
             "    elapsed = EXCLUDED.elapsed,\n"
             "    team_a_score = EXCLUDED.team_a_score,\n"
-            "    team_b_score = EXCLUDED.team_b_score;\n\n"
+            "    team_b_score = EXCLUDED.team_b_score,\n"
+            "    team_a_penalties = EXCLUDED.team_a_penalties,\n"
+            "    team_b_penalties = EXCLUDED.team_b_penalties;\n\n"
         )
 
     f.write("COMMIT TRANSACTION;\n")
