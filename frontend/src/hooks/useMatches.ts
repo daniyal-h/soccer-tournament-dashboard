@@ -12,7 +12,6 @@ import { groupMatchesByDay } from '@/utils/matches/matchCardHelper';
  * Catch and wrap known errors, otherwise keep them generic
  */
 export function useMatches({ tournament_id }: MatchesOptions) {
-  //const [matches, setMatches] = useState<Match[]>([])
   const [groupedMatches, setGroupedMatches] = useState<MatchGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
