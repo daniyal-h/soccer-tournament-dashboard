@@ -2,9 +2,14 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.api.v1.repositories import matches as matches_repo
+from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.services import cache as cache_service
+from app.api.v1.services import teams as teams_service
+from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
-from app.models.match import Match
+from app.constants.jobs import JobName
+from app.models.match import Match, StageType
+from app.schemas.matches import MatchesRefreshRow
 from app.utils.cache_helper import get_expires_at, get_matches_ttl
 
 
@@ -34,3 +39,65 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
     )
 
     return matches
+
+
+def update_matches(db: Session, tournament_id: int, data: list[MatchesRefreshRow]) -> None:
+    # create a refresh job for logging
+    job_id = refresh_jobs_repo.create_job(db, JobName.MATCHES_REFRESH)
+
+    try:
+        rows = []
+
+        for row in data:
+            # resolve team IDs
+            team_a_id = teams_service.get_team_id_from_external_id(db, row.external_team_a_id)
+            team_b_id = teams_service.get_team_id_from_external_id(db, row.external_team_b_id)
+
+            group = None
+
+            # resolve group for group matches
+            if row.stage == StageType.GROUP:
+                team_a_group = tournament_teams_service.get_team_group(
+                    db,
+                    tournament_id=tournament_id,
+                    team_id=team_a_id,
+                )
+                team_b_group = tournament_teams_service.get_team_group(
+                    db,
+                    tournament_id=tournament_id,
+                    team_id=team_b_id,
+                )
+
+                # both should be equal in group matches
+                # if not, keep default of None
+                if team_a_group and team_a_group == team_b_group:
+                    group = team_a_group
+
+            # make the Match object with resolved data
+            rows.append(
+                Match(
+                    external_api_id=row.external_api_id,
+                    tournament_id=tournament_id,
+                    team_a_id=team_a_id,
+                    team_b_id=team_b_id,
+                    kickoff_time=row.kickoff_time,
+                    stage=row.stage,
+                    group=group,
+                    status=row.status,
+                    venue=row.venue,
+                    city=row.city,
+                    elapsed=row.elapsed,
+                    team_a_score=row.team_a_score,
+                    team_b_score=row.team_b_score,
+                )
+            )
+
+        matches_repo.upsert_matches_in_tournament(db, tournament_id, rows)
+        cache_service.invalidate_cache(db, f"matches:{tournament_id}")
+
+        # successful update completes the job
+        refresh_jobs_repo.complete_job(db, job_id, success=True)
+
+    except Exception as _:
+        refresh_jobs_repo.complete_job(db, job_id, success=False)
+        raise
