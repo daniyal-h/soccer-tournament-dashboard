@@ -72,6 +72,9 @@ class Match(TimestampMixin, Base):
     team_a_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
     team_b_score: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    team_a_penalties: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    team_b_penalties: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
     team_a: Mapped[Team] = relationship(
         "Team",
         foreign_keys=[team_a_id],
