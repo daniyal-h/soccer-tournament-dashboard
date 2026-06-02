@@ -87,6 +87,7 @@ SENTRY_DSN=
 ENVIRONMENT=development
 VERSION=0.1.0
 ADMIN_TOKEN=your_admin_token_here
+API_FOOTBALL_API_KEY=your_api_football_api_key
 ```
 
 ### Docker environment (`.env.docker`)
@@ -98,6 +99,8 @@ DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
 SENTRY_DSN=
 ENVIRONMENT=development
 VERSION=0.1.0
+ADMIN_TOKEN=your_admin_token_here
+API_FOOTBALL_API_KEY=your_api_football_api_key
 ```
 
 Note the hostname difference:
@@ -117,6 +120,7 @@ Never commit `.env`.
 app/
   api/
     v1/
+      clients/          external API clients
       routers/          versioned route handlers
       services/         business logic
       repositories/     database access logic
@@ -276,23 +280,78 @@ Rules:
 
 ---
 
-## Background Jobs
+## Background Refresh Jobs
 
-Standings are refreshed via a scheduled GitHub Actions cron job.
+Tournament data refreshes are handled through protected backend admin endpoints.
 
-The refresh script (database/scripts/refresh/refresh_standings.py):
+External schedulers trigger refresh endpoints over HTTP. The backend handles API-Football communication, data transformation, database updates, cache invalidation, and refresh logging.
 
-- Fetches fresh standings from API-Football for all supported tournaments
-- Calls PUT /api/v1/admin/standings/{tournament_id} with transformed data
-- Backend deletes old standings rows and inserts new ones
-- Cache entry for the tournament is invalidated after write
-- Job result is logged to the refresh_jobs table
+Refresh flow:
 
-Required secrets (GitHub Actions):
+```txt
+Scheduler
+    ↓
+Admin refresh endpoint
+    ↓
+Refresh service
+    ↓
+API-Football client
+    ↓
+Existing update service
+    ↓
+Repository/database layer
+````
 
-- BACKEND_URL - environment level (Staging/Production differ)
-- ADMIN_TOKEN - repository level
-- API_FOOTBALL_API_KEY — repository level
+Available refresh endpoints:
+
+```txt
+POST /api/v1/admin/tournaments/refresh-standings
+POST /api/v1/admin/tournaments/refresh-matches
+```
+
+Refresh services:
+
+```txt
+app/api/v1/services/
+  refresh_standings.py
+  refresh_matches.py
+
+app/api/v1/clients/
+  football_api.py
+```
+
+The refresh process:
+
+1. Finds refreshable tournaments based on tournament dates
+2. Fetches updated data from API-Football
+3. Converts external responses into internal schemas
+4. Calls existing update services
+5. Upserts database records
+6. Invalidates affected caches
+7. Stores refresh job results
+
+Refresh responses include summaries:
+
+```json
+{
+    "message": "Matches refresh completed",
+    "tournaments_checked": 2,
+    "tournaments_refreshed": 2,
+    "tournaments_skipped": 0,
+    "rows_processed": 128,
+    "failures": []
+}
+```
+
+Individual tournament failures do not stop the entire refresh job. Failed tournaments are recorded in the response summary while remaining tournaments continue processing.
+
+Admin refresh endpoints require:
+
+```txt
+Authorization: Bearer <ADMIN_TOKEN>
+```
+
+The scheduler only triggers endpoints. It does not contain API-Football credentials or refresh logic.
 
 ---
 
@@ -358,7 +417,8 @@ The backend should provide:
 - Sentry exception reporting
 - Request logging middleware
 - Cache hit/miss/stale logs
-- Background job logs
+- Refresh job execution logs
+- Refresh summaries and failure tracking
 - Health endpoint for uptime monitoring
 
 Request logs should include:
