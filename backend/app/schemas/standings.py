@@ -1,10 +1,10 @@
 from pydantic import BaseModel, ConfigDict, computed_field
 
-from .teams import TeamsSummary
+from .teams import TeamSummary
 
 
 class StandingResponse(BaseModel):
-    team: TeamsSummary  # each standings row includes the team's details
+    team: TeamSummary  # each standings row includes the team's details
     group: str
     position: int
     points: int

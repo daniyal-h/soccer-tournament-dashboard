@@ -4,13 +4,13 @@ from pydantic import BaseModel, ConfigDict
 
 from app.models.match import StageType, StatusType
 
-from .teams import TeamsSummary
+from .teams import TeamSummary
 
 
 class MatchesResponse(BaseModel):
     id: int
-    team_a: TeamsSummary
-    team_b: TeamsSummary
+    team_a: TeamSummary
+    team_b: TeamSummary
     kickoff_time: datetime
     stage: StageType
     group: str | None = None

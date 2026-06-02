@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class TeamsSummary(BaseModel):
+class TeamSummary(BaseModel):
     id: int
     name: str
     short_name: str
