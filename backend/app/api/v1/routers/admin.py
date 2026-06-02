@@ -4,12 +4,12 @@ from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
-from app.api.v1.services import standings as standings_service
-from app.api.v1.services import tournaments as tournaments_service
+from app.api.v1.services import refresh_matches as refresh_matches_service
+from app.api.v1.services import refresh_standings as refresh_standings_service
+from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchesRefreshRow
-from app.schemas.standings import StandingRefreshRow
 
 router = APIRouter()
 
@@ -49,27 +49,32 @@ def create_match_event() -> dict:
     return {"message": "not yet implemented"}
 
 
-# get all refreshable tournaments within the margin (defaults to 1 day)
-@router.get("/tournaments/refreshable")
-@limiter.limit("10/minute")
-def get_refreshable_tournaments(
+@router.post("/tournaments/refresh-standings")
+@limiter.limit("3/minute")
+def refresh_standings(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    margin_days: Annotated[int, Query(ge=0)] = 1,
-):
-    return tournaments_service.get_refreshable_tournaments(db, margin_days)
-
-
-@router.put("/tournaments/{tournament_id}/standings")
-@limiter.limit("10/minute")
-def update_standings(
-    request: Request,
-    db: Annotated[Session, Depends(get_db)],
-    tournament_id: Annotated[int, Path(gt=0)],
-    data: list[StandingRefreshRow],
+    margin_days: Annotated[int, Query(ge=0, le=30)] = STANDINGS_MARGIN_DAYS,
 ) -> dict:
-    standings_service.update_standings(db, tournament_id, data)
-    return {"message": "Standings updated successfully"}
+    """
+    Refresh all refreshable standings (live tournaments) with the given margin.
+    Return a summary of successful refreshes and any fails as a dict.
+    """
+    return refresh_standings_service.refresh_standings(db, margin_days)
+
+
+@router.post("/tournaments/refresh-matches")
+@limiter.limit("3/minute")
+def refresh_matches(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    margin_days: Annotated[int, Query(ge=0, le=30)] = MATCHES_MARGIN_DAYS,
+) -> dict:
+    """
+    Refresh all refreshable matches (live tournaments) with the given margin.
+    Return a summary of successful refreshes and any fails as a dict.
+    """
+    return refresh_matches_service.refresh_matches(db, margin_days)
 
 
 @router.put("/tournaments/{tournament_id}/matches")

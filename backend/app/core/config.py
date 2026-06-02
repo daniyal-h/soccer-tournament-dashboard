@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: str = ""
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]
     ADMIN_TOKEN: str
+    API_FOOTBALL_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
