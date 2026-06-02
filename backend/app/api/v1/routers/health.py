@@ -26,7 +26,7 @@ class HealthResponse(BaseModel):
     timestamp: str
 
 
-@router.get("/", response_model=HealthResponse)
+@router.get("", response_model=HealthResponse)
 def health_check(db: Annotated[Session, Depends(get_db)]):
     def database_check() -> CheckStatus:
         try:
