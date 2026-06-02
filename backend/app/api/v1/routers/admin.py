@@ -5,12 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
-from app.api.v1.services import standings as standings_service
-from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchesRefreshRow
-from app.schemas.standings import StandingRefreshRow
 
 router = APIRouter()
 
@@ -62,29 +59,6 @@ def refresh_standings(
     Return a summary of successful refreshes and any fails as a dict.
     """
     return refresh_standings_service.refresh_standings(db, margin_days)
-
-
-# get all refreshable tournaments within the margin (defaults to 1 day)
-@router.get("/tournaments/refreshable")
-@limiter.limit("10/minute")
-def get_refreshable_tournaments(
-    request: Request,
-    db: Annotated[Session, Depends(get_db)],
-    margin_days: Annotated[int, Query(ge=0)] = 1,
-):
-    return tournaments_service.get_refreshable_tournaments(db, margin_days)
-
-
-@router.put("/tournaments/{tournament_id}/standings")
-@limiter.limit("10/minute")
-def update_standings(
-    request: Request,
-    db: Annotated[Session, Depends(get_db)],
-    tournament_id: Annotated[int, Path(gt=0)],
-    data: list[StandingRefreshRow],
-) -> dict:
-    standings_service.update_standings(db, tournament_id, data)
-    return {"message": "Standings updated successfully"}
 
 
 @router.put("/tournaments/{tournament_id}/matches")
