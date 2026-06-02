@@ -6,6 +6,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.constants.external_apis import API_FOOTBALL_STANDINGS_ENDPOINT
 from app.models.tournament import Tournament
 from app.schemas.standings import StandingRefreshRow
+from app.utils.refresh_summary import RefreshSummary
 
 
 def transform_standings_response(response: dict) -> list[StandingRefreshRow]:
@@ -73,14 +74,7 @@ def refresh_standings(db: Session, margin_days: int) -> dict:
     tournaments = tournaments_service.get_refreshable_tournaments(db, margin_days)
 
     # summary skeleton
-    summary = {
-        "message": "Standings refresh completed",
-        "tournaments_checked": len(tournaments),
-        "tournaments_refreshed": 0,
-        "tournaments_skipped": 0,
-        "rows_processed": 0,
-        "failures": [],
-    }
+    summary = RefreshSummary(resource_name="Standings", tournaments_checked=len(tournaments))
 
     # upsert new standings data into each tournament
     # every step adds to the summary
@@ -89,16 +83,14 @@ def refresh_standings(db: Session, margin_days: int) -> dict:
             rows = get_standings_for_tournament(tournament)
 
             if not rows:
-                summary["tournaments_skipped"] += 1
+                summary.mark_skipped()
                 continue
 
             standings_service.update_standings(db, tournament.id, rows)
-
-            summary["tournaments_refreshed"] += 1
-            summary["rows_processed"] += len(rows)
+            summary.mark_refreshed(rows_count=len(rows))
 
         except Exception as exc:
-            summary["failures"].append(
+            summary.add_failure(
                 {
                     "tournament_id": tournament.id,
                     "external_api_id": tournament.external_api_id,
@@ -107,7 +99,4 @@ def refresh_standings(db: Session, margin_days: int) -> dict:
                 }
             )
 
-    if summary["failures"]:
-        summary["message"] = "Standings refresh completed with failures"
-
-    return summary
+    return summary.to_dict()

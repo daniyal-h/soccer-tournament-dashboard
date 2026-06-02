@@ -1,4 +1,3 @@
-import time
 from datetime import datetime
 
 from sqlalchemy.orm import Session
@@ -16,6 +15,7 @@ from app.constants.external_apis import (
     SCHEDULED_STATUS_SHORT_CODES,
 )
 from app.schemas.matches import MatchesRefreshRow
+from app.utils.refresh_summary import RefreshSummary
 
 
 def map_fixture_status(status: dict) -> str:
@@ -118,15 +118,7 @@ def refresh_matches(db: Session, margin_days: int = MATCHES_MARGIN_DAYS) -> dict
     """
     tournaments = tournaments_service.get_refreshable_tournaments(db, margin_days)
 
-    # summary skeleton
-    summary = {
-        "message": "Matches refresh completed",
-        "tournaments_checked": len(tournaments),
-        "tournaments_refreshed": 0,
-        "tournaments_skipped": 0,
-        "rows_processed": 0,
-        "failures": [],
-    }
+    summary = RefreshSummary(resource_name="Matches", tournaments_checked=len(tournaments))
 
     # upsert new matches data into each tournament
     # every step adds to the summary
@@ -135,18 +127,14 @@ def refresh_matches(db: Session, margin_days: int = MATCHES_MARGIN_DAYS) -> dict
             rows = fetch_matches_for_tournament(tournament)
 
             if not rows:
-                summary["tournaments_skipped"] += 1
+                summary.mark_skipped()
                 continue
 
             matches_service.update_matches(db, tournament.id, rows)
-
-            summary["tournaments_refreshed"] += 1
-            summary["rows_processed"] += len(rows)
-
-            time.sleep(0.5)
+            summary.mark_refreshed(rows_count=len(rows))
 
         except Exception as exc:
-            summary["failures"].append(
+            summary.add_failure(
                 {
                     "tournament_id": tournament.id,
                     "external_api_id": tournament.external_api_id,
@@ -155,7 +143,4 @@ def refresh_matches(db: Session, margin_days: int = MATCHES_MARGIN_DAYS) -> dict
                 }
             )
 
-    if summary["failures"]:
-        summary["message"] = "Matches refresh completed with failures"
-
-    return summary
+    return summary.to_dict()
