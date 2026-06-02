@@ -137,3 +137,12 @@ def test_refresh_standings_endpoint_fetches_and_persists_rows(
     refresh_job = db_session.query(RefreshJob).one()
 
     assert refresh_job.status == JobStatus.SUCCESS
+
+
+def test_refresh_standings_rejects_invalid_token(client):
+    response = client.post(
+        "/api/v1/admin/tournaments/refresh-standings",
+        headers={"Authorization": "Bearer wrong_token"},
+    )
+
+    assert response.status_code == 403
