@@ -12,7 +12,6 @@ class EventType(str, enum.Enum):
     OWN_GOAL = "own_goal"
     PENALTY_GOAL = "penalty_goal"
     PENALTY_MISS = "penalty_miss"
-    ASSIST = "assist"
     YELLOW_CARD = "yellow_card"
     RED_CARD = "red_card"
     SUBSTITUTION = "substitution"
@@ -30,6 +29,11 @@ class MatchEvent(TimestampMixin, Base):
 
     player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
     secondary_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
+
+    player_external_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
+    secondary_player_external_id: Mapped[int | None] = mapped_column(
+        ForeignKey("players.id"), nullable=True
+    )
 
     player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     secondary_player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -53,7 +57,6 @@ class MatchEvent(TimestampMixin, Base):
     player = relationship("Player", foreign_keys=[player_id])
     secondary_player = relationship("Player", foreign_keys=[secondary_player_id])
 
-    # events may not hold a stable external event ID
     __table_args__ = (
         Index("ix_match_events_match_id", "match_id"),
         Index("ix_match_events_player_id", "player_id"),
