@@ -162,6 +162,7 @@ jobs:
                   SENTRY_DSN: ""
                   DATABASE_URL: postgresql://test_user:test_password@localhost:5432/test_db
                   ALLOWED_ORIGINS: '["http://localhost:5173","http://localhost:3000"]'
+                  API_FOOTBALL_API_KEY: test_api_key
                   ADMIN_TOKEN: test_token
 
             - name: Upload backend coverage report
