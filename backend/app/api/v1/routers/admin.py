@@ -4,7 +4,9 @@ from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
+from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
+from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchesRefreshRow
@@ -52,13 +54,27 @@ def create_match_event() -> dict:
 def refresh_standings(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    margin_days: Annotated[int, Query(ge=0, le=30)] = 1,
+    margin_days: Annotated[int, Query(ge=0, le=30)] = STANDINGS_MARGIN_DAYS,
 ) -> dict:
     """
     Refresh all refreshable standings (live tournaments) with the given margin.
     Return a summary of successful refreshes and any fails as a dict.
     """
     return refresh_standings_service.refresh_standings(db, margin_days)
+
+
+@router.post("/tournaments/refresh-matches")
+@limiter.limit("3/minute")
+def refresh_matches(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    margin_days: Annotated[int, Query(ge=0, le=30)] = MATCHES_MARGIN_DAYS,
+) -> dict:
+    """
+    Refresh all refreshable matches (live tournaments) with the given margin.
+    Return a summary of successful refreshes and any fails as a dict.
+    """
+    return refresh_matches_service.refresh_matches(db, margin_days)
 
 
 @router.put("/tournaments/{tournament_id}/matches")
