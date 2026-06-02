@@ -30,10 +30,8 @@ class MatchEvent(TimestampMixin, Base):
     player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
     secondary_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
 
-    player_external_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
-    secondary_player_external_id: Mapped[int | None] = mapped_column(
-        ForeignKey("players.id"), nullable=True
-    )
+    player_external_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    secondary_player_external_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     secondary_player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
