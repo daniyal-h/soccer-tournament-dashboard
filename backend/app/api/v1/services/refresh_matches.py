@@ -135,12 +135,10 @@ def refresh_matches(db: Session, margin_days: int = MATCHES_MARGIN_DAYS) -> dict
 
         except Exception as exc:
             summary.add_failure(
-                {
-                    "tournament_id": tournament.id,
-                    "external_api_id": tournament.external_api_id,
-                    "season": tournament.season,
-                    "reason": str(exc),
-                }
+                tournament_id=tournament.id,
+                external_api_id=tournament.external_api_id,
+                season=tournament.season,
+                reason=str(exc),
             )
 
     return summary.to_dict()

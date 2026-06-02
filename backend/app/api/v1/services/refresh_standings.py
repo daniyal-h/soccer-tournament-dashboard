@@ -91,12 +91,10 @@ def refresh_standings(db: Session, margin_days: int) -> dict:
 
         except Exception as exc:
             summary.add_failure(
-                {
-                    "tournament_id": tournament.id,
-                    "external_api_id": tournament.external_api_id,
-                    "season": tournament.season,
-                    "reason": str(exc),
-                }
+                tournament_id=tournament.id,
+                external_api_id=tournament.external_api_id,
+                season=tournament.season,
+                reason=str(exc),
             )
 
     return summary.to_dict()
