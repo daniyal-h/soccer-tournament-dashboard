@@ -215,6 +215,7 @@ jobs:
               run: |
                   echo "DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db" > backend/.env.docker
                   echo "ADMIN_TOKEN=test-admin-token" >> backend/.env.docker
+                  echo "API_FOOTBALL_API_KEY=test_api_key" >> backend/.env.docker
 
             - name: Build and start stack
               run: docker compose up --build -d
