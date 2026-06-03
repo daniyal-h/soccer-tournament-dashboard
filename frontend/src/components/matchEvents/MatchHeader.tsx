@@ -1,14 +1,10 @@
-import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
 import type { Match } from '@/types/match';
 
-import {
-  formatMatchDate,
-  formatStage,
-  formatStatus,
-  getScoreText,
-} from '@/utils/matchEvents/matchHeaderHelper';
+import MatchStatusBadge from '../matches/MatchStatusBadge';
+
+import { formatMatchDate, formatStage, getScoreText } from '@/utils/matchEvents/matchHeaderHelper';
 
 interface MatchHeaderProps {
   match: Match;
@@ -21,9 +17,7 @@ const MatchHeader = ({ match }: MatchHeaderProps) => {
     <Card className="mb-10 p-6 text-center shadow-sm">
       {/* Top-level badge based on match status */}
       <div className="mb-5 flex flex-col items-center gap-2">
-        <Badge variant={match.status === 'live' ? 'destructive' : 'secondary'}>
-          {formatStatus(match.status)}
-        </Badge>
+        <MatchStatusBadge status={match.status} elapsed={match.elapsed} />
 
         <p className="text-sm text-muted-foreground">{formatStage(match)}</p>
       </div>

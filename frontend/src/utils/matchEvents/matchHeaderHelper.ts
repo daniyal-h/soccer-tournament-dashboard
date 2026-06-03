@@ -1,5 +1,4 @@
 import type { Match } from '@/types/match';
-import type { MatchEvent } from '@/types/matchEvent';
 
 export function formatMatchDate(kickoffTime: string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -9,23 +8,6 @@ export function formatMatchDate(kickoffTime: string) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(kickoffTime));
-}
-
-export function formatStatus(status: Match['status']) {
-  switch (status) {
-    case 'scheduled':
-      return 'Upcoming';
-    case 'live':
-      return 'Live';
-    case 'finished':
-      return 'Full Time';
-    case 'postponed':
-      return 'Postponed';
-    case 'cancelled':
-      return 'Cancelled';
-    default:
-      return status;
-  }
 }
 
 export function formatStage(match: Match) {
