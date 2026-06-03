@@ -1,7 +1,18 @@
-import { ArrowLeftRight, Goal, RectangleVertical, XCircle } from 'lucide-react';
+import {
+  ArrowLeftRight,
+  CircleDot,
+  Goal,
+  MonitorCheck,
+  RectangleVertical,
+  XCircle,
+} from 'lucide-react';
 
 import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
+
+import { ICON_SIZE } from '@/constants/matchEvents';
+
+import { cn } from '@/lib/utils';
 
 export function formatEventMinute(event: MatchEvent) {
   if (event.extra_minute) {
@@ -34,43 +45,55 @@ export function getEventDisplay(event: MatchEvent) {
     case 'goal':
       return {
         title: 'GOAL!',
-        icon: <Goal className="h-5 w-5 text-green-500" />,
+        icon: <Goal className={cn(ICON_SIZE, 'text-green-500')} />,
       };
 
     case 'penalty_goal':
       return {
         title: 'PENALTY SCORED!',
-        icon: <Goal className="h-5 w-5 text-green-500" />,
+        icon: <Goal className={cn(ICON_SIZE, 'text-green-500')} />,
       };
 
     case 'own_goal':
       return {
         title: 'OWN GOAL',
-        icon: <Goal className="h-5 w-5 text-red-500" />,
+        icon: <Goal className={cn(ICON_SIZE, 'text-red-500')} />,
       };
 
     case 'penalty_miss':
       return {
         title: 'PENALTY MISSED',
-        icon: <XCircle className="h-5 w-5 text-red-500" />,
+        icon: <XCircle className={cn(ICON_SIZE, 'text-red-500')} />,
       };
 
     case 'yellow_card':
       return {
         title: 'YELLOW CARD',
-        icon: <RectangleVertical className="h-5 w-5 fill-yellow-400 text-yellow-400" />,
+        icon: <RectangleVertical className={cn(ICON_SIZE, 'fill-yellow-400 text-yellow-400')} />,
       };
 
     case 'red_card':
       return {
         title: 'RED CARD',
-        icon: <RectangleVertical className="h-5 w-5 fill-red-500 text-red-500" />,
+        icon: <RectangleVertical className={cn(ICON_SIZE, 'fill-red-500 text-red-500')} />,
       };
 
     case 'substitution':
       return {
         title: 'SUB',
-        icon: <ArrowLeftRight className="h-5 w-5 text-blue-500" />,
+        icon: <ArrowLeftRight className={cn(ICON_SIZE, 'text-blue-500')} />,
+      };
+
+    case 'var':
+      return {
+        title: 'VAR Review',
+        icon: <MonitorCheck className={cn(ICON_SIZE)} />,
+      };
+
+    default:
+      return {
+        title: 'Match Event',
+        icon: <CircleDot className={cn(ICON_SIZE)} />,
       };
   }
 }
