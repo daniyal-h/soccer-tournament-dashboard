@@ -1,5 +1,7 @@
 import type { Match } from '@/types/match';
 
+import { MATCH_STAGE_LABELS } from '@/constants/matches';
+
 export function formatMatchDate(kickoffTime: string) {
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -15,7 +17,7 @@ export function formatStage(match: Match) {
     return `Group ${match.group}`;
   }
 
-  return match.stage.charAt(0).toUpperCase() + match.stage.slice(1);
+  return MATCH_STAGE_LABELS[match.stage];
 }
 
 export function getScoreText(match: Match) {
