@@ -26,3 +26,7 @@ export interface MatchEvent {
   detail?: string;
   comments?: string;
 }
+
+export interface MatchEventsOptions {
+  match_id: number;
+}
