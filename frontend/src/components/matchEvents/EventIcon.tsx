@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Goal, RectangleVertical, XCircle } from 'lucide-react';
 
-import type { EventType } from '@/types/matchEvents';
+import type { EventType } from '@/types/matchEvent';
 
 interface EventIconProps {
   eventType: EventType;

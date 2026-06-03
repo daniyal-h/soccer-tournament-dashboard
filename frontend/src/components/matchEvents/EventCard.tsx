@@ -1,4 +1,4 @@
-import type { MatchEvent } from '@/types/matchEvents';
+import type { MatchEvent } from '@/types/matchEvent';
 
 import { Card } from '../ui/card';
 

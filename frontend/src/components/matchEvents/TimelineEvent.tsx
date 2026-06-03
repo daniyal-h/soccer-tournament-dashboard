@@ -1,5 +1,5 @@
 import type { Match } from '@/types/match';
-import type { MatchEvent } from '@/types/matchEvents';
+import type { MatchEvent } from '@/types/matchEvent';
 
 import EventCard from './EventCard';
 

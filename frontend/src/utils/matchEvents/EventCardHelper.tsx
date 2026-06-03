@@ -1,7 +1,7 @@
 import { ArrowLeftRight, Goal, RectangleVertical, XCircle } from 'lucide-react';
 
 import type { Match } from '@/types/match';
-import type { MatchEvent } from '@/types/matchEvents';
+import type { MatchEvent } from '@/types/matchEvent';
 
 export function formatEventMinute(event: MatchEvent) {
   if (event.extra_minute) {

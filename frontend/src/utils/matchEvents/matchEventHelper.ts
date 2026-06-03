@@ -1,4 +1,4 @@
-import type { MatchEvent } from '@/types/matchEvents';
+import type { MatchEvent } from '@/types/matchEvent';
 
 import { MAX_TIMELINE_GAP, MIN_TIMELINE_GAP, PIXELS_PER_5_MINUTES } from '@/constants/matchEvents';
 

@@ -4,7 +4,7 @@ import MatchHeader from '@/components/matchEvents/matchHeader/MatchHeader';
 import MatchTimeline from '@/components/matchEvents/MatchTimeline';
 
 import type { Match } from '@/types/match';
-import type { MatchEvent } from '@/types/matchEvents';
+import type { MatchEvent } from '@/types/matchEvent';
 
 const canada = {
   id: 1,
