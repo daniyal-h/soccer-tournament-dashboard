@@ -17,7 +17,8 @@ def get_match_events(
     request: Request, db: Annotated[Session, Depends(get_db)], match_id: Annotated[int, Path(gt=0)]
 ):
     """
-    Return all events in the given match, ordered ascending.
+    Return all events in the given match, ordered chronologically.
+    May return an empty list for match events not yet populated.
     """
 
     return match_events_service.get_match_events(db, get_db)
