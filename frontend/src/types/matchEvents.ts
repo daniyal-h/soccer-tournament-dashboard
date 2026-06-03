@@ -1,7 +1,7 @@
 import type { Player } from './player';
 import type { Team } from './team';
 
-type EventType =
+export type EventType =
   | 'goal'
   | 'own_goal'
   | 'penalty_goal'
