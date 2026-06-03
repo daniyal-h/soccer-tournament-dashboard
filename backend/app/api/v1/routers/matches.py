@@ -8,12 +8,12 @@ from app.api.v1.services import matches as matches_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.match_events import MatchEventResponse
-from app.schemas.matches import MatchesResponse
+from app.schemas.matches import MatchResponse
 
 router = APIRouter()
 
 
-@router.get("/{match_id}", response_model=MatchesResponse)
+@router.get("/{match_id}", response_model=MatchResponse)
 @limiter.limit("60/minute")
 def get_match(
     request: Request, db: Annotated[Session, Depends(get_db)], match_id: Annotated[int, Path(gt=0)]

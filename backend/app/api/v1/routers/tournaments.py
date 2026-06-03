@@ -8,7 +8,7 @@ from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
-from app.schemas.matches import MatchesResponse
+from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
 from app.schemas.tournaments import TournamentResponse
 
@@ -39,7 +39,7 @@ def get_standings(
     return standings_service.get_standings(db, tournament_id, group)
 
 
-@router.get("/{tournament_id}/matches", response_model=list[MatchesResponse])
+@router.get("/{tournament_id}/matches", response_model=list[MatchResponse])
 @limiter.limit("60/minute")
 async def get_matches(
     request: Request,

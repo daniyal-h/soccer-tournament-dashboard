@@ -7,7 +7,7 @@ from app.models.match import StageType, StatusType
 from .teams import TeamSummary
 
 
-class MatchesResponse(BaseModel):
+class MatchResponse(BaseModel):
     id: int
     team_a: TeamSummary
     team_b: TeamSummary
