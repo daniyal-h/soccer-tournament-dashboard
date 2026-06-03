@@ -2,7 +2,7 @@ import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
 
 import EmptyState from '../feedback/EmptyState';
-import LoadingState from '../feedback/LoadingState';
+import MatchTimelineSkeleton from './MatchTimelineSkeleton';
 import TimelineEvent from './TimelineEvent';
 
 import { addScoresToEvents } from '@/utils/matchEvents/EventCardHelper';
@@ -17,7 +17,7 @@ interface MatchTimelineProps {
 
 function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelineProps) {
   if (isLoading) {
-    return <LoadingState message="Loading events..." />;
+    return <MatchTimelineSkeleton />;
   }
 
   if (emptyState) {
