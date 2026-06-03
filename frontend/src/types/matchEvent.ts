@@ -1,3 +1,5 @@
+import type { LucideIcon } from 'lucide-react';
+
 import type { Player } from './player';
 import type { Team } from './team';
 
@@ -29,4 +31,11 @@ export interface MatchEvent {
 
 export interface MatchEventsOptions {
   match_id: number;
+}
+
+export interface EventConfig {
+  title: string;
+  icon: LucideIcon;
+  iconClassName: string;
+  cardClassName: string;
 }

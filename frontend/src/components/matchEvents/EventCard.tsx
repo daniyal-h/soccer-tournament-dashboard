@@ -1,10 +1,14 @@
 import type { MatchEvent } from '@/types/matchEvent';
 
+import { ICON_SIZE } from '@/constants/matchEvents';
+
+import { cn } from '@/lib/utils';
+
 import { Card } from '../ui/card';
 
 import {
   formatEventMinute,
-  getEventDisplay,
+  getEventConfig,
   getPlayerName,
   getSecondaryPlayerName,
 } from '@/utils/matchEvents/EventCardHelper';
@@ -15,9 +19,11 @@ interface EventCardProps {
 }
 
 function EventCard({ event, score }: EventCardProps) {
-  const display = getEventDisplay(event);
   const playerName = getPlayerName(event);
   const secondaryPlayerName = getSecondaryPlayerName(event);
+
+  const config = getEventConfig(event.event_type);
+  const Icon = config.icon;
 
   const isGoalEvent =
     event.event_type === 'goal' ||
@@ -27,13 +33,15 @@ function EventCard({ event, score }: EventCardProps) {
   const isSubstitution = event.event_type === 'substitution';
 
   return (
-    <Card className="w-[42vw] p-4 shadow-md sm:w-80">
+    <Card className={cn('w-[42vw] p-4 shadow-md sm:w-80', config.cardClassName)}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center min-[500px]:gap-2">
-          <span className="hidden min-[500px]:inline-flex">{display?.icon}</span>
+          <span className="hidden min-[500px]:inline-flex" aria-hidden="true">
+            <Icon className={cn(ICON_SIZE, config.iconClassName)} />
+          </span>
 
           <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            {display?.title}
+            {config.title}
           </span>
         </div>
 
