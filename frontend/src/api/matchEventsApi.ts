@@ -2,20 +2,36 @@ import type { MatchEvent, MatchEventsOptions } from '@/types/matchEvent';
 
 import { apiGet } from './client';
 
-function isMatchEvent(value: unknown): value is MatchEvent {
+function isTeamSummary(value: unknown): value is MatchEvent['team'] {
+  const team = value as MatchEvent['team'];
+
   return (
     typeof value === 'object' &&
     value !== null &&
-    typeof (value as MatchEvent).team === 'object' &&
-    (value as MatchEvent).team !== null &&
-    typeof (value as MatchEvent).event_type === 'string' &&
-    typeof (value as MatchEvent).minute === 'number' &&
-    ((value as MatchEvent).extra_minute === undefined ||
-      typeof (value as MatchEvent).extra_minute === 'number') &&
-    ((value as MatchEvent).detail === undefined ||
-      typeof (value as MatchEvent).detail === 'string') &&
-    ((value as MatchEvent).comments === undefined ||
-      typeof (value as MatchEvent).comments === 'string')
+    typeof team.id === 'number' &&
+    typeof team.name === 'string' &&
+    typeof team.short_name === 'string' &&
+    (team.logo_url == null || typeof team.logo_url === 'string')
+  );
+}
+
+function isMatchEvent(value: unknown): value is MatchEvent {
+  const event = value as MatchEvent;
+
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    isTeamSummary(event.team) &&
+    typeof event.event_type === 'string' &&
+    typeof event.minute === 'number' &&
+    (event.extra_minute == null || typeof event.extra_minute === 'number') &&
+    (event.detail == null || typeof event.detail === 'string') &&
+    (event.comments == null || typeof event.comments === 'string') &&
+    (event.player_name == null || typeof event.player_name === 'string') &&
+    (event.secondary_player_name == null || typeof event.secondary_player_name === 'string') &&
+    (event.player_external_id == null || typeof event.player_external_id === 'number') &&
+    (event.secondary_player_external_id == null ||
+      typeof event.secondary_player_external_id === 'number')
   );
 }
 
