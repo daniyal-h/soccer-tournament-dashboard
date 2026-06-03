@@ -19,7 +19,6 @@ const MatchHeader = ({ match }: MatchHeaderProps) => {
 
   return (
     <Card className="mb-10 p-6 text-center shadow-sm">
-
       {/* Top-level badge based on match status */}
       <div className="mb-5 flex flex-col items-center gap-2">
         <Badge variant={match.status === 'live' ? 'destructive' : 'secondary'}>
