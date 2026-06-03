@@ -4,6 +4,10 @@ from sqlalchemy.orm import Session
 from app.models.match import Match
 
 
+def get_match_by_id(db: Session, match_id: int) -> Match | None:
+    return db.query(Match).where(Match.id == match_id).first()
+
+
 def get_matches_by_tournament(db: Session, tournament_id: int) -> list[Match]:
     return (
         db.query(Match)

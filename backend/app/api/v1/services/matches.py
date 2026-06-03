@@ -9,8 +9,18 @@ from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.constants.jobs import JobName
 from app.models.match import Match, StageType
+from app.schemas.errors import NotFoundError
 from app.schemas.matches import MatchesRefreshRow
 from app.utils.cache_helper import get_expires_at, get_matches_ttl
+
+
+def get_match(db: Session, match_id: int) -> Match:
+    match = matches_repo.get_match_by_id(db, match_id)
+
+    if not match:
+        raise NotFoundError(f"Match {match_id} was not found")
+
+    return match
 
 
 def get_matches(db: Session, tournament_id: int) -> list[Match]:
