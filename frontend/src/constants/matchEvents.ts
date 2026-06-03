@@ -1,3 +1,3 @@
-export const MIN_TIMELINE_GAP = 24;
-export const MAX_TIMELINE_GAP = 96;
-export const PIXELS_PER_5_MINUTES = 18;
+export const MIN_TIMELINE_EVENT_GAP_PX = 32;
+export const MAX_TIMELINE_EVENT_GAP_PX = 96;
+export const TIMELINE_PIXELS_PER_5_MINUTES = 18;
