@@ -34,6 +34,10 @@ export interface MatchGroup {
   matches: Match[];
 }
 
+export interface MatchOptions {
+  match_id: number;
+}
+
 export interface MatchesOptions {
   tournament_id: number;
 }

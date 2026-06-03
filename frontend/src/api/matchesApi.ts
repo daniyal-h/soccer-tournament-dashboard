@@ -1,4 +1,4 @@
-import { type Match, type MatchesOptions } from '@/types/match';
+import { type Match, type MatchesOptions, type MatchOptions } from '@/types/match';
 
 import { apiGet } from './client';
 
@@ -19,6 +19,18 @@ function isMatch(value: unknown): value is Match {
 
 function isMatchesResponse(value: unknown): value is Match[] {
   return Array.isArray(value) && value.every(isMatch);
+}
+
+export async function getMatch({ match_id }: MatchOptions) {
+  const path = `/matches/${match_id}`;
+
+  const data = await apiGet<Match>(path);
+
+  if (!isMatch(data)) {
+    throw new Error('Invalid match response');
+  }
+
+  return data;
 }
 
 export async function getMatches({ tournament_id }: MatchesOptions) {
