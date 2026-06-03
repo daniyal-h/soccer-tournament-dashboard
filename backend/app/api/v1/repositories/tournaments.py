@@ -9,7 +9,7 @@ def get_all_tournaments(db: Session) -> list[Tournament]:
     return db.query(Tournament).order_by(Tournament.start_date.desc()).all()
 
 
-def get_tournament_by_id(db: Session, tournament_id: int) -> Tournament:
+def get_tournament_by_id(db: Session, tournament_id: int) -> Tournament | None:
     return db.query(Tournament).where(Tournament.id == tournament_id).first()
 
 
