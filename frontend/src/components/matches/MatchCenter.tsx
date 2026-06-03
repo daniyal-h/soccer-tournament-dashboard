@@ -1,4 +1,4 @@
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
 

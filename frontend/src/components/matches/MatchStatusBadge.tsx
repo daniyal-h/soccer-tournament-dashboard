@@ -1,4 +1,4 @@
-import { type MatchStatus } from '@/types/matches';
+import { type MatchStatus } from '@/types/match';
 
 import { MATCH_STATUS_BADGE } from '@/constants/matches';
 

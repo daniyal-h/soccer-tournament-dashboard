@@ -1,6 +1,6 @@
 import { ArrowLeftRight, Goal, RectangleVertical, XCircle } from 'lucide-react';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvents';
 
 export function formatEventMinute(event: MatchEvent) {

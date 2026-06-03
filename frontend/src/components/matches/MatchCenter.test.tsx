@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type Match } from '@/types/matches';
+import { type Match } from '@/types/match';
 
 import MatchCenter from './MatchCenter';
 

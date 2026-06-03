@@ -1,4 +1,4 @@
-import { type MatchStage, type MatchStatus } from '@/types/matches';
+import { type MatchStage, type MatchStatus } from '@/types/match';
 
 export const MATCH_STATUS_BADGE = {
   scheduled: {

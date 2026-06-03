@@ -1,13 +1,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import {
-  formatStatus,
-  formatStage,
-  getScoreText,
   formatMatchDate,
+  formatStage,
+  formatStatus,
+  getScoreText,
 } from '@/utils/matchEvents/matchHeaderHelper';
 
 interface MatchHeaderProps {

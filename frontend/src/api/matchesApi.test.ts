@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getMatches } from '@/api/matchesApi';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import { apiGet } from './client';
 

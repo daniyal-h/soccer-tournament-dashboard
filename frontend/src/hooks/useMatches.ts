@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { getMatches } from '@/api/matchesApi';
 
-import type { MatchesOptions, MatchGroup } from '@/types/matches';
+import type { MatchesOptions, MatchGroup } from '@/types/match';
 
 import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 import { groupMatchesByDay } from '@/utils/matches/matchCardHelper';

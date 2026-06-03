@@ -1,4 +1,4 @@
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvents';
 
 import TimelineEvent from './TimelineEvent';

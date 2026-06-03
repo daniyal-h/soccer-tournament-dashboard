@@ -1,4 +1,4 @@
-import { type Match, type MatchesOptions } from '@/types/matches';
+import { type Match, type MatchesOptions } from '@/types/match';
 
 import { apiGet } from './client';
 

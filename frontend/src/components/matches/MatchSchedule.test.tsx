@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match, MatchGroup } from '@/types/matches';
+import type { Match, MatchGroup } from '@/types/match';
 
 import MatchDayAccordion from './MatchDayAccordion';
 import MatchSchedule from './MatchSchedule';

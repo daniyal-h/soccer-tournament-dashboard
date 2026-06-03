@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { Card, CardContent } from '@/components/ui/card';
 
-import { type Match } from '@/types/matches';
+import { type Match } from '@/types/match';
 
 import { cn } from '@/lib/utils';
 

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import {
   getMatchCenterDisplay,

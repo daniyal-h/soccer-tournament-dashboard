@@ -1,4 +1,4 @@
-import type { Match, MatchGroup } from '@/types/matches';
+import type { Match, MatchGroup } from '@/types/match';
 
 import { MATCH_STAGE_LABELS } from '@/constants/matches';
 
