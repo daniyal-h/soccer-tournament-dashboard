@@ -1,0 +1,71 @@
+import { useMatch } from '@/hooks/useMatch';
+import { useMatchEvents } from '@/hooks/useMatchEvents';
+
+import ErrorState from '../feedback/ErrorState';
+import LoadingState from '../feedback/LoadingState';
+import MatchHeader from './MatchHeader';
+import MatchTimeline from './MatchTimeline';
+
+interface MatchDetailsProps {
+  matchId: number;
+}
+
+const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
+  const {
+    match,
+    isLoading: isMatchLoading,
+    error: matchError,
+    refetch: refetchMatch,
+    canRetry: canRetryMatch,
+  } = useMatch(matchId);
+
+  const {
+    matchEvents,
+    isLoading: isEventsLoading,
+    error: eventsError,
+    emptyState: eventsEmptyState,
+    refetch: refetchEvents,
+    canRetry: canRetryEvents,
+  } = useMatchEvents({ match_id: matchId });
+
+  if (isMatchLoading) {
+    return <LoadingState message="Loading match details..." />;
+  }
+
+  if (matchError) {
+    return (
+      <ErrorState
+        title="Match Unavailable"
+        description={matchError.message}
+        onAction={canRetryMatch ? refetchMatch : undefined}
+      />
+    );
+  }
+
+  if (match == null) {
+    return <ErrorState title="Match Unavailable" description="Match not found." />;
+  }
+
+  return (
+    <div>
+      <MatchHeader match={match} />
+
+      {eventsError ? (
+        <ErrorState
+          title="Match Events Unavailable"
+          description={eventsError.message}
+          onAction={canRetryEvents ? refetchEvents : undefined}
+        />
+      ) : (
+        <MatchTimeline
+          match={match}
+          events={matchEvents}
+          isLoading={isEventsLoading}
+          emptyState={eventsEmptyState}
+        />
+      )}
+    </div>
+  );
+};
+
+export default MatchDetailsContent;
