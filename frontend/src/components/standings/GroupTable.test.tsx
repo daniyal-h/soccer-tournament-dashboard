@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { Standing } from '@/types/standings';
+import type { Standing } from '@/types/standing';
 
 import { GroupTable } from './GroupTable';
 

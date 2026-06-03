@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
 
-import { type Standing } from '@/types/standings';
+import { type Standing } from '@/types/standing';
 
 import { GroupTable } from './GroupTable';
 

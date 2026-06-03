@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-import type { Standing } from '@/types/standings';
+import type { Standing } from '@/types/standing';
 
 import GroupCard from './GroupCard';
 

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Standing } from '@/types/standings';
+import type { Standing } from '@/types/standing';
 
 import { getStandings } from './standingsApi';
 
