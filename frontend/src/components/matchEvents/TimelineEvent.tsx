@@ -8,7 +8,7 @@ import { calculateTimeGap } from '@/utils/matchEvents/matchEventHelper';
 interface TimelineEventProps {
   event: MatchEvent;
   match: Match;
-  previousMinute: number;
+  previousMinute?: number;
   score: string;
 }
 
