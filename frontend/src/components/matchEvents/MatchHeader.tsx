@@ -15,7 +15,7 @@ interface MatchHeaderProps {
 }
 
 const MatchHeader = ({ match }: MatchHeaderProps) => {
-  const hasPenalties = match.team_a_penalties !== undefined && match.team_b_penalties !== undefined;
+  const hasPenalties = match.team_a_penalties != null && match.team_b_penalties != null;
 
   return (
     <Card className="mb-10 p-6 text-center shadow-sm">
