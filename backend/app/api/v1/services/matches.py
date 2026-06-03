@@ -10,7 +10,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.constants.jobs import JobName
 from app.models.match import Match, StageType
 from app.schemas.errors import NotFoundError
-from app.schemas.matches import MatchesRefreshRow
+from app.schemas.matches import MatchRefreshRow
 from app.utils.cache_helper import get_expires_at, get_matches_ttl
 
 
@@ -52,7 +52,7 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
     return matches
 
 
-def update_matches(db: Session, tournament_id: int, data: list[MatchesRefreshRow]) -> None:
+def update_matches(db: Session, tournament_id: int, data: list[MatchRefreshRow]) -> None:
     # create a refresh job for logging
     job_id = refresh_jobs_repo.create_job(db, JobName.MATCHES_REFRESH)
 

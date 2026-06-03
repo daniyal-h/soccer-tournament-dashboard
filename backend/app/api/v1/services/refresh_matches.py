@@ -14,7 +14,7 @@ from app.constants.external_apis import (
     POSTPONED_STATUS_SHORT_CODES,
     SCHEDULED_STATUS_SHORT_CODES,
 )
-from app.schemas.matches import MatchesRefreshRow
+from app.schemas.matches import MatchRefreshRow
 from app.utils.refresh_summary import RefreshSummary
 
 
@@ -66,7 +66,7 @@ def map_fixture_stage(round_name: str | None) -> str:
     return "other"
 
 
-def transform_fixture(fixture_row: dict) -> MatchesRefreshRow:
+def transform_fixture(fixture_row: dict) -> MatchRefreshRow:
     fixture = fixture_row["fixture"]
     league = fixture_row["league"]
     teams = fixture_row["teams"]
@@ -74,7 +74,7 @@ def transform_fixture(fixture_row: dict) -> MatchesRefreshRow:
     score = fixture_row.get("score") or {}
     penalty = score.get("penalty") or {}
 
-    return MatchesRefreshRow(
+    return MatchRefreshRow(
         external_api_id=fixture["id"],
         external_team_a_id=teams["home"]["id"],
         external_team_b_id=teams["away"]["id"],
@@ -91,7 +91,7 @@ def transform_fixture(fixture_row: dict) -> MatchesRefreshRow:
     )
 
 
-def fetch_matches_for_tournament(tournament) -> list[MatchesRefreshRow]:
+def fetch_matches_for_tournament(tournament) -> list[MatchRefreshRow]:
     data = football_get(
         API_FOOTBALL_FIXTURES_ENDPOINT,
         {

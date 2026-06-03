@@ -7,7 +7,7 @@ from app.api.v1.services import matches as matches_service
 from app.constants.jobs import JobName
 from app.models.match import Match, StageType, StatusType
 from app.schemas.errors import NotFoundError
-from app.schemas.matches import MatchesRefreshRow
+from app.schemas.matches import MatchRefreshRow
 from app.utils.cache_helper import MATCHES_LIVE_TTL
 
 
@@ -468,8 +468,8 @@ def make_row(
     external_team_a_id: int = 10,
     external_team_b_id: int = 20,
     stage: StageType = StageType.GROUP,
-) -> MatchesRefreshRow:
-    return MatchesRefreshRow(
+) -> MatchRefreshRow:
+    return MatchRefreshRow(
         external_api_id=external_api_id,
         external_team_a_id=external_team_a_id,
         external_team_b_id=external_team_b_id,

@@ -9,7 +9,7 @@ from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
-from app.schemas.matches import MatchesRefreshRow
+from app.schemas.matches import MatchRefreshRow
 
 router = APIRouter()
 
@@ -83,7 +83,7 @@ def update_matches(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
     tournament_id: Annotated[int, Path(gt=0)],
-    data: list[MatchesRefreshRow],
+    data: list[MatchRefreshRow],
 ) -> dict:
     matches_service.update_matches(db, tournament_id, data)
     return {"message": "Matches updated successfully"}

@@ -26,7 +26,7 @@ class MatchResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class MatchesRefreshRow(BaseModel):
+class MatchRefreshRow(BaseModel):
     external_api_id: int
     external_team_a_id: int
     external_team_b_id: int
