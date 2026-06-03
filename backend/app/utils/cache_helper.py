@@ -1,6 +1,10 @@
 from datetime import UTC, date, datetime, time, timedelta
 
 from app.constants.cache_ttl import (
+    MATCH_EVENTS_DEFAULT_TTL,
+    MATCH_EVENTS_FINISHED_TTL,
+    MATCH_EVENTS_LIVE_GROUP_TTL,
+    MATCH_EVENTS_LIVE_KNOCKOUT_TTL,
     MATCHES_CANCELLED_TTL,
     MATCHES_DEFAULT_TTL,
     MATCHES_EMPTY_TTL,
@@ -15,7 +19,8 @@ from app.constants.cache_ttl import (
     STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     STANDINGS_TTL,
 )
-from app.models.match import Match, StatusType
+from app.models.match import Match, StageType, StatusType
+from app.models.match_event import MatchEvent
 from app.models.tournament import Tournament
 
 
@@ -118,3 +123,23 @@ def get_matches_ttl(
         return MATCHES_FINISHED_TTL
 
     return MATCHES_DEFAULT_TTL
+
+
+def get_match_events_ttl(match: Match, match_events: list[MatchEvent]) -> timedelta:
+    """
+    Determine the cache TTL for match events.
+
+    A match's status determines its TTL.
+    Live matches have the lowest TTL.
+    """
+    if match.status == StatusType.LIVE:
+        if match.stage == StageType.GROUP:
+            return MATCH_EVENTS_LIVE_GROUP_TTL
+
+        return MATCH_EVENTS_LIVE_KNOCKOUT_TTL
+
+    if match.status == StatusType.FINISHED and match_events:
+        # ensure match events exist to prevent caching empty finished data for too long
+        return MATCH_EVENTS_FINISHED_TTL
+
+    return MATCH_EVENTS_DEFAULT_TTL

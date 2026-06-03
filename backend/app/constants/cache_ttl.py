@@ -23,3 +23,15 @@ MATCHES_FINISHED_TTL = timedelta(days=1)
 
 MATCHES_EMPTY_TTL = timedelta(hours=1)
 MATCHES_DEFAULT_TTL = timedelta(minutes=30)
+
+
+# MATCH EVENTS
+
+MATCH_EVENTS_LIVE_KNOCKOUT_TTL = timedelta(minutes=1)
+MATCH_EVENTS_LIVE_GROUP_TTL = timedelta(minutes=1)
+
+MATCH_EVENTS_SCHEDULED_TTL = timedelta(minutes=5)
+
+MATCH_EVENTS_FINISHED_TTL = timedelta(days=1)
+
+MATCH_EVENTS_DEFAULT_TTL = timedelta(minutes=5)
