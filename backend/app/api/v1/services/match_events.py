@@ -13,6 +13,7 @@ def get_match_events(db: Session, match_id: int) -> list[MatchEvent]:
     cached = cache_service.get_cache(db, cache_key)
 
     if cached:
+        # cache stores serialized response-shaped data
         return cached
 
     # validate match existence before retrieving and caching

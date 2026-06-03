@@ -36,6 +36,7 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
     cached = cache_service.get_cache(db, cache_key)
 
     if cached:
+        # cache stores serialized response-shaped data
         return cached
 
     # validate tournament existence before caching an empty match list
