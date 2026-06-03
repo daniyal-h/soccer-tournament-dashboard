@@ -10,7 +10,7 @@ import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
  * Logic for fetching and processing matches events.
  * Catch and wrap known errors.
  */
-export function useMatchesEvents({ match_id }: MatchEventsOptions) {
+export function useMatchEvents({ match_id }: MatchEventsOptions) {
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
