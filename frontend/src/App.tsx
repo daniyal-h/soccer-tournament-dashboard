@@ -2,6 +2,8 @@ import { Route, Routes } from 'react-router-dom';
 
 import AppLayout from '@/components/layout/AppLayout';
 
+import MatchDetails from './pages/MatchDetails';
+
 import './App.css';
 import Bracket from '@/pages/Bracket';
 import NotFound from '@/pages/NotFound';
@@ -18,6 +20,7 @@ function App() {
         <Route path="/" element={<Standings />} />
         <Route path="/bracket" element={<Bracket />} />
         <Route path="/schedule" element={<Schedule />} />
+        <Route path="/matches/:matchId" element={<MatchDetails />} />
         <Route path="/teams" element={<Teams />} />
         <Route path="/teams/:teamId" element={<TeamProfile />} />
         <Route path="/stats" element={<PlayerStats />} />
