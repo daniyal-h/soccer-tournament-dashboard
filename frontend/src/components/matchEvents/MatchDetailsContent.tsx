@@ -2,8 +2,8 @@ import { useMatch } from '@/hooks/useMatch';
 import { useMatchEvents } from '@/hooks/useMatchEvents';
 
 import ErrorState from '../feedback/ErrorState';
-import LoadingState from '../feedback/LoadingState';
 import MatchHeader from './MatchHeader';
+import MatchHeaderSkeleton from './MatchHeaderSkeleton';
 import MatchTimeline from './MatchTimeline';
 
 interface MatchDetailsProps {
@@ -29,7 +29,7 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
   } = useMatchEvents({ match_id: matchId });
 
   if (isMatchLoading) {
-    return <LoadingState message="Loading match details..." />;
+    return <MatchHeaderSkeleton />;
   }
 
   if (matchError) {
