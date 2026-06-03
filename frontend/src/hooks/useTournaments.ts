@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import { ApiError } from '@/api/client';
 import { getTournaments } from '@/api/tournamentsApi';
 
 import type { Tournament } from '@/types/tournament';
+
+import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 
 /**
  * Logic for getting and processing available tournaments
@@ -18,17 +19,14 @@ export function useTournaments() {
     getTournaments()
       .then(setTournaments)
       .catch((err) => {
-        if (err instanceof ApiError && err.code === 'NOT_FOUND') {
-          setError(new Error('No tournaments available.'));
-          return;
-        }
+        setTournaments([]);
 
-        if (err instanceof ApiError && err.code === 'NETWORK_ERROR') {
-          setError(new Error('Unable to reach the server.'));
-          return;
-        }
+        const errorState = getApiErrorState(err, {
+          notFound: 'No tournaments available.',
+          generic: 'Failed to load tournaments.',
+        });
 
-        setError(new Error('Failed to load tournaments.'));
+        setError(new Error(errorState.message));
       })
       .finally(() => {
         setIsLoading(false);
