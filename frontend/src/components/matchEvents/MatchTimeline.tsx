@@ -1,17 +1,29 @@
 import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
 
+import EmptyState from '../feedback/EmptyState';
+import LoadingState from '../feedback/LoadingState';
 import TimelineEvent from './TimelineEvent';
 
 import { addScoresToEvents } from '@/utils/matchEvents/EventCardHelper';
 import { getEventKey } from '@/utils/matchEvents/matchEventHelper';
 
 interface MatchTimelineProps {
+  isLoading: boolean;
   match: Match;
   events: MatchEvent[];
+  emptyState: string | null;
 }
 
-function MatchTimeline({ match, events }: MatchTimelineProps) {
+function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelineProps) {
+  if (isLoading) {
+    return <LoadingState message="Loading events..." />;
+  }
+
+  if (emptyState) {
+    return <EmptyState title="" description={emptyState} />;
+  }
+
   const sortedEvents = [...events].sort((a, b) => a.minute - b.minute);
   const eventsWithScores = addScoresToEvents(sortedEvents, match);
 
