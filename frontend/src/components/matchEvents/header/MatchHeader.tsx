@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 
 import type { Match } from '@/types/match';
 
-import MatchStatusBadge from '../matches/MatchStatusBadge';
+import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
 import { formatMatchDate, formatStage, getScoreText } from '@/utils/matchEvents/matchHeaderHelper';
 

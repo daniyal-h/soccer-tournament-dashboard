@@ -2,8 +2,8 @@ import { useMatch } from '@/hooks/useMatch';
 import { useMatchEvents } from '@/hooks/useMatchEvents';
 
 import ErrorState from '../feedback/ErrorState';
-import MatchHeader from './MatchHeader';
-import MatchHeaderSkeleton from './MatchHeaderSkeleton';
+import MatchHeader from './header/MatchHeader';
+import MatchHeaderSkeleton from './header/MatchHeaderSkeleton';
 import MatchTimeline from './MatchTimeline';
 
 interface MatchDetailsProps {
