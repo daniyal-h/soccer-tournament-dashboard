@@ -16,17 +16,17 @@ export type EventType =
 
 export interface MatchEvent {
   team: Team;
-  player?: Player;
-  secondary_player?: Player;
-  player_name?: string;
-  secondary_player_name?: string;
-  player_external_id?: number;
-  secondary_player_external_id?: number;
+  player: Player | null;
+  secondary_player: Player | null;
+  player_name: string | null;
+  secondary_player_name: string | null;
+  player_external_id: number | null;
+  secondary_player_external_id: number | null;
   event_type: EventType;
   minute: number;
-  extra_minute?: number;
-  detail?: string;
-  comments?: string;
+  extra_minute: number | null;
+  detail: string | null;
+  comments: string | null;
 }
 
 export interface MatchEventsOptions {
