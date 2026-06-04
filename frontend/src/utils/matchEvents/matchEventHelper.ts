@@ -1,10 +1,11 @@
 import type { Match } from '@/types/match';
-import type { MatchEvent, TimelineItem } from '@/types/matchEvent';
+import type { MatchEvent, TimelineItem, TimelineMarkerConfig } from '@/types/matchEvent';
 
 import {
   MAX_TIMELINE_EVENT_GAP_PX,
   MIN_TIMELINE_EVENT_GAP_PX,
   PENALTY_SHOOTOUT_COMMENT,
+  TIMELINE_MARKERS,
   TIMELINE_PIXELS_PER_5_MINUTES,
 } from '@/constants/matchEvents';
 
@@ -49,40 +50,29 @@ export function buildTimelineItems(
   });
 }
 
-function getTimelineMarkers(match: Match, events: MatchEvent[]) {
-  const markers = [];
+function getTimelineMarkers(match: Match, events: MatchEvent[]): TimelineMarkerConfig[] {
+  const markers: TimelineMarkerConfig[] = [];
 
   if (match.elapsed) {
-    if (match.elapsed >= 45) {
-      markers.push({ minute: 45, label: 'HALF TIME' });
+    if (match.elapsed >= TIMELINE_MARKERS.HALF_TIME.minute) {
+      markers.push(TIMELINE_MARKERS.HALF_TIME);
     }
 
-    if (match.elapsed >= 120) {
+    if (match.elapsed >= TIMELINE_MARKERS.END_OF_EXTRA_TIME.minute) {
       markers.push(
-        { minute: 90, label: 'END OF REGULATION' },
-        { minute: 105, label: 'ET HALF TIME' },
-        { minute: 120, label: 'END OF EXTRA TIME' },
+        TIMELINE_MARKERS.END_OF_REGULATION,
+        TIMELINE_MARKERS.ET_HALF_TIME,
+        TIMELINE_MARKERS.END_OF_EXTRA_TIME,
       );
-    } else if (match.elapsed >= 90) {
-      markers.push({ minute: 90, label: 'FULL TIME' });
+    } else if (match.elapsed >= TIMELINE_MARKERS.FULL_TIME.minute) {
+      markers.push(TIMELINE_MARKERS.FULL_TIME);
     }
   }
 
   const hasPenaltyShootout = events.some(isPenaltyShootoutEvent);
 
   if (hasPenaltyShootout) {
-    markers.push(
-      {
-        minute: 120,
-        label: 'PENALTY SHOOTOUT',
-        order: 1,
-      },
-      {
-        minute: 120,
-        label: 'END OF SHOOTOUT',
-        order: 3,
-      },
-    );
+    markers.push(TIMELINE_MARKERS.PENALTY_SHOOTOUT, TIMELINE_MARKERS.END_OF_SHOOTOUT);
   }
 
   return markers;

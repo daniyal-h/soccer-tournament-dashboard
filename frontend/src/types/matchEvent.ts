@@ -40,6 +40,12 @@ export interface EventConfig {
   cardClassName: string;
 }
 
+export interface TimelineMarkerConfig {
+  minute: number;
+  label: string;
+  order?: number;
+}
+
 export type TimelineItem =
   | {
       type: 'event';
