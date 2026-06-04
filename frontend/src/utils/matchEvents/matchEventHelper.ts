@@ -9,6 +9,9 @@ import {
   TIMELINE_PIXELS_PER_5_MINUTES,
 } from '@/constants/matchEvents';
 
+/**
+ * Return a unique key based on the attributes of an event
+ */
 export function getEventKey(event: MatchEvent) {
   return [
     event.minute,
@@ -19,10 +22,18 @@ export function getEventKey(event: MatchEvent) {
   ].join('-');
 }
 
+/**
+ * Given events and their scores.
+ * Return timeline items which include are API-returned events and timeline markers.
+ * Order events to maintain a chronological timeline.
+ * Return a sorted list of events in time and order.
+ */
 export function buildTimelineItems(
   eventsWithScores: { event: MatchEvent; score: string }[],
   match: Match,
 ): TimelineItem[] {
+  // map all API-returned events with their score and order of 1
+  // penalty shootouts are order of 2
   const eventItems: TimelineItem[] = eventsWithScores.map(({ event, score }) => ({
     type: 'event',
     minute: event.minute,
@@ -31,6 +42,8 @@ export function buildTimelineItems(
     score,
   }));
 
+  // get all timeline markers (half-time, full-time, extra-time, etc.)
+  // grant all order of 1
   const markerItems: TimelineItem[] = getTimelineMarkers(
     match,
     eventsWithScores.map(({ event }) => event),
@@ -41,6 +54,7 @@ export function buildTimelineItems(
     label: marker.label,
   }));
 
+  // sort first by time, then by order
   return [...eventItems, ...markerItems].sort((a, b) => {
     if (a.minute !== b.minute) {
       return a.minute - b.minute;
@@ -50,7 +64,12 @@ export function buildTimelineItems(
   });
 }
 
+/**
+ * Given a match and its events, return the timeline markers.
+ * Markers occur at set points in a game, but are limited by the elapsed time.
+ */
 function getTimelineMarkers(match: Match, events: MatchEvent[]): TimelineMarkerConfig[] {
+  // default to no markers if elapsed is not given
   const markers: TimelineMarkerConfig[] = [];
 
   if (match.elapsed) {
@@ -69,6 +88,7 @@ function getTimelineMarkers(match: Match, events: MatchEvent[]): TimelineMarkerC
     }
   }
 
+  // include penalty shootout markers if shootouts occurred
   const hasPenaltyShootout = events.some(isPenaltyShootoutEvent);
 
   if (hasPenaltyShootout) {
@@ -82,6 +102,7 @@ export function isPenaltyShootoutEvent(event: MatchEvent) {
   return event.comments === PENALTY_SHOOTOUT_COMMENT;
 }
 
+// return the previous event's minute
 export function getPreviousEventMinute(items: TimelineItem[], index: number) {
   for (let i = index - 1; i >= 0; i--) {
     if (items[i].type === 'event') {
@@ -92,6 +113,11 @@ export function getPreviousEventMinute(items: TimelineItem[], index: number) {
   return undefined;
 }
 
+/**
+ * Calculate the gap in time between two event times.
+ * Return the gap the timeline should show for proportional timeline generation.
+ * Floor and ceiling to defined constants.
+ */
 export function calculateTimeGap(currentMinute: number, previousMinute?: number): number {
   if (previousMinute === undefined) {
     return MIN_TIMELINE_EVENT_GAP_PX;
