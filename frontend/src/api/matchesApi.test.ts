@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getMatches } from '@/api/matchesApi';
+import { getMatch, getMatches } from '@/api/matchesApi';
 
 import type { Match } from '@/types/match';
 
@@ -36,6 +36,124 @@ const validMatch: Match = {
   team_a_score: 2,
   team_b_score: 1,
 };
+
+describe('getMatch', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls the match endpoint with the provided match id', async () => {
+    mockApiGet.mockResolvedValueOnce(validMatch);
+
+    await getMatch({ match_id: 7 });
+
+    expect(mockApiGet).toHaveBeenCalledOnce();
+    expect(mockApiGet).toHaveBeenCalledWith('/matches/7');
+  });
+
+  it('returns the match when the API response is valid', async () => {
+    mockApiGet.mockResolvedValueOnce(validMatch);
+
+    const result = await getMatch({ match_id: 1 });
+
+    expect(result).toEqual(validMatch);
+  });
+
+  it('rejects a null response', async () => {
+    mockApiGet.mockResolvedValueOnce(null);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects an array response', async () => {
+    mockApiGet.mockResolvedValueOnce([validMatch]);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when match id is missing', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      id: undefined,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when match id is not a number', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      id: '1',
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when kickoff_time is not a string', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      kickoff_time: null,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when stage is not a string', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      stage: 1,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when status is not a string', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      status: undefined,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when team_a is null', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      team_a: null,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('rejects a response when team_b is null', async () => {
+    const invalidMatch = {
+      ...validMatch,
+      team_b: null,
+    };
+
+    mockApiGet.mockResolvedValueOnce(invalidMatch);
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
+  });
+
+  it('propagates apiGet errors', async () => {
+    mockApiGet.mockRejectedValueOnce(new Error('Network error'));
+
+    await expect(getMatch({ match_id: 1 })).rejects.toThrow('Network error');
+  });
+});
 
 describe('getMatches', () => {
   beforeEach(() => {
