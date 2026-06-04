@@ -1,7 +1,8 @@
+import EmptyState from '@/components/feedback/EmptyState';
+
 import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
 
-import EmptyState from '../feedback/EmptyState';
 import MatchTimelineSkeleton from './MatchTimelineSkeleton';
 import TimelineEvent from './TimelineEvent';
 import TimelineMarker from './TimelineMarker';

@@ -1,10 +1,10 @@
+import { Card } from '@/components/ui/card';
+
 import type { MatchEvent } from '@/types/matchEvent';
 
 import { ICON_SIZE } from '@/constants/matchEvents';
 
 import { cn } from '@/lib/utils';
-
-import { Card } from '../../ui/card';
 
 import {
   formatEventMinute,
