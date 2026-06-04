@@ -19,7 +19,11 @@ const MatchCard = ({ match }: MatchCardProps) => {
   const winner = getWinnerSide(match);
 
   return (
-    <Link to={`/matches/${match.id}`} style={{ textDecoration: 'none' }}>
+    <Link
+      to={`/matches/${match.id}`}
+      state={{ from: '/schedule' }}
+      style={{ textDecoration: 'none' }}
+    >
       <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md">
         <CardContent className="min-w-0 space-y-3 p-4">
           <div className="flex flex-col items-center gap-4">
