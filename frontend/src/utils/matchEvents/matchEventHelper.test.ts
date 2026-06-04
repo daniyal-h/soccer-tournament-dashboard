@@ -54,9 +54,16 @@ const baseMatch: Match = {
   team_a: teamA,
   team_b: teamB,
   kickoff_time: '2026-06-12T20:00:00Z',
+  venue: null,
+  city: null,
   stage: 'group',
+  group: null,
   status: 'live',
   elapsed: 0,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 };
 
 const baseEvent: MatchEvent = {
@@ -186,7 +193,7 @@ describe('buildTimelineItems', () => {
 
   it('does not add elapsed markers when elapsed is zero or undefined', () => {
     expect(buildTimelineItems([], { ...baseMatch, elapsed: 0 })).toEqual([]);
-    expect(buildTimelineItems([], { ...baseMatch, elapsed: undefined })).toEqual([]);
+    expect(buildTimelineItems([], { ...baseMatch, elapsed: null })).toEqual([]);
   });
 });
 
