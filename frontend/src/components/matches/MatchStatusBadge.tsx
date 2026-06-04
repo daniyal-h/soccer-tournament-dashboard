@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge';
 
 interface MatchStatusBadgeProps {
   status: MatchStatus;
-  elapsed?: number;
+  elapsed: number | null;
 }
 
 const MatchStatusBadge = ({ status, elapsed }: MatchStatusBadgeProps) => {
@@ -16,7 +16,7 @@ const MatchStatusBadge = ({ status, elapsed }: MatchStatusBadgeProps) => {
   return (
     <Badge variant="outline" className={cn('text-medium', badge.className)}>
       {badge.text}
-      {status === 'live' && elapsed != null && ' · ' + elapsed + "'"}
+      {status === 'live' && elapsed !== null && ' · ' + elapsed + "'"}
     </Badge>
   );
 };
