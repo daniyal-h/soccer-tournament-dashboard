@@ -1,6 +1,7 @@
 import type { Match } from '@/types/match';
 import type { EventConfig, EventType, MatchEvent } from '@/types/matchEvent';
 
+import { PENALTY_SHOOTOUT_COMMENT } from '@/constants/matchEvents';
 import { EVENT_CONFIG } from '@/constants/matchEventsDisplay';
 
 export function formatEventMinute(event: MatchEvent) {
@@ -38,7 +39,11 @@ export function addScoresToEvents(events: MatchEvent[], match: Match) {
   let teamBScore = 0;
 
   return events.map((event) => {
-    if (event.event_type === 'goal' || event.event_type === 'penalty_goal') {
+    // do not mutate score if it's from penalty shootouts
+    if (
+      event.event_type === 'goal' ||
+      (event.comments !== PENALTY_SHOOTOUT_COMMENT && event.event_type === 'penalty_goal')
+    ) {
       if (event.team.id === match.team_a.id) {
         teamAScore++;
       } else {
