@@ -39,3 +39,16 @@ export interface EventConfig {
   iconClassName: string;
   cardClassName: string;
 }
+
+export type TimelineItem =
+  | {
+      type: 'event';
+      minute: number;
+      event: MatchEvent;
+      score: string;
+    }
+  | {
+      type: 'marker';
+      minute: number;
+      label: string;
+    };
