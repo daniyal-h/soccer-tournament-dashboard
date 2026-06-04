@@ -6,7 +6,7 @@ import MatchTimelineSkeleton from './MatchTimelineSkeleton';
 import TimelineEvent from './TimelineEvent';
 import TimelineMarker from './TimelineMarker';
 
-import { addScoresToEvents } from '@/utils/matchEvents/EventCardHelper';
+import { addDisplayScoresToEvents } from '@/utils/matchEvents/EventCardHelper';
 import {
   buildTimelineItems,
   getEventKey,
@@ -20,7 +20,7 @@ interface MatchTimelineProps {
   emptyState: string | null;
 }
 
-function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelineProps) {
+const MatchTimeline = ({ isLoading, match, events, emptyState }: MatchTimelineProps) => {
   if (isLoading) {
     return <MatchTimelineSkeleton />;
   }
@@ -30,7 +30,7 @@ function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelinePr
   }
 
   const sortedEvents = [...events].sort((a, b) => a.minute - b.minute);
-  const eventsWithScores = addScoresToEvents(sortedEvents, match);
+  const eventsWithScores = addDisplayScoresToEvents(sortedEvents, match);
 
   const timelineItems = buildTimelineItems(eventsWithScores, match);
 
@@ -53,6 +53,6 @@ function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelinePr
       )}
     </div>
   );
-}
+};
 
 export default MatchTimeline;

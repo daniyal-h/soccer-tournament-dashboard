@@ -12,18 +12,21 @@ import {
   getPlayerName,
   getSecondaryPlayerName,
 } from '@/utils/matchEvents/EventCardHelper';
+import { isPenaltyShootoutEvent } from '@/utils/matchEvents/matchEventHelper';
 
 interface EventCardProps {
   event: MatchEvent;
   score: string;
 }
 
-function EventCard({ event, score }: EventCardProps) {
+const EventCard = ({ event, score }: EventCardProps) => {
   const playerName = getPlayerName(event);
   const secondaryPlayerName = getSecondaryPlayerName(event);
 
-  const config = getEventConfig(event.event_type);
-  const Icon = config.icon;
+  const eventConfig = getEventConfig(event.event_type);
+  const Icon = eventConfig.icon;
+
+  const isPenaltyShootout = isPenaltyShootoutEvent(event);
 
   const isGoalEvent =
     event.event_type === 'goal' ||
@@ -32,16 +35,19 @@ function EventCard({ event, score }: EventCardProps) {
 
   const isSubstitution = event.event_type === 'substitution';
 
+  const penaltyShootoutText =
+    event.event_type === 'penalty_miss' ? 'Missed penalty' : 'Scored penalty';
+
   return (
-    <Card className={cn('w-[42vw] p-4 shadow-md sm:w-80', config.cardClassName)}>
+    <Card className={cn('w-[42vw] p-4 shadow-md sm:w-80', eventConfig.cardClassName)}>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center min-[500px]:gap-2">
           <span className="hidden min-[500px]:inline-flex" aria-hidden="true">
-            <Icon className={cn(ICON_SIZE, config.iconClassName)} />
+            <Icon className={cn(ICON_SIZE, eventConfig.iconClassName)} />
           </span>
 
           <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            {config.title}
+            {eventConfig.title}
           </span>
         </div>
 
@@ -53,28 +59,42 @@ function EventCard({ event, score }: EventCardProps) {
       <div>
         <p className="text-base font-bold leading-tight">{playerName}</p>
 
-        {secondaryPlayerName && isGoalEvent && (
-          <p className="mt-1 text-sm text-muted-foreground">Assisted by {secondaryPlayerName}</p>
-        )}
+        {isPenaltyShootout ? (
+          <>
+            <div className="mt-4 inline-flex rounded-full bg-muted px-3 py-1 text-lg font-bold">
+              {score}
+            </div>
 
-        {secondaryPlayerName && isSubstitution && (
-          <p className="mt-1 text-sm text-muted-foreground">Replaced {secondaryPlayerName}</p>
-        )}
+            <p className="mt-2 text-xs text-muted-foreground">{penaltyShootoutText}</p>
+          </>
+        ) : (
+          <>
+            {secondaryPlayerName && isGoalEvent && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                Assisted by {secondaryPlayerName}
+              </p>
+            )}
 
-        {isGoalEvent && (
-          <div className="mt-4 inline-flex rounded-full bg-muted px-3 py-1 text-lg font-bold">
-            {score}
-          </div>
-        )}
+            {secondaryPlayerName && isSubstitution && (
+              <p className="mt-1 text-sm text-muted-foreground">Replaced {secondaryPlayerName}</p>
+            )}
 
-        {event.detail && <p className="mt-2 text-xs text-muted-foreground">{event.detail}</p>}
+            {isGoalEvent && (
+              <div className="mt-4 inline-flex rounded-full bg-muted px-3 py-1 text-lg font-bold">
+                {score}
+              </div>
+            )}
 
-        {event.comments && (
-          <p className="mt-1 text-xs italic text-muted-foreground">{event.comments}</p>
+            {event.detail && <p className="mt-2 text-xs text-muted-foreground">{event.detail}</p>}
+
+            {event.comments && (
+              <p className="mt-1 text-xs italic text-muted-foreground">{event.comments}</p>
+            )}
+          </>
         )}
       </div>
     </Card>
   );
-}
+};
 
 export default EventCard;

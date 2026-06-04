@@ -1,8 +1,9 @@
 import type { Match } from '@/types/match';
 import type { EventConfig, EventType, MatchEvent } from '@/types/matchEvent';
 
-import { PENALTY_SHOOTOUT_COMMENT } from '@/constants/matchEvents';
 import { EVENT_CONFIG } from '@/constants/matchEventsDisplay';
+
+import { isPenaltyShootoutEvent } from './matchEventHelper';
 
 export function formatEventMinute(event: MatchEvent) {
   if (event.extra_minute) {
@@ -34,16 +35,32 @@ export function getEventConfig(type: string): EventConfig {
   return EVENT_CONFIG[type as EventType];
 }
 
-export function addScoresToEvents(events: MatchEvent[], match: Match) {
+export function addDisplayScoresToEvents(events: MatchEvent[], match: Match) {
   let teamAScore = 0;
   let teamBScore = 0;
 
+  let teamAPenaltyScore = 0;
+  let teamBPenaltyScore = 0;
+
   return events.map((event) => {
-    // do not mutate score if it's from penalty shootouts
-    if (
-      event.event_type === 'goal' ||
-      (event.comments !== PENALTY_SHOOTOUT_COMMENT && event.event_type === 'penalty_goal')
-    ) {
+    const isPenaltyShootout = isPenaltyShootoutEvent(event);
+
+    if (isPenaltyShootout) {
+      if (event.event_type === 'penalty_goal') {
+        if (event.team.id === match.team_a.id) {
+          teamAPenaltyScore++;
+        } else {
+          teamBPenaltyScore++;
+        }
+      }
+
+      return {
+        event,
+        score: `${teamAPenaltyScore}-${teamBPenaltyScore}`,
+      };
+    }
+
+    if (event.event_type === 'goal' || event.event_type === 'penalty_goal') {
       if (event.team.id === match.team_a.id) {
         teamAScore++;
       } else {

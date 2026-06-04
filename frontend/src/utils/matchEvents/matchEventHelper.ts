@@ -71,17 +71,24 @@ function getTimelineMarkers(match: Match, events: MatchEvent[]) {
   const hasPenaltyShootout = events.some(isPenaltyShootoutEvent);
 
   if (hasPenaltyShootout) {
-    markers.push({
-      minute: 120,
-      label: 'PENALTY SHOOTOUT',
-      order: 1,
-    });
+    markers.push(
+      {
+        minute: 120,
+        label: 'PENALTY SHOOTOUT',
+        order: 1,
+      },
+      {
+        minute: 120,
+        label: 'END OF SHOOTOUT',
+        order: 3,
+      },
+    );
   }
 
   return markers;
 }
 
-function isPenaltyShootoutEvent(event: MatchEvent) {
+export function isPenaltyShootoutEvent(event: MatchEvent) {
   return event.comments === PENALTY_SHOOTOUT_COMMENT;
 }
 
