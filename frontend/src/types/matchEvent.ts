@@ -44,11 +44,13 @@ export type TimelineItem =
   | {
       type: 'event';
       minute: number;
+      order: number;
       event: MatchEvent;
       score: string;
     }
   | {
       type: 'marker';
       minute: number;
+      order: number;
       label: string;
     };

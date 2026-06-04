@@ -32,7 +32,7 @@ function MatchTimeline({ isLoading, match, events, emptyState }: MatchTimelinePr
   const sortedEvents = [...events].sort((a, b) => a.minute - b.minute);
   const eventsWithScores = addScoresToEvents(sortedEvents, match);
 
-  const timelineItems = buildTimelineItems(eventsWithScores, match.elapsed);
+  const timelineItems = buildTimelineItems(eventsWithScores, match);
 
   return (
     <div className="relative">

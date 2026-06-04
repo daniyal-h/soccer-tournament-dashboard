@@ -1,43 +1,12 @@
+import type { Match } from '@/types/match';
 import type { MatchEvent, TimelineItem } from '@/types/matchEvent';
 
 import {
   MAX_TIMELINE_EVENT_GAP_PX,
   MIN_TIMELINE_EVENT_GAP_PX,
+  PENALTY_SHOOTOUT_COMMENT,
   TIMELINE_PIXELS_PER_5_MINUTES,
 } from '@/constants/matchEvents';
-
-interface TimelineMarkerConfig {
-  minute: number;
-  label: string;
-}
-
-function getTimelineMarkers(elapsed: number | null): TimelineMarkerConfig[] {
-  if (elapsed == null) {
-    return [];
-  }
-
-  if (elapsed >= 120) {
-    return [
-      { minute: 45, label: 'HALF TIME' },
-      { minute: 90, label: 'END OF REGULATION' },
-      { minute: 105, label: 'ET HALF TIME' },
-      { minute: 120, label: 'FULL TIME' },
-    ];
-  }
-
-  if (elapsed >= 90) {
-    return [
-      { minute: 45, label: 'HALF TIME' },
-      { minute: 90, label: 'FULL TIME' },
-    ];
-  }
-
-  if (elapsed >= 45) {
-    return [{ minute: 45, label: 'HALF TIME' }];
-  }
-
-  return [];
-}
 
 export function getEventKey(event: MatchEvent) {
   return [
@@ -51,26 +20,69 @@ export function getEventKey(event: MatchEvent) {
 
 export function buildTimelineItems(
   eventsWithScores: { event: MatchEvent; score: string }[],
-  elapsed?: number,
+  match: Match,
 ): TimelineItem[] {
   const eventItems: TimelineItem[] = eventsWithScores.map(({ event, score }) => ({
     type: 'event',
     minute: event.minute,
+    order: isPenaltyShootoutEvent(event) ? 2 : 0,
     event,
     score,
   }));
 
-  let markerItems: TimelineItem[] = [];
+  const markerItems: TimelineItem[] = getTimelineMarkers(
+    match,
+    eventsWithScores.map(({ event }) => event),
+  ).map((marker) => ({
+    type: 'marker',
+    minute: marker.minute,
+    order: marker.order ?? 0,
+    label: marker.label,
+  }));
 
-  if (elapsed) {
-    markerItems = getTimelineMarkers(elapsed).map((marker) => ({
-      type: 'marker',
-      minute: marker.minute,
-      label: marker.label,
-    }));
+  return [...eventItems, ...markerItems].sort((a, b) => {
+    if (a.minute !== b.minute) {
+      return a.minute - b.minute;
+    }
+
+    return a.order - b.order;
+  });
+}
+
+function getTimelineMarkers(match: Match, events: MatchEvent[]) {
+  const markers = [];
+
+  if (match.elapsed) {
+    if (match.elapsed >= 45) {
+      markers.push({ minute: 45, label: 'HALF TIME' });
+    }
+
+    if (match.elapsed >= 120) {
+      markers.push(
+        { minute: 90, label: 'END OF REGULATION' },
+        { minute: 105, label: 'ET HALF TIME' },
+        { minute: 120, label: 'END OF EXTRA TIME' },
+      );
+    } else if (match.elapsed >= 90) {
+      markers.push({ minute: 90, label: 'FULL TIME' });
+    }
   }
 
-  return [...eventItems, ...markerItems].sort((a, b) => a.minute - b.minute);
+  const hasPenaltyShootout = events.some(isPenaltyShootoutEvent);
+
+  if (hasPenaltyShootout) {
+    markers.push({
+      minute: 120,
+      label: 'PENALTY SHOOTOUT',
+      order: 1,
+    });
+  }
+
+  return markers;
+}
+
+function isPenaltyShootoutEvent(event: MatchEvent) {
+  return event.comments === PENALTY_SHOOTOUT_COMMENT;
 }
 
 export function getPreviousEventMinute(items: TimelineItem[], index: number) {
