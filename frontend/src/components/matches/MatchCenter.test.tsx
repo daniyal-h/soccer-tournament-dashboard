@@ -33,6 +33,11 @@ const baseMatch: Match = {
     short_name: 'BRA',
     logo_url: 'https://example.com/brazil.png',
   },
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 };
 
 describe('MatchCenter', () => {
