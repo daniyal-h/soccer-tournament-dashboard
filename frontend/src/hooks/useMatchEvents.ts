@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 
-import { getMatchEvents } from '@/api/MatchEventsApi';
+import { getMatchEvents } from '@/api/matchEventsApi';
 
 import type { MatchEvent, MatchEventsOptions } from '@/types/matchEvent';
 
