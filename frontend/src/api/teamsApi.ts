@@ -11,6 +11,6 @@ export function isTeam(value: unknown): value is Team {
     typeof team.id === 'number' &&
     typeof team.name === 'string' &&
     typeof team.short_name === 'string' &&
-    typeof team.logo_url === 'string'
+    (typeof team.logo_url === 'string' || team.logo_url === null)
   );
 }
