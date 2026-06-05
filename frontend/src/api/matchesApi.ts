@@ -1,19 +1,27 @@
 import { type Match, type MatchesOptions, type MatchOptions } from '@/types/match';
 
 import { apiGet } from './client';
+import { isTeam } from './teamsApi';
 
 function isMatch(value: unknown): value is Match {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const match = value as Match;
+
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as Match).team_a !== null &&
-    (value as Match).team_b !== null &&
-    typeof (value as Match).id === 'number' &&
-    typeof (value as Match).kickoff_time === 'string' &&
-    typeof (value as Match).stage === 'string' &&
-    typeof (value as Match).status === 'string' &&
-    typeof (value as Match).team_a === 'object' &&
-    typeof (value as Match).team_b === 'object'
+    typeof match.id === 'number' &&
+    typeof match.kickoff_time === 'string' &&
+    typeof match.stage === 'string' &&
+    typeof match.status === 'string' &&
+    isTeam(match.team_a) &&
+    isTeam(match.team_b) &&
+    (typeof match.group === 'string' || match.group === null) &&
+    (typeof match.venue === 'string' || match.venue === null) &&
+    (typeof match.team_a_score === 'number' || match.team_a_score === null) &&
+    (typeof match.team_b_score === 'number' || match.team_b_score === null) &&
+    (typeof match.elapsed === 'number' || match.elapsed === null)
   );
 }
 
