@@ -19,9 +19,12 @@ function isMatch(value: unknown): value is Match {
     isTeam(match.team_b) &&
     (typeof match.group === 'string' || match.group === null) &&
     (typeof match.venue === 'string' || match.venue === null) &&
+    (typeof match.elapsed === 'number' || match.elapsed === null) &&
     (typeof match.team_a_score === 'number' || match.team_a_score === null) &&
     (typeof match.team_b_score === 'number' || match.team_b_score === null) &&
-    (typeof match.elapsed === 'number' || match.elapsed === null)
+    (typeof match.city === 'string' || match.city === null) &&
+    (typeof match.team_a_penalties === 'number' || match.team_a_penalties === null) &&
+    (typeof match.team_b_penalties === 'number' || match.team_b_penalties === null)
   );
 }
 
