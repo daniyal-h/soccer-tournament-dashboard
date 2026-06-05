@@ -1,5 +1,16 @@
 import type { TimelineMarkerConfig } from '@/types/matchEvent';
 
+export const VALID_EVENT_TYPES = new Set([
+  'goal',
+  'own_goal',
+  'penalty_goal',
+  'penalty_miss',
+  'assist',
+  'yellow_card',
+  'red_card',
+  'substitution',
+]);
+
 export const MIN_TIMELINE_EVENT_GAP_PX = 32;
 export const MAX_TIMELINE_EVENT_GAP_PX = 96;
 export const TIMELINE_PIXELS_PER_5_MINUTES = 18;
