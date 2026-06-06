@@ -16,12 +16,12 @@ vi.mock('./teamsApi', () => ({
 }));
 
 vi.mock('./playersApi', () => ({
-  isPlayer: vi.fn(),
+  isPlayerSummary: vi.fn(),
 }));
 
 const mockApiGet = vi.mocked(apiGet);
 const mockIsTeam = vi.mocked(isTeam);
-const mockIsPlayer = vi.mocked(isPlayerSummary);
+const mockIsPlayerSummary = vi.mocked(isPlayerSummary);
 
 const validTeam = {
   id: 1,
@@ -77,6 +77,7 @@ describe('getMatchEvents', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockIsTeam.mockReturnValue(true);
+    mockIsPlayerSummary.mockReturnValue(true);
   });
 
   it('calls the match events endpoint with the provided match id', async () => {
@@ -158,7 +159,6 @@ describe('getMatchEvents', () => {
   });
 
   it.each([
-    ['team', undefined],
     ['player', undefined],
     ['secondary_player', undefined],
     ['player_name', undefined],
@@ -186,13 +186,6 @@ describe('getMatchEvents', () => {
     ['secondary_player_external_id', '456'],
     ['extra_minute', '2'],
   ])('rejects an event when nullable number field %s has the wrong type', async (field, value) => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ [field]: value })]);
-  });
-
-  it.each([
-    ['player', 'Kevin De Bruyne'],
-    ['secondary_player', 20],
-  ])('rejects an event when nullable object field %s has the wrong type', async (field, value) => {
     await expectInvalidMatchEventResponse([createRawMatchEvent({ [field]: value })]);
   });
 
@@ -243,6 +236,18 @@ describe('getMatchEvents', () => {
       createMatchEvent(),
       createRawMatchEvent({ minute: '24' }),
     ]);
+  });
+
+  it('rejects an event when team validation fails', async () => {
+    mockIsTeam.mockReturnValue(false);
+
+    await expectInvalidMatchEventResponse([createMatchEvent()]);
+  });
+
+  it('rejects an event when player validation fails', async () => {
+    mockIsPlayerSummary.mockReturnValue(false);
+
+    await expectInvalidMatchEventResponse([createMatchEvent()]);
   });
 
   it('propagates apiGet errors', async () => {
