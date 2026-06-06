@@ -7,7 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { type Standing } from '@/types/standings';
+import { type Standing } from '@/types/standing';
 
 import { COLUMNS } from '@/constants/standings';
 
@@ -57,11 +57,13 @@ export function GroupTable({ rows }: GroupTableProps) {
             {/* Display the logo and name if space permits */}
             <TableCell className="min-w-0 px-2 py-1">
               <div className="flex min-w-0 items-center gap-2">
-                <img
-                  src={row.team.logo_url}
-                  alt={row.team.name}
-                  className="h-4 w-4 shrink-0 object-contain"
-                />
+                {row.team.logo_url && (
+                  <img
+                    src={row.team.logo_url}
+                    alt={row.team.name}
+                    className="h-4 w-4 shrink-0 object-contain"
+                  />
+                )}
 
                 <span className="hidden sm:inline max-w-32 truncate font-medium">
                   {row.team.name}

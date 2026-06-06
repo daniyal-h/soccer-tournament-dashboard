@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type Match } from '@/types/matches';
+import { type Match } from '@/types/match';
 
 import MatchCard from './MatchCard';
 
@@ -36,7 +37,8 @@ const baseMatch: Match = {
   stage: 'group',
   group: 'A',
   status: 'scheduled',
-  venue: 'Estadio Azteca, Mexico City',
+  venue: 'Estadio Azteca',
+  city: 'Mexico City',
   team_a: {
     id: 10,
     name: 'Canada',
@@ -49,18 +51,31 @@ const baseMatch: Match = {
     short_name: 'BRA',
     logo_url: 'https://example.com/brazil.png',
   },
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_b_penalties: null,
+  team_a_penalties: null,
 };
+
+function renderMatchCard(match: Match) {
+  return render(
+    <MemoryRouter>
+      <MatchCard match={match} />
+    </MemoryRouter>,
+  );
+}
 
 describe('MatchCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetMatchCenterDisplay.mockReturnValue('19:00');
-    mockGetMatchMetaDisplay.mockReturnValue('Group A · Estadio Azteca, Mexico City');
+    mockGetMatchMetaDisplay.mockReturnValue('Group A · Estadio Azteca · Mexico City');
     mockGetWinnerSide.mockReturnValue(null);
   });
 
   it('renders both team names and logos', () => {
-    render(<MatchCard match={baseMatch} />);
+    renderMatchCard(baseMatch);
 
     expect(screen.getByText('Canada')).toBeInTheDocument();
     expect(screen.getByText('Brazil')).toBeInTheDocument();
@@ -76,10 +91,10 @@ describe('MatchCard', () => {
   });
 
   it('renders the computed center display and match metadata', () => {
-    render(<MatchCard match={baseMatch} />);
+    renderMatchCard(baseMatch);
 
     expect(screen.getByText('19:00')).toBeInTheDocument();
-    expect(screen.getByText('Group A · Estadio Azteca, Mexico City')).toBeInTheDocument();
+    expect(screen.getByText('Group A · Estadio Azteca · Mexico City')).toBeInTheDocument();
 
     expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
     expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
@@ -94,7 +109,7 @@ describe('MatchCard', () => {
       team_b_score: 1,
     };
 
-    render(<MatchCard match={liveMatch} />);
+    renderMatchCard(liveMatch);
 
     expect(screen.getByTestId('match-status-badge')).toHaveTextContent('live-67');
   });
@@ -102,31 +117,29 @@ describe('MatchCard', () => {
   it('still renders scores or special center text returned by the helper', () => {
     mockGetMatchCenterDisplay.mockReturnValue('2 - 1');
 
-    render(
-      <MatchCard
-        match={{
-          ...baseMatch,
-          status: 'finished',
-          team_a_score: 2,
-          team_b_score: 1,
-        }}
-      />,
-    );
+    const match: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 2,
+      team_b_score: 1,
+    };
+
+    renderMatchCard(match);
 
     expect(screen.getByText('2 - 1')).toBeInTheDocument();
   });
 
-  it('keeps the card keyboard-focusable', () => {
-    render(<MatchCard match={baseMatch} />);
+  it('renders the card as a keyboard-focusable link', () => {
+    renderMatchCard(baseMatch);
 
-    const card = screen.getByText('Canada').closest('[tabindex="0"]');
+    const link = screen.getByRole('link');
 
-    expect(card).toBeInTheDocument();
-    expect(card).toHaveClass('cursor-pointer');
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/matches/1');
   });
 
   it('renders the home team before the center display and the away team after it', () => {
-    render(<MatchCard match={baseMatch} />);
+    renderMatchCard(baseMatch);
 
     const teamA = screen.getByText('Canada');
     const center = screen.getByText('19:00');
@@ -137,18 +150,16 @@ describe('MatchCard', () => {
   });
 
   it('does not mute either team when there is no winner', () => {
-    render(
-      <MatchCard
-        match={{
-          ...baseMatch,
-          status: 'scheduled',
-          team_a_score: undefined,
-          team_b_score: undefined,
-          team_a_penalties: undefined,
-          team_b_penalties: undefined,
-        }}
-      />,
-    );
+    const match: Match = {
+      ...baseMatch,
+      status: 'scheduled',
+      team_a_score: null,
+      team_b_score: null,
+      team_a_penalties: null,
+      team_b_penalties: null,
+    };
+
+    renderMatchCard(match);
 
     expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
     expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
@@ -158,16 +169,14 @@ describe('MatchCard', () => {
   });
 
   it('does not mute either team for a finished draw without penalties', () => {
-    render(
-      <MatchCard
-        match={{
-          ...baseMatch,
-          status: 'finished',
-          team_a_score: 1,
-          team_b_score: 1,
-        }}
-      />,
-    );
+    const match: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 1,
+      team_b_score: 1,
+    };
+
+    renderMatchCard(match);
 
     expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('font-semibold');
     expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
@@ -186,7 +195,7 @@ describe('MatchCard', () => {
       team_b_penalties: 2,
     };
 
-    render(<MatchCard match={penaltyMatch} />);
+    renderMatchCard(penaltyMatch);
 
     expect(screen.getByText('0 - 0')).toBeInTheDocument();
     expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
@@ -198,16 +207,14 @@ describe('MatchCard', () => {
   it('bolds team A and mutes team B when team A wins', () => {
     mockGetWinnerSide.mockReturnValue('team_a');
 
-    render(
-      <MatchCard
-        match={{
-          ...baseMatch,
-          status: 'finished',
-          team_a_score: 2,
-          team_b_score: 1,
-        }}
-      />,
-    );
+    const match: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 2,
+      team_b_score: 1,
+    };
+
+    renderMatchCard(match);
 
     expect(screen.getByText(baseMatch.team_a.name)).toHaveClass('font-semibold');
     expect(screen.getByText(baseMatch.team_a.name)).not.toHaveClass('text-muted-foreground');
@@ -218,18 +225,16 @@ describe('MatchCard', () => {
 
   it('bolds team B and mutes team A when team B wins on penalties', () => {
     mockGetWinnerSide.mockReturnValue('team_b');
-    render(
-      <MatchCard
-        match={{
-          ...baseMatch,
-          status: 'finished',
-          team_a_score: 0,
-          team_b_score: 0,
-          team_a_penalties: 4,
-          team_b_penalties: 5,
-        }}
-      />,
-    );
+    const match: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 0,
+      team_b_score: 0,
+      team_a_penalties: 4,
+      team_b_penalties: 5,
+    };
+
+    renderMatchCard(match);
 
     expect(screen.getByText(baseMatch.team_b.name)).toHaveClass('font-semibold');
     expect(screen.getByText(baseMatch.team_b.name)).not.toHaveClass('text-muted-foreground');

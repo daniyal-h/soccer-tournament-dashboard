@@ -1,4 +1,4 @@
-import { type MatchGroup } from '@/types/matches';
+import { type MatchGroup } from '@/types/match';
 
 import { Accordion } from '../ui/accordion';
 import MatchDayAccordion from './MatchDayAccordion';

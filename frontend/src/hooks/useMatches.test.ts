@@ -39,6 +39,11 @@ const createMatch = (id: number) => ({
   status: 'scheduled' as const,
   venue: `Venue ${id}`,
   city: `City ${id}`,
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 });
 
 describe('useMatches', () => {

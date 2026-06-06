@@ -1,7 +1,5 @@
 import { type Team } from './team';
 
-export type MatchStatus = 'scheduled' | 'live' | 'finished' | 'postponed' | 'cancelled';
-
 export type MatchStage =
   | 'group'
   | 'round_of_32'
@@ -12,26 +10,32 @@ export type MatchStage =
   | 'final'
   | 'other';
 
+export type MatchStatus = 'scheduled' | 'live' | 'finished' | 'postponed' | 'cancelled';
+
 export interface Match {
   id: number;
   team_a: Team;
   team_b: Team;
   kickoff_time: string;
   stage: MatchStage;
-  group?: string;
+  group: string | null;
   status: MatchStatus;
-  venue?: string;
-  city?: string;
-  elapsed?: number;
-  team_a_score?: number;
-  team_b_score?: number;
-  team_a_penalties?: number;
-  team_b_penalties?: number;
+  venue: string | null;
+  city: string | null;
+  elapsed: number | null;
+  team_a_score: number | null;
+  team_b_score: number | null;
+  team_a_penalties: number | null;
+  team_b_penalties: number | null;
 }
 
 export interface MatchGroup {
   day: string;
   matches: Match[];
+}
+
+export interface MatchOptions {
+  match_id: number;
 }
 
 export interface MatchesOptions {

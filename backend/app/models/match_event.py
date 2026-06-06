@@ -1,8 +1,8 @@
 import enum
 
 from sqlalchemy import Enum as SQLAlchemyEnum
-from sqlalchemy import ForeignKey, Index, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import ForeignKey, Index, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import Base, TimestampMixin
 
@@ -12,10 +12,11 @@ class EventType(str, enum.Enum):
     OWN_GOAL = "own_goal"
     PENALTY_GOAL = "penalty_goal"
     PENALTY_MISS = "penalty_miss"
-    ASSIST = "assist"
     YELLOW_CARD = "yellow_card"
     RED_CARD = "red_card"
     SUBSTITUTION = "substitution"
+    VAR = "var"
+    OTHER = "other"
 
 
 class MatchEvent(TimestampMixin, Base):
@@ -26,10 +27,14 @@ class MatchEvent(TimestampMixin, Base):
     match_id: Mapped[int] = mapped_column(ForeignKey("matches.id"), nullable=False)
     team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
 
-    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), nullable=False)
-
-    # only populated for substitutions (player coming on) and goal-linked assists
+    player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
     secondary_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), nullable=True)
+
+    player_external_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    secondary_player_external_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    secondary_player_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     event_type: Mapped[EventType] = mapped_column(
         SQLAlchemyEnum(
@@ -41,6 +46,14 @@ class MatchEvent(TimestampMixin, Base):
     )
 
     minute: Mapped[int] = mapped_column(Integer, nullable=False)
+    extra_minute: Mapped[int | None] = mapped_column(Integer, nullable=True)
+
+    detail: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    comments: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
+    team = relationship("Team")
+    player = relationship("Player", foreign_keys=[player_id])
+    secondary_player = relationship("Player", foreign_keys=[secondary_player_id])
 
     __table_args__ = (
         Index("ix_match_events_match_id", "match_id"),

@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match, MatchGroup } from '@/types/matches';
+import type { Match, MatchGroup } from '@/types/match';
 
 import MatchDayAccordion from './MatchDayAccordion';
 import MatchSchedule from './MatchSchedule';
@@ -57,6 +57,11 @@ const createMatch = (id: number): Match => ({
   status: 'scheduled',
   venue: `Venue ${id}`,
   city: `City ${id}`,
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 });
 
 const createGroup = (day: string, matchIds: number[]): MatchGroup => ({

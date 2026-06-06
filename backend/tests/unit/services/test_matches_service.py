@@ -6,7 +6,8 @@ import pytest
 from app.api.v1.services import matches as matches_service
 from app.constants.jobs import JobName
 from app.models.match import Match, StageType, StatusType
-from app.schemas.matches import MatchesRefreshRow
+from app.schemas.errors import NotFoundError
+from app.schemas.matches import MatchRefreshRow
 from app.utils.cache_helper import MATCHES_LIVE_TTL
 
 
@@ -16,6 +17,37 @@ def make_match(match_id: int = 1, status: StatusType = StatusType.SCHEDULED) -> 
         status=status,
         kickoff_time=datetime(2026, 6, 11, 19, 0, tzinfo=UTC),
     )
+
+
+def test_get_match_returns_match_when_found(mocker):
+    db = Mock()
+    match = Mock()
+
+    get_match_by_id = mocker.patch.object(
+        matches_service.matches_repo,
+        "get_match_by_id",
+        return_value=match,
+    )
+
+    result = matches_service.get_match(db, 42)
+
+    assert result is match
+    get_match_by_id.assert_called_once_with(db, 42)
+
+
+def test_get_match_raises_not_found_when_match_does_not_exist(mocker):
+    db = Mock()
+
+    get_match_by_id = mocker.patch.object(
+        matches_service.matches_repo,
+        "get_match_by_id",
+        return_value=None,
+    )
+
+    with pytest.raises(NotFoundError, match="Match 42 was not found"):
+        matches_service.get_match(db, 42)
+
+    get_match_by_id.assert_called_once_with(db, 42)
 
 
 def test_get_matches_returns_cached_matches_without_querying_dependencies(mocker):
@@ -436,8 +468,8 @@ def make_row(
     external_team_a_id: int = 10,
     external_team_b_id: int = 20,
     stage: StageType = StageType.GROUP,
-) -> MatchesRefreshRow:
-    return MatchesRefreshRow(
+) -> MatchRefreshRow:
+    return MatchRefreshRow(
         external_api_id=external_api_id,
         external_team_a_id=external_team_a_id,
         external_team_b_id=external_team_b_id,

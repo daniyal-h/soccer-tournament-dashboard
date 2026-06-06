@@ -1,4 +1,4 @@
-import type { Standing } from '@/types/standings';
+import type { Standing } from '@/types/standing';
 
 import GroupCard from './GroupCard';
 

@@ -1,4 +1,4 @@
-import type { Standing, StandingsOptions } from '@/types/standings';
+import type { Standing, StandingsOptions } from '@/types/standing';
 
 import { apiGet } from './client';
 

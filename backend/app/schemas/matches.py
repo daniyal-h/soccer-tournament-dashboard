@@ -4,13 +4,13 @@ from pydantic import BaseModel, ConfigDict
 
 from app.models.match import StageType, StatusType
 
-from .teams import TeamsSummary
+from .teams import TeamSummary
 
 
-class MatchesResponse(BaseModel):
+class MatchResponse(BaseModel):
     id: int
-    team_a: TeamsSummary
-    team_b: TeamsSummary
+    team_a: TeamSummary
+    team_b: TeamSummary
     kickoff_time: datetime
     stage: StageType
     group: str | None = None
@@ -26,7 +26,7 @@ class MatchesResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class MatchesRefreshRow(BaseModel):
+class MatchRefreshRow(BaseModel):
     external_api_id: int
     external_team_a_id: int
     external_team_b_id: int

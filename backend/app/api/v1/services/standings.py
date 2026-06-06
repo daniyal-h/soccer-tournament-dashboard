@@ -53,6 +53,7 @@ def get_standings(
 
     # return cache, if group specified, return just the group data
     if cached:
+        # cache stores serialized response-shaped data
         if group:
             if group not in cached:
                 raise NotFoundError(f"Group {group} not found in tournament {tournament_id}")

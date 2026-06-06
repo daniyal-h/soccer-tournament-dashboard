@@ -1,6 +1,6 @@
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import MatchCard from './MatchCard';
 

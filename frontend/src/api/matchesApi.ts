@@ -1,24 +1,47 @@
-import { type Match, type MatchesOptions } from '@/types/matches';
+import { type Match, type MatchesOptions, type MatchOptions } from '@/types/match';
 
 import { apiGet } from './client';
+import { isTeamSummary } from './teamsApi';
 
 function isMatch(value: unknown): value is Match {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const match = value as Match;
+
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    (value as Match).team_a !== null &&
-    (value as Match).team_b !== null &&
-    typeof (value as Match).id === 'number' &&
-    typeof (value as Match).kickoff_time === 'string' &&
-    typeof (value as Match).stage === 'string' &&
-    typeof (value as Match).status === 'string' &&
-    typeof (value as Match).team_a === 'object' &&
-    typeof (value as Match).team_b === 'object'
+    typeof match.id === 'number' &&
+    typeof match.kickoff_time === 'string' &&
+    typeof match.stage === 'string' &&
+    typeof match.status === 'string' &&
+    isTeamSummary(match.team_a) &&
+    isTeamSummary(match.team_b) &&
+    (typeof match.group === 'string' || match.group === null) &&
+    (typeof match.venue === 'string' || match.venue === null) &&
+    (typeof match.elapsed === 'number' || match.elapsed === null) &&
+    (typeof match.team_a_score === 'number' || match.team_a_score === null) &&
+    (typeof match.team_b_score === 'number' || match.team_b_score === null) &&
+    (typeof match.city === 'string' || match.city === null) &&
+    (typeof match.team_a_penalties === 'number' || match.team_a_penalties === null) &&
+    (typeof match.team_b_penalties === 'number' || match.team_b_penalties === null)
   );
 }
 
 function isMatchesResponse(value: unknown): value is Match[] {
   return Array.isArray(value) && value.every(isMatch);
+}
+
+export async function getMatch({ match_id }: MatchOptions) {
+  const path = `/matches/${match_id}`;
+
+  const data = await apiGet<Match>(path);
+
+  if (!isMatch(data)) {
+    throw new Error('Invalid match response');
+  }
+
+  return data;
 }
 
 export async function getMatches({ tournament_id }: MatchesOptions) {

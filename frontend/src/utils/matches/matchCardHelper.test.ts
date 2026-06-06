@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import {
   getMatchCenterDisplay,
@@ -42,6 +42,11 @@ const createMatch = (overrides: Partial<Match> = {}): Match => ({
   status: 'scheduled',
   venue: 'BC Place',
   city: 'Vancouver',
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
   ...overrides,
 });
 
@@ -52,6 +57,7 @@ const baseMatch: Match = {
   group: 'A',
   status: 'scheduled',
   venue: 'Estadio Azteca, Mexico City',
+  city: null,
   team_a: {
     id: 10,
     name: 'Canada',
@@ -64,6 +70,11 @@ const baseMatch: Match = {
     short_name: 'BRA',
     logo_url: 'https://example.com/brazil.png',
   },
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 };
 
 describe('matchCardHelper', () => {

@@ -1,4 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
+import type React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import MatchStatusBadge from './MatchStatusBadge';
@@ -46,68 +47,85 @@ describe('MatchStatusBadge', () => {
     vi.clearAllMocks();
   });
 
-  it('renders scheduled status text', () => {
-    render(<MatchStatusBadge status="scheduled" />);
+  it.each([
+    { status: 'scheduled' as const, text: 'Scheduled', className: 'scheduled-class' },
+    { status: 'finished' as const, text: 'Finished', className: 'finished-class' },
+    { status: 'postponed' as const, text: 'Postponed', className: 'postponed-class' },
+    { status: 'cancelled' as const, text: 'Cancelled', className: 'cancelled-class' },
+  ])('renders the $status status without elapsed time', ({ status, text, className }) => {
+    render(<MatchStatusBadge status={status} elapsed={null} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent('Scheduled');
+    const badge = screen.getByTestId('badge');
+
+    expect(badge).toHaveTextContent(new RegExp(`^${text}$`));
+    expect(badge).toHaveClass('text-medium', className);
+    expect(badge).not.toHaveTextContent('·');
+    expect(badge).not.toHaveTextContent("'");
   });
 
-  it('renders finished status text', () => {
-    render(<MatchStatusBadge status="finished" />);
+  it('applies the shared base class and live-specific class', () => {
+    render(<MatchStatusBadge status="live" elapsed={null} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent('Finished');
+    expect(screen.getByTestId('badge')).toHaveClass('text-medium', 'live-class');
   });
 
-  it('applies the shared base class and status-specific class', () => {
-    render(<MatchStatusBadge status="scheduled" />);
+  it.each([0, 1, 45, 67, 90])(
+    'renders elapsed minute %i for live matches with exact separator and apostrophe',
+    (elapsed) => {
+      render(<MatchStatusBadge status="live" elapsed={elapsed} />);
 
-    expect(screen.getByTestId('badge')).toHaveClass('text-medium', 'scheduled-class');
+      expect(screen.getByTestId('badge')).toHaveTextContent(new RegExp(`^Live · ${elapsed}'$`));
+    },
+  );
+
+  it('does not render elapsed punctuation for live matches when elapsed is null', () => {
+    render(<MatchStatusBadge status="live" elapsed={null} />);
+
+    const badge = screen.getByTestId('badge');
+
+    expect(badge).toHaveTextContent(/^Live$/);
+    expect(badge).not.toHaveTextContent('·');
+    expect(badge).not.toHaveTextContent("'");
   });
 
-  it('renders elapsed time for live matches', () => {
-    render(<MatchStatusBadge status="live" elapsed={67} />);
+  it.each([
+    { status: 'scheduled' as const, text: 'Scheduled' },
+    { status: 'finished' as const, text: 'Finished' },
+    { status: 'postponed' as const, text: 'Postponed' },
+    { status: 'cancelled' as const, text: 'Cancelled' },
+  ])('ignores elapsed time for $status matches', ({ status, text }) => {
+    render(<MatchStatusBadge status={status} elapsed={90} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent("Live · 67'");
+    const badge = screen.getByTestId('badge');
+
+    expect(badge).toHaveTextContent(new RegExp(`^${text}$`));
+    expect(badge).not.toHaveTextContent('90');
+    expect(badge).not.toHaveTextContent('·');
+    expect(badge).not.toHaveTextContent("'");
   });
 
-  it('renders elapsed time when live match is at minute zero', () => {
-    render(<MatchStatusBadge status="live" elapsed={0} />);
+  it('updates the displayed elapsed time when the live elapsed prop changes', () => {
+    const { rerender } = render(<MatchStatusBadge status="live" elapsed={12} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent("Live · 0'");
+    expect(screen.getByTestId('badge')).toHaveTextContent(/^Live · 12'$/);
+
+    rerender(<MatchStatusBadge status="live" elapsed={13} />);
+
+    expect(screen.getByTestId('badge')).toHaveTextContent(/^Live · 13'$/);
+    expect(screen.getByTestId('badge')).not.toHaveTextContent("12'");
   });
 
-  it('does not render elapsed time when live match elapsed is undefined', () => {
-    render(<MatchStatusBadge status="live" />);
+  it('removes elapsed time when a live match changes from a minute value to null', () => {
+    const { rerender } = render(<MatchStatusBadge status="live" elapsed={34} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent('Live');
-    expect(screen.getByTestId('badge')).not.toHaveTextContent("'");
-  });
+    expect(screen.getByTestId('badge')).toHaveTextContent(/^Live · 34'$/);
 
-  it('does not render elapsed time when live match elapsed is null', () => {
-    render(<MatchStatusBadge status="live" elapsed={null as never} />);
+    rerender(<MatchStatusBadge status="live" elapsed={null} />);
 
-    expect(screen.getByTestId('badge')).toHaveTextContent('Live');
-    expect(screen.getByTestId('badge')).not.toHaveTextContent("'");
-  });
+    const badge = screen.getByTestId('badge');
 
-  it('does not render elapsed time for non-live matches even when elapsed exists', () => {
-    render(<MatchStatusBadge status="finished" elapsed={90} />);
-
-    expect(screen.getByTestId('badge')).toHaveTextContent('Finished');
-    expect(screen.getByTestId('badge')).not.toHaveTextContent('90');
-  });
-
-  it('renders postponed status correctly', () => {
-    render(<MatchStatusBadge status="postponed" />);
-
-    expect(screen.getByTestId('badge')).toHaveTextContent('Postponed');
-    expect(screen.getByTestId('badge')).toHaveClass('postponed-class');
-  });
-
-  it('renders cancelled status correctly', () => {
-    render(<MatchStatusBadge status="cancelled" />);
-
-    expect(screen.getByTestId('badge')).toHaveTextContent('Cancelled');
-    expect(screen.getByTestId('badge')).toHaveClass('cancelled-class');
+    expect(badge).toHaveTextContent(/^Live$/);
+    expect(badge).not.toHaveTextContent('34');
+    expect(badge).not.toHaveTextContent('·');
   });
 });

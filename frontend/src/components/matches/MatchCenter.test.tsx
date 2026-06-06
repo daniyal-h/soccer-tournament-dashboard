@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type Match } from '@/types/matches';
+import { type Match } from '@/types/match';
 
 import MatchCenter from './MatchCenter';
 
@@ -33,6 +33,11 @@ const baseMatch: Match = {
     short_name: 'BRA',
     logo_url: 'https://example.com/brazil.png',
   },
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 };
 
 describe('MatchCenter', () => {

@@ -1,7 +1,7 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match } from '@/types/matches';
+import type { Match } from '@/types/match';
 
 import MatchCard from './MatchCard';
 import MatchDayAccordion from './MatchDayAccordion';
@@ -62,6 +62,11 @@ const createMatch = (id: number): Match => ({
   status: 'scheduled',
   venue: `Venue ${id}`,
   city: `City ${id}`,
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
 });
 
 describe('MatchDayAccordion', () => {

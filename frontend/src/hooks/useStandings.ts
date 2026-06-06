@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { getStandings } from '@/api/standingsApi';
 
-import type { Standing, StandingsOptions } from '@/types/standings';
+import type { Standing, StandingsOptions } from '@/types/standing';
 
 import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 
