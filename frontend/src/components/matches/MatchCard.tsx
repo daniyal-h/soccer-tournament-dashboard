@@ -44,11 +44,11 @@ const MatchCard = ({ match }: MatchCardProps) => {
                   {match.team_a.name}
                 </span>
 
-                <img
+                {match.team_a.logo_url && <img
                   src={match.team_a.logo_url}
                   alt={match.team_a.name}
                   className="h-6 w-6 shrink-0 object-contain"
-                />
+                />}
               </div>
 
               {/* time, score or special status */}
@@ -58,11 +58,11 @@ const MatchCard = ({ match }: MatchCardProps) => {
 
               {/* team B details */}
               <div className="flex items-center justify-start gap-2 min-w-0">
-                <img
+                {match.team_b.logo_url && <img
                   src={match.team_b.logo_url}
                   alt={match.team_b.name}
                   className="h-6 w-6 shrink-0 object-contain"
-                />
+                />}
                 <span
                   className={cn(
                     winner === 'team_b' && 'font-semibold',
