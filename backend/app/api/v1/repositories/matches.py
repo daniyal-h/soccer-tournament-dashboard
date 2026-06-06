@@ -1,7 +1,9 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.models.match import Match
+from app.models.match import Match, StatusType
 
 
 def get_match_by_id(db: Session, match_id: int) -> Match | None:
@@ -78,3 +80,13 @@ def upsert_matches_in_tournament(
 
     db.execute(stmt)
     db.commit()
+
+
+def get_all_live_matches(db: Session, now: datetime) -> list[Match]:
+    return (
+        db.query(Match)
+        .where(Match.status.in_([StatusType.LIVE, StatusType.SCHEDULED])) 
+        .where(Match.kickoff_time <= now)  # match started
+        .where(Match.kickoff_time >= now - timedelta(hours=3))  # corrupted old matches excluded
+        .all()
+    )

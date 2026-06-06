@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -114,3 +116,9 @@ def update_matches(db: Session, tournament_id: int, data: list[MatchRefreshRow])
     except Exception as _:
         refresh_jobs_repo.complete_job(db, job_id, success=False)
         raise
+
+
+def get_live_matches(db: Session) -> list[Match]:
+    now = datetime.now(UTC)
+
+    return matches_repo.get_all_live_matches(db, now)
