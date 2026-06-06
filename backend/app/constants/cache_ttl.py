@@ -30,7 +30,8 @@ MATCHES_DEFAULT_TTL = timedelta(minutes=30)
 MATCH_EVENTS_LIVE_KNOCKOUT_TTL = timedelta(minutes=1)
 MATCH_EVENTS_LIVE_GROUP_TTL = timedelta(minutes=1)
 
-MATCH_EVENTS_SCHEDULED_TTL = timedelta(minutes=5)
+MATCH_EVENTS_SOON_SCHEDULED_TTL = timedelta(minutes=5)
+MATCH_EVENTS_FAR_SCHEDULED_TTL = timedelta(hours=12)
 
 MATCH_EVENTS_FINISHED_TTL = timedelta(days=1)
 
