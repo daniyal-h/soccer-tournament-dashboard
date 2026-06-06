@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
+from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
-from backend.app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
@@ -78,12 +78,9 @@ def refresh_matches(
     return refresh_matches_service.refresh_matches(db, margin_days)
 
 
-@router.post('/tournaments/refresh-match-events')
+@router.post("/tournaments/refresh-match-events")
 @limiter.limit("3/minute")
-def refresh_match_events(
-    request: Request,
-    db: Annotated[Session, Depends(get_db)]
-) -> dict:
+def refresh_match_events(request: Request, db: Annotated[Session, Depends(get_db)]) -> dict:
     """
     Refresh match events for all currently live matches.
     Return a summary of successful refreshes and failures.
