@@ -23,7 +23,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
       to={`/matches/${match.id}`}
       state={{ from: '/schedule' }}
       style={{ textDecoration: 'none' }}
-      className='block min-w-0'
+      className="block min-w-0"
     >
       <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md">
         <CardContent className="min-w-0 space-y-3 p-4">
@@ -81,7 +81,9 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </div>
 
             {/* stage and venue */}
-            <p className="max-w-full truncate text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
+            <p className="max-w-full truncate text-sm text-muted-foreground">
+              {getMatchMetaDisplay(match)}
+            </p>
           </div>
         </CardContent>
       </Card>

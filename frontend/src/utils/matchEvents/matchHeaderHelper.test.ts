@@ -64,9 +64,7 @@ describe('formatStage', () => {
   });
 
   it('uses configured stage label for knockout matches even when group exists', () => {
-    expect(formatStage(makeMatch({ stage: 'final', group: 'A' }))).toBe(
-      MATCH_STAGE_LABELS.final,
-    );
+    expect(formatStage(makeMatch({ stage: 'final', group: 'A' }))).toBe(MATCH_STAGE_LABELS.final);
   });
 
   it('uses configured stage label for other matches', () => {
