@@ -23,6 +23,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
       to={`/matches/${match.id}`}
       state={{ from: '/schedule' }}
       style={{ textDecoration: 'none' }}
+      className='block min-w-0'
     >
       <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md">
         <CardContent className="min-w-0 space-y-3 p-4">
@@ -31,7 +32,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
             <MatchStatusBadge status={match.status} elapsed={match.elapsed} />
 
             {/* teams, score/time */}
-            <div className="grid w-fit grid-cols-[1fr_auto_1fr] items-center">
+            <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
               {/* team A details */}
               <div className="flex items-center justify-end gap-2 min-w-0">
                 <span
@@ -44,11 +45,13 @@ const MatchCard = ({ match }: MatchCardProps) => {
                   {match.team_a.name}
                 </span>
 
-                {match.team_a.logo_url && <img
-                  src={match.team_a.logo_url}
-                  alt={match.team_a.name}
-                  className="h-6 w-6 shrink-0 object-contain"
-                />}
+                {match.team_a.logo_url && (
+                  <img
+                    src={match.team_a.logo_url}
+                    alt={match.team_a.name}
+                    className="h-6 w-6 shrink-0 object-contain"
+                  />
+                )}
               </div>
 
               {/* time, score or special status */}
@@ -58,11 +61,13 @@ const MatchCard = ({ match }: MatchCardProps) => {
 
               {/* team B details */}
               <div className="flex items-center justify-start gap-2 min-w-0">
-                {match.team_b.logo_url && <img
-                  src={match.team_b.logo_url}
-                  alt={match.team_b.name}
-                  className="h-6 w-6 shrink-0 object-contain"
-                />}
+                {match.team_b.logo_url && (
+                  <img
+                    src={match.team_b.logo_url}
+                    alt={match.team_b.name}
+                    className="h-6 w-6 shrink-0 object-contain"
+                  />
+                )}
                 <span
                   className={cn(
                     winner === 'team_b' && 'font-semibold',
@@ -76,9 +81,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </div>
 
             {/* stage and venue */}
-            <p className="max-w-full truncate text-sm text-muted-foreground">
-              {getMatchMetaDisplay(match)}
-            </p>
+            <p className="max-w-full truncate text-sm text-muted-foreground">{getMatchMetaDisplay(match)}</p>
           </div>
         </CardContent>
       </Card>
