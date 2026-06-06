@@ -10,7 +10,7 @@ import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
  * Logic for getting a specified match.
  * Catch and wrap known errors.
  */
-export function useMatch(match_id?: number) {
+export function useMatch(match_id: number) {
   const [match, setMatch] = useState<Match | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
