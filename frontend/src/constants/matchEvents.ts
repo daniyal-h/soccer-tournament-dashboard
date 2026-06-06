@@ -9,6 +9,8 @@ export const VALID_EVENT_TYPES = new Set([
   'yellow_card',
   'red_card',
   'substitution',
+  'var',
+  'other',
 ]);
 
 export const MIN_TIMELINE_EVENT_GAP_PX = 32;
