@@ -1042,7 +1042,6 @@ VALUES
 ((SELECT id FROM matches WHERE external_api_id = 979138), (SELECT id FROM teams WHERE external_api_id = 31), 129678, NULL, 'Azzedine Ounahi', NULL, 'yellow_card', 69, NULL, 'Yellow Card', 'Argument'),
 ((SELECT id FROM matches WHERE external_api_id = 979138), (SELECT id FROM teams WHERE external_api_id = 31), 8587, NULL, 'Selim Amallah', NULL, 'yellow_card', 84, NULL, 'Yellow Card', 'Foul'),
 ((SELECT id FROM matches WHERE external_api_id = 979138), (SELECT id FROM teams WHERE external_api_id = 3), 1330, 14395, 'M. Oršić', 'K. Jakić', 'substitution', 90, 5, 'Substitution 4', NULL),
-((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 2295, NULL, 'Olivier Giroud', NULL, 'yellow_card', -5, NULL, 'Yellow Card', 'Argument'),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 154, NULL, 'L. Messi', NULL, 'penalty_goal', 23, NULL, 'Penalty', NULL),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 266, 6716, 'Á. Di María', 'A. Mac Allister', 'goal', 36, NULL, 'Normal Goal', NULL),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 2295, 21509, 'O. Giroud', 'M. Thuram', 'substitution', 41, NULL, 'Substitution 1', NULL),
@@ -1055,6 +1054,7 @@ VALUES
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 278, NULL, 'K. Mbappé', NULL, 'penalty_goal', 80, NULL, 'Penalty', NULL),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 278, 21509, 'K. Mbappé', 'M. Thuram', 'goal', 81, NULL, 'Normal Goal', NULL),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 21509, NULL, 'Marcus Thuram', NULL, 'yellow_card', 87, NULL, 'Yellow Card', 'Simulation'),
+((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 2295, NULL, 'Olivier Giroud', NULL, 'yellow_card', 90, 5, 'Yellow Card', 'Argument'),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 1493, NULL, 'Marcos Acuña', NULL, 'yellow_card', 90, 8, 'Yellow Card', 'Foul'),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 6503, 2468, 'N. Molina', 'G. Montiel', 'substitution', 90, NULL, 'Substitution 2', NULL),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 272, 22254, 'A. Rabiot', 'Y. Fofana', 'substitution', 96, NULL, 'Substitution 5', NULL),
@@ -1075,7 +1075,7 @@ VALUES
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 875, NULL, 'P. Dybala', NULL, 'penalty_goal', 120, 4, 'Penalty', 'Penalty Shootout'),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 1271, NULL, 'A. Tchouaméni', NULL, 'penalty_miss', 120, 5, 'Missed Penalty', 'Penalty Shootout'),
 ((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 271, NULL, 'L. Paredes', NULL, 'penalty_goal', 120, 6, 'Penalty', 'Penalty Shootout'),
-((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 21104, NULL, 'R. Kolo Muani', NULL, 'penalty_goal', 120, 7, 'Penalty', 'Penalty Shootout'),
-((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 19599, NULL, 'Emiliano Martínez', NULL, 'yellow_card', 126, NULL, 'Yellow Card', NULL);
+((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 26), 19599, NULL, 'Emiliano Martínez', NULL, 'yellow_card', 120, 6, 'Yellow Card', NULL),
+((SELECT id FROM matches WHERE external_api_id = 979139), (SELECT id FROM teams WHERE external_api_id = 2), 21104, NULL, 'R. Kolo Muani', NULL, 'penalty_goal', 120, 7, 'Penalty', 'Penalty Shootout');
 
 COMMIT TRANSACTION;
