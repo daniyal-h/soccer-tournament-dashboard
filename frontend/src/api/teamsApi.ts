@@ -1,6 +1,6 @@
 import type { Team } from '@/types/team';
 
-export function isTeam(value: unknown): value is Team {
+export function isTeamSummary(value: unknown): value is Team {
   if (typeof value !== 'object' || value === null) {
     return false;
   }

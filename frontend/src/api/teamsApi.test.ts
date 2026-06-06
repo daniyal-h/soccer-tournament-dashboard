@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isTeam } from './teamsApi';
+import { isTeamSummary } from './teamsApi';
 
 function omitKey<T extends Record<string, unknown>, K extends keyof T>(
   object: T,
@@ -20,12 +20,12 @@ describe('isTeam', () => {
   };
 
   it('returns true for a valid team', () => {
-    expect(isTeam(validTeam)).toBe(true);
+    expect(isTeamSummary(validTeam)).toBe(true);
   });
 
   it('allows null logo url', () => {
     expect(
-      isTeam({
+      isTeamSummary({
         ...validTeam,
         logo_url: null,
       }),
@@ -33,19 +33,19 @@ describe('isTeam', () => {
   });
 
   it('rejects null', () => {
-    expect(isTeam(null)).toBe(false);
+    expect(isTeamSummary(null)).toBe(false);
   });
 
   it('rejects non-object values', () => {
-    expect(isTeam('team')).toBe(false);
-    expect(isTeam(1)).toBe(false);
-    expect(isTeam(true)).toBe(false);
-    expect(isTeam(undefined)).toBe(false);
+    expect(isTeamSummary('team')).toBe(false);
+    expect(isTeamSummary(1)).toBe(false);
+    expect(isTeamSummary(true)).toBe(false);
+    expect(isTeamSummary(undefined)).toBe(false);
   });
 
   it('rejects invalid id', () => {
     expect(
-      isTeam({
+      isTeamSummary({
         ...validTeam,
         id: '1',
       }),
@@ -53,12 +53,12 @@ describe('isTeam', () => {
   });
 
   it('rejects missing id', () => {
-    expect(isTeam(omitKey(validTeam, 'id'))).toBe(false);
+    expect(isTeamSummary(omitKey(validTeam, 'id'))).toBe(false);
   });
 
   it('rejects invalid name', () => {
     expect(
-      isTeam({
+      isTeamSummary({
         ...validTeam,
         name: null,
       }),
@@ -66,12 +66,12 @@ describe('isTeam', () => {
   });
 
   it('rejects missing name', () => {
-    expect(isTeam(omitKey(validTeam, 'name'))).toBe(false);
+    expect(isTeamSummary(omitKey(validTeam, 'name'))).toBe(false);
   });
 
   it('rejects invalid short name', () => {
     expect(
-      isTeam({
+      isTeamSummary({
         ...validTeam,
         short_name: 123,
       }),
@@ -79,12 +79,12 @@ describe('isTeam', () => {
   });
 
   it('rejects missing short name', () => {
-    expect(isTeam(omitKey(validTeam, 'short_name'))).toBe(false);
+    expect(isTeamSummary(omitKey(validTeam, 'short_name'))).toBe(false);
   });
 
   it('rejects invalid logo url', () => {
     expect(
-      isTeam({
+      isTeamSummary({
         ...validTeam,
         logo_url: 123,
       }),
@@ -92,6 +92,6 @@ describe('isTeam', () => {
   });
 
   it('rejects missing logo url', () => {
-    expect(isTeam(omitKey(validTeam, 'logo_url'))).toBe(false);
+    expect(isTeamSummary(omitKey(validTeam, 'logo_url'))).toBe(false);
   });
 });

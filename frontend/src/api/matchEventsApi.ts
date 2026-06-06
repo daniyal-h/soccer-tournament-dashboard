@@ -4,7 +4,11 @@ import { VALID_EVENT_TYPES } from '@/constants/matchEvents';
 
 import { apiGet } from './client';
 import { isPlayerSummary } from './playersApi';
-import { isTeam } from './teamsApi';
+import { isTeamSummary } from './teamsApi';
+
+function isNullablePlayerSummary(value: unknown) {
+  return value === null || (value !== undefined && isPlayerSummary(value));
+}
 
 function isMatchEvent(value: unknown): value is MatchEvent {
   if (typeof value !== 'object' || value === null) {
@@ -14,9 +18,9 @@ function isMatchEvent(value: unknown): value is MatchEvent {
   const event = value as MatchEvent;
 
   return (
-    isTeam(event.team) &&
-    (event.player === null || isPlayerSummary(event.player)) &&
-    (event.secondary_player === null || isPlayerSummary(event.secondary_player)) &&
+    isTeamSummary(event.team) &&
+    isNullablePlayerSummary(event.player) &&
+    isNullablePlayerSummary(event.secondary_player) &&
     VALID_EVENT_TYPES.has(event.event_type) &&
     typeof event.minute === 'number' &&
     (event.extra_minute === null || typeof event.extra_minute === 'number') &&

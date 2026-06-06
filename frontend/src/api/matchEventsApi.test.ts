@@ -5,14 +5,14 @@ import type { MatchEvent } from '@/types/matchEvent';
 import { apiGet } from './client';
 import { getMatchEvents } from './matchEventsApi';
 import { isPlayerSummary } from './playersApi';
-import { isTeam } from './teamsApi';
+import { isTeamSummary } from './teamsApi';
 
 vi.mock('./client', () => ({
   apiGet: vi.fn(),
 }));
 
 vi.mock('./teamsApi', () => ({
-  isTeam: vi.fn(),
+  isTeamSummary: vi.fn(),
 }));
 
 vi.mock('./playersApi', () => ({
@@ -20,7 +20,7 @@ vi.mock('./playersApi', () => ({
 }));
 
 const mockApiGet = vi.mocked(apiGet);
-const mockIsTeam = vi.mocked(isTeam);
+const mockIsTeamSummary = vi.mocked(isTeamSummary);
 const mockIsPlayerSummary = vi.mocked(isPlayerSummary);
 
 const validTeam = {
@@ -76,7 +76,7 @@ async function expectInvalidMatchEventResponse(response: unknown) {
 describe('getMatchEvents', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsTeam.mockReturnValue(true);
+    mockIsTeamSummary.mockReturnValue(true);
     mockIsPlayerSummary.mockReturnValue(true);
   });
 
@@ -134,12 +134,12 @@ describe('getMatchEvents', () => {
 
     await getMatchEvents({ match_id: 1 });
 
-    expect(mockIsTeam).toHaveBeenCalledOnce();
-    expect(mockIsTeam).toHaveBeenCalledWith(validTeam);
+    expect(mockIsTeamSummary).toHaveBeenCalledOnce();
+    expect(mockIsTeamSummary).toHaveBeenCalledWith(validTeam);
   });
 
   it('rejects the event when isTeam rejects the nested team', async () => {
-    mockIsTeam.mockReturnValueOnce(false);
+    mockIsTeamSummary.mockReturnValueOnce(false);
 
     await expectInvalidMatchEventResponse([createMatchEvent()]);
   });
@@ -239,7 +239,7 @@ describe('getMatchEvents', () => {
   });
 
   it('rejects an event when team validation fails', async () => {
-    mockIsTeam.mockReturnValue(false);
+    mockIsTeamSummary.mockReturnValue(false);
 
     await expectInvalidMatchEventResponse([createMatchEvent()]);
   });

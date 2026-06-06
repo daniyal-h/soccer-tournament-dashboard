@@ -6,18 +6,18 @@ import type { Match } from '@/types/match';
 import type { Team } from '@/types/team';
 
 import { apiGet } from './client';
-import { isTeam } from './teamsApi';
+import { isTeamSummary } from './teamsApi';
 
 vi.mock('./client', () => ({
   apiGet: vi.fn(),
 }));
 
 vi.mock('./teamsApi', () => ({
-  isTeam: vi.fn(),
+  isTeamSummary: vi.fn(),
 }));
 
 const mockApiGet = vi.mocked(apiGet);
-const mockIsTeam = vi.mocked(isTeam);
+const mockIsTeamSummary = vi.mocked(isTeamSummary);
 
 const validTeamA: Team = {
   id: 1,
@@ -51,7 +51,7 @@ const validMatch: Match = {
 };
 
 function mockTeamGuard() {
-  mockIsTeam.mockImplementation((value: unknown): value is Team => {
+  mockIsTeamSummary.mockImplementation((value: unknown): value is Team => {
     if (typeof value !== 'object' || value === null) {
       return false;
     }
@@ -95,9 +95,9 @@ describe('getMatch', () => {
     const result = await getMatch({ match_id: 1 });
 
     expect(result).toEqual(validMatch);
-    expect(mockIsTeam).toHaveBeenCalledTimes(2);
-    expect(mockIsTeam).toHaveBeenNthCalledWith(1, validTeamA);
-    expect(mockIsTeam).toHaveBeenNthCalledWith(2, validTeamB);
+    expect(mockIsTeamSummary).toHaveBeenCalledTimes(2);
+    expect(mockIsTeamSummary).toHaveBeenNthCalledWith(1, validTeamA);
+    expect(mockIsTeamSummary).toHaveBeenNthCalledWith(2, validTeamB);
   });
 
   it('accepts nullable match fields when they are explicitly null', async () => {
@@ -233,9 +233,9 @@ describe('getMatches', () => {
     const result = await getMatches({ tournament_id: 1 });
 
     expect(result).toEqual([validMatch]);
-    expect(mockIsTeam).toHaveBeenCalledTimes(2);
-    expect(mockIsTeam).toHaveBeenNthCalledWith(1, validTeamA);
-    expect(mockIsTeam).toHaveBeenNthCalledWith(2, validTeamB);
+    expect(mockIsTeamSummary).toHaveBeenCalledTimes(2);
+    expect(mockIsTeamSummary).toHaveBeenNthCalledWith(1, validTeamA);
+    expect(mockIsTeamSummary).toHaveBeenNthCalledWith(2, validTeamB);
   });
 
   it('accepts an empty matches response without validating teams', async () => {
@@ -244,7 +244,7 @@ describe('getMatches', () => {
     const result = await getMatches({ tournament_id: 1 });
 
     expect(result).toEqual([]);
-    expect(mockIsTeam).not.toHaveBeenCalled();
+    expect(mockIsTeamSummary).not.toHaveBeenCalled();
   });
 
   it('rejects a non-array response', async () => {

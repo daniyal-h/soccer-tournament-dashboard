@@ -1,7 +1,7 @@
 import { type Match, type MatchesOptions, type MatchOptions } from '@/types/match';
 
 import { apiGet } from './client';
-import { isTeam } from './teamsApi';
+import { isTeamSummary } from './teamsApi';
 
 function isMatch(value: unknown): value is Match {
   if (typeof value !== 'object' || value === null) {
@@ -15,8 +15,8 @@ function isMatch(value: unknown): value is Match {
     typeof match.kickoff_time === 'string' &&
     typeof match.stage === 'string' &&
     typeof match.status === 'string' &&
-    isTeam(match.team_a) &&
-    isTeam(match.team_b) &&
+    isTeamSummary(match.team_a) &&
+    isTeamSummary(match.team_b) &&
     (typeof match.group === 'string' || match.group === null) &&
     (typeof match.venue === 'string' || match.venue === null) &&
     (typeof match.elapsed === 'number' || match.elapsed === null) &&
