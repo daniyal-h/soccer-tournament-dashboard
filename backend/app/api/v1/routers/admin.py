@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
+from backend.app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
@@ -58,7 +59,7 @@ def refresh_standings(
 ) -> dict:
     """
     Refresh all refreshable standings (live tournaments) with the given margin.
-    Return a summary of successful refreshes and any fails as a dict.
+    Return a summary of successful refreshes and failures.
     """
     return refresh_standings_service.refresh_standings(db, margin_days)
 
@@ -72,9 +73,22 @@ def refresh_matches(
 ) -> dict:
     """
     Refresh all refreshable matches (live tournaments) with the given margin.
-    Return a summary of successful refreshes and any fails as a dict.
+    Return a summary of successful refreshes and failures.
     """
     return refresh_matches_service.refresh_matches(db, margin_days)
+
+
+@router.post('/tournaments/refresh-match-events')
+@limiter.limit("3/minute")
+def refresh_match_events(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)]
+) -> dict:
+    """
+    Refresh match events for all currently live matches.
+    Return a summary of successful refreshes and failures.
+    """
+    return refresh_match_events_service.refresh_match_events(db)
 
 
 @router.put("/tournaments/{tournament_id}/matches")
