@@ -26,3 +26,22 @@ class MatchEventResponse(BaseModel):
     comments: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MatchEventRefreshRow(BaseModel):
+    external_match_id: int
+    external_team_id: int
+
+    player_external_id: int | None = None
+    secondary_player_external_id: int | None = None
+
+    player_name: str | None = None
+    secondary_player_name: str | None = None
+
+    event_type: EventType
+
+    minute: int
+    extra_minute: int | None = None
+
+    detail: str | None = None
+    comments: str | None = None
