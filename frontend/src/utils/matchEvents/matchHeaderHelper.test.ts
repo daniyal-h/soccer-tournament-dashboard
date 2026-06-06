@@ -10,14 +10,14 @@ const teamA = {
   id: 1,
   name: 'Canada',
   short_name: 'CAN',
-  logo_url: '',
+  logo_url: null,
 };
 
 const teamB = {
   id: 2,
   name: 'Belgium',
   short_name: 'BEL',
-  logo_url: '',
+  logo_url: null,
 };
 
 const baseMatch: Match = {

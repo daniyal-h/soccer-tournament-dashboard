@@ -21,14 +21,14 @@ const teamA = {
   id: 1,
   name: 'Canada',
   short_name: 'CAN',
-  logo_url: '',
+  logo_url: null,
 };
 
 const teamB = {
   id: 2,
   name: 'Belgium',
   short_name: 'BEL',
-  logo_url: '',
+  logo_url: null,
 };
 
 const player = {
@@ -70,8 +70,15 @@ const baseEvent: MatchEvent = {
   team: teamA,
   player,
   secondary_player: secondaryPlayer,
+  player_name: null,
+  secondary_player_name: null,
+  player_external_id: null,
+  secondary_player_external_id: null,
   event_type: 'goal',
   minute: 12,
+  extra_minute: null,
+  detail: null,
+  comments: null,
 };
 
 function makeEvent(overrides: Partial<MatchEvent> = {}): MatchEvent {
