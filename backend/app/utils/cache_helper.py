@@ -2,9 +2,11 @@ from datetime import UTC, date, datetime, time, timedelta
 
 from app.constants.cache_ttl import (
     MATCH_EVENTS_DEFAULT_TTL,
+    MATCH_EVENTS_FAR_SCHEDULED_TTL,
     MATCH_EVENTS_FINISHED_TTL,
     MATCH_EVENTS_LIVE_GROUP_TTL,
     MATCH_EVENTS_LIVE_KNOCKOUT_TTL,
+    MATCH_EVENTS_SOON_SCHEDULED_TTL,
     MATCHES_CANCELLED_TTL,
     MATCHES_DEFAULT_TTL,
     MATCHES_EMPTY_TTL,
@@ -125,18 +127,32 @@ def get_matches_ttl(
     return MATCHES_DEFAULT_TTL
 
 
-def get_match_events_ttl(match: Match, match_events: list[MatchEvent]) -> timedelta:
+def get_match_events_ttl(
+    match: Match,
+    match_events: list[MatchEvent],
+    now: datetime | None = None,
+) -> timedelta:
     """
     Determine the cache TTL for match events.
 
     A match's status determines its TTL.
     Live matches have the lowest TTL.
+    Scheduled matches are cached longer when far away, but refreshed more often
+    within one day of kickoff.
     """
+    current_time = now or datetime.now(UTC)
+
     if match.status == StatusType.LIVE:
         if match.stage == StageType.GROUP:
             return MATCH_EVENTS_LIVE_GROUP_TTL
 
         return MATCH_EVENTS_LIVE_KNOCKOUT_TTL
+
+    if match.status == StatusType.SCHEDULED:
+        if match.kickoff_time - current_time <= timedelta(days=1):
+            return MATCH_EVENTS_SOON_SCHEDULED_TTL
+
+        return MATCH_EVENTS_FAR_SCHEDULED_TTL
 
     if match.status == StatusType.FINISHED and match_events:
         # ensure match events exist to prevent caching empty finished data for too long
