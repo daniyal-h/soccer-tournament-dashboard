@@ -33,7 +33,7 @@ class RefreshSummary:
         *,
         tournament_id: int,
         external_api_id: int,
-        season: str,
+        season: str | None,
         reason: str,
     ) -> None:
         self.failures.append(
