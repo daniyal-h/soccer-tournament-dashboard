@@ -17,7 +17,7 @@ def get_match_events(db: Session, match: Match) -> list[MatchEvent]:
     cache_key = f"match_events:{match.id}"
     cached = cache_service.get_cache(db, cache_key)
 
-    if cached:
+    if cached is not None:
         # cache stores serialized response-shaped data
         return cached
 

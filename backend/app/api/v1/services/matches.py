@@ -37,7 +37,7 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
     cache_key = f"matches:{tournament_id}"
     cached = cache_service.get_cache(db, cache_key)
 
-    if cached:
+    if cached is not None:
         # cache stores serialized response-shaped data
         return cached
 
