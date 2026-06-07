@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { MatchEvent } from '@/types/matchEvent';
+import type { MatchEvent, MatchEventsResponse } from '@/types/matchEvent';
+import type { ResponseMetadata } from '@/types/metadata';
 
 import { apiGet } from './client';
 import { getMatchEvents } from './matchEventsApi';
@@ -37,6 +38,13 @@ const validPlayer = {
   photo_url: null,
 };
 
+const validMetadata: ResponseMetadata = {
+  is_delayed: false,
+  last_updated: '2026-06-07T12:00:00Z',
+  last_successful_refresh: '2026-06-07T11:58:00Z',
+  message: null,
+};
+
 function createMatchEvent(overrides: Partial<MatchEvent> = {}): MatchEvent {
   return {
     team: validTeam,
@@ -67,7 +75,24 @@ function createRawMatchEvent(overrides: Record<string, unknown> = {}) {
   };
 }
 
-async function expectInvalidMatchEventResponse(response: unknown) {
+function createMatchEventsResponse(
+  overrides: Partial<MatchEventsResponse> = {},
+): MatchEventsResponse {
+  return {
+    data: [createMatchEvent()],
+    metadata: validMetadata,
+    ...overrides,
+  };
+}
+
+function createRawMatchEventsResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    ...createMatchEventsResponse(),
+    ...overrides,
+  };
+}
+
+async function expectInvalidMatchEventsResponse(response: unknown) {
   mockApiGet.mockResolvedValueOnce(response);
 
   await expect(getMatchEvents({ match_id: 1 })).rejects.toThrow('Invalid match events response');
@@ -81,7 +106,7 @@ describe('getMatchEvents', () => {
   });
 
   it('calls the match events endpoint with the provided match id', async () => {
-    mockApiGet.mockResolvedValueOnce([]);
+    mockApiGet.mockResolvedValueOnce(createMatchEventsResponse({ data: [] }));
 
     await getMatchEvents({ match_id: 9 });
 
@@ -89,25 +114,27 @@ describe('getMatchEvents', () => {
     expect(mockApiGet).toHaveBeenCalledWith('/matches/9/events');
   });
 
-  it('returns match events when the API response is valid', async () => {
-    const event = createMatchEvent();
+  it('returns the match events response when the API response is valid', async () => {
+    const response = createMatchEventsResponse();
 
-    mockApiGet.mockResolvedValueOnce([event]);
-
-    const result = await getMatchEvents({ match_id: 1 });
-
-    expect(result).toEqual([event]);
-  });
-
-  it('accepts an empty match events response', async () => {
-    mockApiGet.mockResolvedValueOnce([]);
+    mockApiGet.mockResolvedValueOnce(response);
 
     const result = await getMatchEvents({ match_id: 1 });
 
-    expect(result).toEqual([]);
+    expect(result).toEqual(response);
   });
 
-  it('accepts required nullable fields when they are null', async () => {
+  it('accepts an empty match events data array with metadata', async () => {
+    const response = createMatchEventsResponse({ data: [] });
+
+    mockApiGet.mockResolvedValueOnce(response);
+
+    const result = await getMatchEvents({ match_id: 1 });
+
+    expect(result).toEqual(response);
+  });
+
+  it('accepts required nullable event fields when they are null', async () => {
     const eventWithNulls = createMatchEvent({
       player: null,
       secondary_player: null,
@@ -119,18 +146,53 @@ describe('getMatchEvents', () => {
       player_external_id: null,
       secondary_player_external_id: null,
     });
+    const response = createMatchEventsResponse({ data: [eventWithNulls] });
 
-    mockApiGet.mockResolvedValueOnce([eventWithNulls]);
+    mockApiGet.mockResolvedValueOnce(response);
 
     const result = await getMatchEvents({ match_id: 1 });
 
-    expect(result).toEqual([eventWithNulls]);
+    expect(result).toEqual(response);
   });
 
-  it('validates the nested team through isTeam', async () => {
+  it('accepts nullable metadata fields when they are null', async () => {
+    const response = createMatchEventsResponse({
+      metadata: {
+        is_delayed: true,
+        last_updated: null,
+        last_successful_refresh: null,
+        message: null,
+      },
+    });
+
+    mockApiGet.mockResolvedValueOnce(response);
+
+    const result = await getMatchEvents({ match_id: 1 });
+
+    expect(result).toEqual(response);
+  });
+
+  it('accepts a delayed metadata message', async () => {
+    const response = createMatchEventsResponse({
+      metadata: {
+        is_delayed: true,
+        last_updated: null,
+        last_successful_refresh: '2026-06-07T11:58:00Z',
+        message: 'Live match events may be delayed because the latest refresh failed.',
+      },
+    });
+
+    mockApiGet.mockResolvedValueOnce(response);
+
+    const result = await getMatchEvents({ match_id: 1 });
+
+    expect(result).toEqual(response);
+  });
+
+  it('validates the nested team through isTeamSummary', async () => {
     const event = createMatchEvent();
 
-    mockApiGet.mockResolvedValueOnce([event]);
+    mockApiGet.mockResolvedValueOnce(createMatchEventsResponse({ data: [event] }));
 
     await getMatchEvents({ match_id: 1 });
 
@@ -138,24 +200,83 @@ describe('getMatchEvents', () => {
     expect(mockIsTeamSummary).toHaveBeenCalledWith(validTeam);
   });
 
-  it('rejects the event when isTeam rejects the nested team', async () => {
-    mockIsTeamSummary.mockReturnValueOnce(false);
+  it('validates non-null nested players through isPlayerSummary', async () => {
+    const event = createMatchEvent();
 
-    await expectInvalidMatchEventResponse([createMatchEvent()]);
+    mockApiGet.mockResolvedValueOnce(createMatchEventsResponse({ data: [event] }));
+
+    await getMatchEvents({ match_id: 1 });
+
+    expect(mockIsPlayerSummary).toHaveBeenCalledTimes(2);
+    expect(mockIsPlayerSummary).toHaveBeenNthCalledWith(1, event.player);
+    expect(mockIsPlayerSummary).toHaveBeenNthCalledWith(2, event.secondary_player);
   });
 
-  it('rejects a non-array response', async () => {
-    await expectInvalidMatchEventResponse({
-      message: 'not an array',
+  it('does not validate null players through isPlayerSummary', async () => {
+    const event = createMatchEvent({
+      player: null,
+      secondary_player: null,
     });
+
+    mockApiGet.mockResolvedValueOnce(createMatchEventsResponse({ data: [event] }));
+
+    await getMatchEvents({ match_id: 1 });
+
+    expect(mockIsPlayerSummary).not.toHaveBeenCalled();
+  });
+
+  it('rejects the old array-only response shape', async () => {
+    await expectInvalidMatchEventsResponse([createMatchEvent()]);
+  });
+
+  it('rejects a non-object response', async () => {
+    await expectInvalidMatchEventsResponse('not an object');
+  });
+
+  it('rejects a response with missing data', async () => {
+    await expectInvalidMatchEventsResponse(createRawMatchEventsResponse({ data: undefined }));
+  });
+
+  it('rejects a response with non-array data', async () => {
+    await expectInvalidMatchEventsResponse(
+      createRawMatchEventsResponse({ data: { 0: createMatchEvent() } }),
+    );
+  });
+
+  it('rejects a response with missing metadata', async () => {
+    await expectInvalidMatchEventsResponse(createRawMatchEventsResponse({ metadata: undefined }));
+  });
+
+  it('rejects a response with null metadata', async () => {
+    await expectInvalidMatchEventsResponse(createRawMatchEventsResponse({ metadata: null }));
+  });
+
+  it.each([
+    ['is_delayed', null],
+    ['is_delayed', 'false'],
+    ['last_updated', undefined],
+    ['last_updated', 123],
+    ['last_successful_refresh', undefined],
+    ['last_successful_refresh', 123],
+    ['message', undefined],
+    ['message', 123],
+  ])('rejects metadata when %s is invalid', async (field, value) => {
+    await expectInvalidMatchEventsResponse(
+      createRawMatchEventsResponse({
+        metadata: {
+          ...validMetadata,
+          [field]: value,
+        },
+      }),
+    );
   });
 
   it('rejects a response containing null instead of an event', async () => {
-    await expectInvalidMatchEventResponse([null]);
+    await expectInvalidMatchEventsResponse(createMatchEventsResponse({ data: [null as never] }));
   });
 
   it('rejects a response containing a primitive instead of an event', async () => {
-    await expectInvalidMatchEventResponse(['goal']);
+    await expectInvalidMatchEventsResponse(createMatchEventsResponse({ data: ['goal' as never] }));
   });
 
   it.each([
@@ -169,7 +290,9 @@ describe('getMatchEvents', () => {
     ['detail', undefined],
     ['comments', undefined],
   ])('rejects an event when nullable field %s is undefined', async (field, value) => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ [field]: value })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createRawMatchEvent({ [field]: value }) as MatchEvent] }),
+    );
   });
 
   it.each([
@@ -178,7 +301,9 @@ describe('getMatchEvents', () => {
     ['detail', 1],
     ['comments', 1],
   ])('rejects an event when nullable string field %s has the wrong type', async (field, value) => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ [field]: value })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createRawMatchEvent({ [field]: value }) as MatchEvent] }),
+    );
   });
 
   it.each([
@@ -186,19 +311,33 @@ describe('getMatchEvents', () => {
     ['secondary_player_external_id', '456'],
     ['extra_minute', '2'],
   ])('rejects an event when nullable number field %s has the wrong type', async (field, value) => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ [field]: value })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createRawMatchEvent({ [field]: value }) as MatchEvent] }),
+    );
   });
 
   it('rejects an event when event_type is missing', async () => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ event_type: undefined })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({
+        data: [createRawMatchEvent({ event_type: undefined }) as MatchEvent],
+      }),
+    );
   });
 
-  it('rejects an event when event_type is not a string', async () => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ event_type: null })]);
+  it('rejects an event when event_type is null', async () => {
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({
+        data: [createRawMatchEvent({ event_type: null }) as MatchEvent],
+      }),
+    );
   });
 
   it('rejects an event when event_type is not one of the supported values', async () => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ event_type: 'banana_card' })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({
+        data: [createRawMatchEvent({ event_type: 'banana_card' }) as MatchEvent],
+      }),
+    );
   });
 
   it('accepts each supported event type', async () => {
@@ -213,41 +352,52 @@ describe('getMatchEvents', () => {
       'var',
       'other',
     ];
-
     const events = eventTypes.map((eventType) => createMatchEvent({ event_type: eventType }));
+    const response = createMatchEventsResponse({ data: events });
 
-    mockApiGet.mockResolvedValueOnce(events);
+    mockApiGet.mockResolvedValueOnce(response);
 
     const result = await getMatchEvents({ match_id: 1 });
 
-    expect(result).toEqual(events);
+    expect(result).toEqual(response);
   });
 
   it('rejects an event when minute is missing', async () => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ minute: undefined })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({
+        data: [createRawMatchEvent({ minute: undefined }) as MatchEvent],
+      }),
+    );
   });
 
   it('rejects an event when minute is not a number', async () => {
-    await expectInvalidMatchEventResponse([createRawMatchEvent({ minute: '24' })]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createRawMatchEvent({ minute: '24' }) as MatchEvent] }),
+    );
   });
 
   it('rejects the whole response when any event in the array is invalid', async () => {
-    await expectInvalidMatchEventResponse([
-      createMatchEvent(),
-      createRawMatchEvent({ minute: '24' }),
-    ]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({
+        data: [createMatchEvent(), createRawMatchEvent({ minute: '24' }) as MatchEvent],
+      }),
+    );
   });
 
   it('rejects an event when team validation fails', async () => {
     mockIsTeamSummary.mockReturnValue(false);
 
-    await expectInvalidMatchEventResponse([createMatchEvent()]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createMatchEvent()] }),
+    );
   });
 
   it('rejects an event when player validation fails', async () => {
     mockIsPlayerSummary.mockReturnValue(false);
 
-    await expectInvalidMatchEventResponse([createMatchEvent()]);
+    await expectInvalidMatchEventsResponse(
+      createMatchEventsResponse({ data: [createMatchEvent()] }),
+    );
   });
 
   it('propagates apiGet errors', async () => {
