@@ -1,60 +1,40 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import { getMatches } from '@/api/matchesApi';
 
-import type { MatchesOptions, MatchGroup } from '@/types/match';
+import type { MatchesOptions } from '@/types/match';
 
-import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
+import { QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+
+import { useApiQuery } from './useApiQuery';
+
 import { groupMatchesByDay } from '@/utils/matches/matchCardHelper';
 
-/**
- * Logic for getting and processing available matches
- * Catch and wrap known errors, otherwise keep them generic
- */
 export function useMatches({ tournament_id }: MatchesOptions) {
-  const [groupedMatches, setGroupedMatches] = useState<MatchGroup[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [emptyState, setEmptyState] = useState<string | null>(null);
-  const [canRetry, setCanRetry] = useState(true);
+  const query = useApiQuery({
+    queryKey: queryKeys.matches.all(tournament_id),
+    queryFn: () => getMatches({ tournament_id }),
+    staleTime: QUERY_STALE_TIMES.matches,
+    errorMessages: {
+      notFound: 'No matches were found.',
+      generic: 'Failed to load matches.',
+    },
+  });
 
-  const loadMatches = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setEmptyState(null);
-    setCanRetry(true);
+  const matches = query.data ?? [];
+  const groupedMatches = groupMatchesByDay(matches);
 
-    return getMatches({ tournament_id })
-      .then((matches) => {
-        if (matches.length === 0) {
-          setGroupedMatches([]);
-          setEmptyState('The schedule will appear once tournament data is available.');
-          setCanRetry(false);
-          return;
-        }
+  // don't show empty state while errors exist
+  const emptyState =
+    !query.isInitialLoading && !query.displayError && matches.length === 0
+      ? 'The schedule will appear once tournament data is available.'
+      : null;
 
-        setGroupedMatches(groupMatchesByDay(matches));
-      })
-      .catch((err) => {
-        setGroupedMatches([]);
-
-        const errorState = getApiErrorState(err, {
-          notFound: 'No matches were found.',
-          generic: 'Failed to load matches.',
-        });
-
-        setError(new Error(errorState.message));
-        setCanRetry(errorState.canRetry);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [tournament_id]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadMatches();
-  }, [loadMatches]);
-
-  return { groupedMatches, isLoading, error, emptyState, refetch: loadMatches, canRetry };
+  return {
+    groupedMatches,
+    isLoading: query.isInitialLoading,
+    isRefreshing: query.isRefreshing,
+    error: query.displayError,
+    emptyState,
+    refetch: query.retry,
+    canRetry: query.canRetry,
+  };
 }
