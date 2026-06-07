@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { Card } from '@/components/ui/card';
 
 import type { Match } from '@/types/match';
@@ -12,12 +14,12 @@ interface MatchHeaderProps {
   metadata: ResponseMetadata;
 }
 
-function getRelativeTime(timestamp: string) {
+function getRelativeTime(timestamp: string, now: number) {
   const msPerMinute = 60 * 1000;
   const msPerHour = msPerMinute * 60;
   const msPerDay = msPerHour * 24;
 
-  const elapsed = new Date(timestamp).getTime() - Date.now(); // Negative if in the past
+  const elapsed = new Date(timestamp).getTime() - now; // Negative if in the past
   const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
 
   if (Math.abs(elapsed) < msPerMinute) {
@@ -33,7 +35,20 @@ function getRelativeTime(timestamp: string) {
 
 const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
   const hasPenalties = match.team_a_penalties != null && match.team_b_penalties != null;
-  const displayedLastUpdated = metadata.last_updated ?? metadata.last_successful_refresh
+  const displayedLastUpdated = metadata.last_updated ?? metadata.last_successful_refresh;
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!displayedLastUpdated) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [displayedLastUpdated]);
 
   return (
     <Card className="mb-10 p-6 text-center shadow-sm">
@@ -96,7 +111,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
 
         {displayedLastUpdated && (
           <div className="mt-4 text-left text-xs">
-            <p>Last updated: {getRelativeTime(displayedLastUpdated)}</p>
+            <p>Last updated: {getRelativeTime(displayedLastUpdated, now)}</p>
 
             {metadata.message && <p className="mt-1 italic">{metadata.message}</p>}
           </div>
