@@ -7,4 +7,9 @@ def get_optional_player_id_from_external_id(db: Session, external_api_id: int | 
     if external_api_id is None:
         return None
 
-    return players_repo.get_player_from_external_id(db, external_api_id).id
+    player = players_repo.get_player_from_external_id(db, external_api_id)
+
+    if not player:
+        return None
+    
+    return player.id
