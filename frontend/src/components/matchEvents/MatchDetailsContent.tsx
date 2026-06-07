@@ -29,7 +29,7 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
     emptyState: eventsEmptyState,
     refetch: refetchEvents,
     canRetry: canRetryEvents,
-  } = useMatchEvents({ match_id: matchId });
+  } = useMatchEvents({ match_id: matchId, isLive: match?.status === 'live' });
 
   if (isMatchLoading) {
     return <MatchHeaderSkeleton />;

@@ -37,6 +37,7 @@ export interface MatchEventsResponse {
 
 export interface MatchEventsOptions {
   match_id: number;
+  isLive?: boolean;
 }
 
 export interface EventConfig {
