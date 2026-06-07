@@ -112,7 +112,7 @@ def refresh_match_events(db: Session) -> dict:
     Track job in refresh jobs table.
     """
     job_id = refresh_jobs_repo.create_job(db, JobName.MATCH_EVENTS_REFRESH)
-    summary = RefreshSummary(resource_name='Match Events')
+    summary = RefreshSummary(resource_name="Match Events")
 
     try:
         # entire command fails, mark job failed and crash

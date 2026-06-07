@@ -11,5 +11,5 @@ def get_optional_player_id_from_external_id(db: Session, external_api_id: int | 
 
     if not player:
         return None
-    
+
     return player.id

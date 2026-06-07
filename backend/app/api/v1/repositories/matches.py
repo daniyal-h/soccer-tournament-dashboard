@@ -85,7 +85,7 @@ def upsert_matches_in_tournament(
 def get_all_live_matches(db: Session, now: datetime) -> list[Match]:
     return (
         db.query(Match)
-        .where(Match.status.in_([StatusType.LIVE, StatusType.SCHEDULED])) 
+        .where(Match.status.in_([StatusType.LIVE, StatusType.SCHEDULED]))
         .where(Match.kickoff_time <= now)  # match started
         .where(Match.kickoff_time >= now - timedelta(hours=3))  # corrupted old matches excluded
         .all()
