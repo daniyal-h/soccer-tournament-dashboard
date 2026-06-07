@@ -43,6 +43,7 @@ export function useMatchEvents({ match_id }: MatchEventsOptions) {
       })
       .catch((err) => {
         setMatchEvents([]);
+        setMetadata(null);
 
         const errorState = getApiErrorState(err, {
           notFound: 'No events were found for this match.',
