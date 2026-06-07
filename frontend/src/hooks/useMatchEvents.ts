@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getMatchEvents } from '@/api/matchEventsApi';
 
 import type { MatchEvent, MatchEventsOptions } from '@/types/matchEvent';
+import type { ResponseMetadata } from '@/types/metadata';
 
 import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
 
@@ -12,6 +13,7 @@ import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
  */
 export function useMatchEvents({ match_id }: MatchEventsOptions) {
   const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
+  const [metadata, setMetadata] = useState<ResponseMetadata | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [emptyState, setEmptyState] = useState<string | null>(null);
@@ -24,7 +26,12 @@ export function useMatchEvents({ match_id }: MatchEventsOptions) {
     setCanRetry(true);
 
     return getMatchEvents({ match_id })
-      .then((matchEvents) => {
+      .then((matchEventsResponse) => {
+        const { data: matchEvents, metadata } = matchEventsResponse;
+
+        setMetadata(metadata);
+
+        // check for empty state
         if (matchEvents.length === 0) {
           setMatchEvents([]);
           setEmptyState('Match events will appear once the data is available.');
@@ -55,5 +62,13 @@ export function useMatchEvents({ match_id }: MatchEventsOptions) {
     void loadMatchEvents();
   }, [loadMatchEvents]);
 
-  return { matchEvents, isLoading, error, emptyState, refetch: loadMatchEvents, canRetry };
+  return {
+    matchEvents,
+    metadata,
+    isLoading,
+    error,
+    emptyState,
+    refetch: loadMatchEvents,
+    canRetry,
+  };
 }
