@@ -26,6 +26,7 @@ type ApiQueryResult<TData> = UseQueryResult<TData, Error> & {
   canRetry: boolean;
   isInitialLoading: boolean;
   isRefreshing: boolean;
+  retry: () => Promise<void>;
 };
 
 export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
@@ -48,5 +49,8 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
     canRetry: errorState?.canRetry ?? false,
     isInitialLoading: query.isPending && !query.data,
     isRefreshing: query.isFetching && !!query.data,
+    retry: async () => {
+      await query.refetch();
+    },
   };
 }
