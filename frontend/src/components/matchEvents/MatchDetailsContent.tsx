@@ -1,6 +1,8 @@
 import { useMatch } from '@/hooks/useMatch';
 import { useMatchEvents } from '@/hooks/useMatchEvents';
 
+import { EMPTY_RESPONSE_METADATA } from '@/constants/metadata';
+
 import ErrorState from '../feedback/ErrorState';
 import MatchHeader from './header/MatchHeader';
 import MatchHeaderSkeleton from './header/MatchHeaderSkeleton';
@@ -21,6 +23,7 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
 
   const {
     matchEvents,
+    metadata,
     isLoading: isEventsLoading,
     error: eventsError,
     emptyState: eventsEmptyState,
@@ -48,7 +51,7 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
 
   return (
     <div>
-      <MatchHeader match={match} />
+      <MatchHeader match={match} metadata={metadata ?? EMPTY_RESPONSE_METADATA} />
 
       {eventsError ? (
         <ErrorState
