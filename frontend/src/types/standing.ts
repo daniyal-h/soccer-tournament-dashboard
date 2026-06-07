@@ -15,6 +15,6 @@ export interface Standing {
 }
 
 export interface StandingsOptions {
-  tournament_id: number;
+  tournamentId: number;
   group?: string;
 }
