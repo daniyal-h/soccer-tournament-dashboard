@@ -1,11 +1,12 @@
 from pydantic import BaseModel, ConfigDict
 
 from app.models.match_event import EventType
+from app.schemas.metadata import ResponseMetadata
 from app.schemas.players import PlayerSummary
 from app.schemas.teams import TeamSummary
 
 
-class MatchEventResponse(BaseModel):
+class MatchEventItemResponse(BaseModel):
     team: TeamSummary
 
     player: PlayerSummary | None = None
@@ -26,6 +27,11 @@ class MatchEventResponse(BaseModel):
     comments: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class MatchEventsResponse(BaseModel):
+    data: list[MatchEventItemResponse]
+    metadata: ResponseMetadata
 
 
 class MatchEventRefreshRow(BaseModel):
