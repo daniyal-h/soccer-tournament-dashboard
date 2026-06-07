@@ -10,7 +10,7 @@ import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
 function MatchCenter({ match }: { match: Match }) {
   const hasPenalties = match.team_a_penalties !== null && match.team_b_penalties !== null;
 
-  if (match.status === 'finished' && hasPenalties) {
+  if ((match.status === 'finished' || match.status === 'live') && hasPenalties) {
     return (
       <div className="flex flex-col items-center">
         <span>
