@@ -118,6 +118,7 @@ function mockMatchState(overrides: Partial<ReturnType<typeof useMatch>> = {}) {
 function mockEventsState(overrides: Partial<ReturnType<typeof useMatchEvents>> = {}) {
   mockUseMatchEvents.mockReturnValue({
     matchEvents: [baseEvent],
+    metadata: null,
     isLoading: false,
     error: null,
     emptyState: null,
