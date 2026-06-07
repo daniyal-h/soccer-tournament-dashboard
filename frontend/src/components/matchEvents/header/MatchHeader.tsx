@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 
 import type { Match } from '@/types/match';
+import type { ResponseMetadata } from '@/types/metadata';
 
 import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
@@ -8,10 +9,31 @@ import { formatMatchDate, formatStage, getScoreText } from '@/utils/matchEvents/
 
 interface MatchHeaderProps {
   match: Match;
+  metadata: ResponseMetadata;
 }
 
-const MatchHeader = ({ match }: MatchHeaderProps) => {
+function getRelativeTime(timestamp: string) {
+  const msPerMinute = 60 * 1000;
+  const msPerHour = msPerMinute * 60;
+  const msPerDay = msPerHour * 24;
+
+  const elapsed = new Date(timestamp).getTime() - Date.now(); // Negative if in the past
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+  if (Math.abs(elapsed) < msPerMinute) {
+    return rtf.format(Math.round(elapsed / 1000), 'second');
+  } else if (Math.abs(elapsed) < msPerHour) {
+    return rtf.format(Math.round(elapsed / msPerMinute), 'minute');
+  } else if (Math.abs(elapsed) < msPerDay) {
+    return rtf.format(Math.round(elapsed / msPerHour), 'hour');
+  } else {
+    return rtf.format(Math.round(elapsed / msPerDay), 'day');
+  }
+}
+
+const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
   const hasPenalties = match.team_a_penalties != null && match.team_b_penalties != null;
+  const displayedLastUpdated = metadata.last_updated ?? metadata.last_successful_refresh
 
   return (
     <Card className="mb-10 p-6 text-center shadow-sm">
@@ -65,10 +87,20 @@ const MatchHeader = ({ match }: MatchHeaderProps) => {
         </div>
       </div>
 
-      {/* Footer with extra details (venue, date, time) */}
-      <div className="mt-6 space-y-1 text-sm text-muted-foreground">
-        {match.venue && <p>{match.venue}</p>}
-        <p>{formatMatchDate(match.kickoff_time)}</p>
+      {/* Footer with extra details (venue, date, time, freshness) */}
+      <div className="mt-6 text-sm text-muted-foreground">
+        <div className="space-y-1">
+          {match.venue && <p>{match.venue}</p>}
+          <p>{formatMatchDate(match.kickoff_time)}</p>
+        </div>
+
+        {displayedLastUpdated && (
+          <div className="mt-4 text-left text-xs">
+            <p>Last updated: {getRelativeTime(displayedLastUpdated)}</p>
+
+            {metadata.message && <p className="mt-1 italic">{metadata.message}</p>}
+          </div>
+        )}
       </div>
     </Card>
   );
