@@ -21,7 +21,7 @@ function isTournamentArray(value: unknown): value is Tournament[] {
 }
 
 export async function getTournaments() {
-  const data = await apiGet<unknown>('/tournaments/');
+  const data = await apiGet<unknown>('/tournaments');
 
   if (!isTournamentArray(data)) {
     throw new Error('Invalid tournaments response');
