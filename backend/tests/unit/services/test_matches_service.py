@@ -4,7 +4,6 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services import matches as matches_service
-from app.constants.jobs import JobName
 from app.models.match import Match, StageType, StatusType
 from app.schemas.errors import NotFoundError
 from app.schemas.matches import MatchRefreshRow
@@ -354,9 +353,8 @@ def test_get_matches_does_not_cache_when_match_query_fails(mocker):
     mock_set_cache.assert_not_called()
 
 
-def test_get_matches_allows_empty_cached_list_to_refresh_instead_of_returning_it(mocker):
+def test_get_matches_returns_empty_cached_list_without_refreshing(mocker):
     db = Mock()
-    matches = [make_match(1)]
 
     mocker.patch(
         "app.api.v1.services.matches.cache_service.get_cache",
@@ -364,31 +362,20 @@ def test_get_matches_allows_empty_cached_list_to_refresh_instead_of_returning_it
     )
     mock_get_tournament = mocker.patch(
         "app.api.v1.services.matches.tournaments_service.get_tournament",
-        return_value=Mock(),
     )
     mock_get_matches_by_tournament = mocker.patch(
         "app.api.v1.services.matches.matches_repo.get_matches_by_tournament",
-        return_value=matches,
     )
-    mocker.patch(
-        "app.api.v1.services.matches.get_matches_ttl",
-        return_value=MATCHES_LIVE_TTL,
+    mock_set_cache = mocker.patch(
+        "app.api.v1.services.matches.cache_service.set_cache",
     )
-    mocker.patch(
-        "app.api.v1.services.matches.get_expires_at",
-        return_value=datetime(2026, 6, 11, 19, 5, tzinfo=UTC),
-    )
-    mocker.patch(
-        "app.api.v1.services.matches.jsonable_encoder",
-        side_effect=lambda value: value,
-    )
-    mocker.patch("app.api.v1.services.matches.cache_service.set_cache")
 
     result = matches_service.get_matches(db, tournament_id=7)
 
-    assert result == matches
-    mock_get_tournament.assert_called_once_with(db, 7)
-    mock_get_matches_by_tournament.assert_called_once_with(db, 7)
+    assert result == []
+    mock_get_tournament.assert_not_called()
+    mock_get_matches_by_tournament.assert_not_called()
+    mock_set_cache.assert_not_called()
 
 
 def test_get_matches_returns_cached_matches_with_penalties(mocker):
@@ -487,10 +474,7 @@ def make_row(
 def test_update_matches_builds_group_match_rows_and_invalidates_cache(mocker):
     db = Mock()
     tournament_id = 1
-    job_id = 77
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=job_id)
-    complete_job = mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     invalidate_cache = mocker.patch.object(matches_service.cache_service, "invalidate_cache")
 
@@ -506,11 +490,6 @@ def test_update_matches_builds_group_match_rows_and_invalidates_cache(mocker):
     )
 
     matches_service.update_matches(db, tournament_id, [make_row()])
-
-    matches_service.refresh_jobs_repo.create_job.assert_called_once_with(
-        db,
-        JobName.MATCHES_REFRESH,
-    )
 
     assert get_team_id.call_args_list == [
         mocker.call(db, 10),
@@ -544,14 +523,11 @@ def test_update_matches_builds_group_match_rows_and_invalidates_cache(mocker):
     assert match.team_b_score is None
 
     invalidate_cache.assert_called_once_with(db, "matches:1")
-    complete_job.assert_called_once_with(db, job_id, success=True)
 
 
 def test_update_matches_keeps_group_none_when_group_match_teams_do_not_match(mocker):
     db = Mock()
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=88)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(
@@ -574,8 +550,6 @@ def test_update_matches_keeps_group_none_when_group_match_teams_do_not_match(moc
 def test_update_matches_keeps_group_none_when_one_group_is_missing(mocker):
     db = Mock()
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=88)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(
@@ -598,8 +572,6 @@ def test_update_matches_keeps_group_none_when_one_group_is_missing(mocker):
 def test_update_matches_does_not_resolve_group_for_knockout_match(mocker):
     db = Mock()
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=99)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(
@@ -628,8 +600,6 @@ def test_update_matches_does_not_resolve_group_for_knockout_match(mocker):
 def test_update_matches_passes_all_rows_to_upsert_in_order(mocker):
     db = Mock()
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=12)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(
@@ -658,13 +628,10 @@ def test_update_matches_passes_all_rows_to_upsert_in_order(mocker):
     assert [row.group for row in rows] == ["A", "B"]
 
 
-def test_update_matches_handles_empty_data_as_successful_refresh(mocker):
+def test_update_matches_handles_empty_data_and_invalidates_cache(mocker):
     db = Mock()
     tournament_id = 1
-    job_id = 55
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=job_id)
-    complete_job = mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     invalidate_cache = mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     get_team_id = mocker.patch.object(
@@ -682,16 +649,12 @@ def test_update_matches_handles_empty_data_as_successful_refresh(mocker):
     get_team_group.assert_not_called()
     upsert.assert_called_once_with(db, tournament_id, [])
     invalidate_cache.assert_called_once_with(db, "matches:1")
-    complete_job.assert_called_once_with(db, job_id, success=True)
 
 
-def test_update_matches_marks_job_failed_and_reraises_when_team_resolution_fails(mocker):
+def test_update_matches_reraises_when_team_resolution_fails(mocker):
     db = Mock()
-    job_id = 44
     error = RuntimeError("team not found")
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=job_id)
-    complete_job = mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     mocker.patch.object(
         matches_service.teams_service,
         "get_team_id_from_external_id",
@@ -705,15 +668,11 @@ def test_update_matches_marks_job_failed_and_reraises_when_team_resolution_fails
 
     upsert.assert_not_called()
     invalidate_cache.assert_not_called()
-    complete_job.assert_called_once_with(db, job_id, success=False)
 
 
-def test_update_matches_marks_job_failed_and_reraises_when_upsert_fails(mocker):
+def test_update_matches_reraises_when_upsert_fails(mocker):
     db = Mock()
-    job_id = 44
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=job_id)
-    complete_job = mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     mocker.patch.object(
         matches_service.teams_service,
         "get_team_id_from_external_id",
@@ -735,15 +694,12 @@ def test_update_matches_marks_job_failed_and_reraises_when_upsert_fails(mocker):
         matches_service.update_matches(db, 1, [make_row()])
 
     invalidate_cache.assert_not_called()
-    complete_job.assert_called_once_with(db, job_id, success=False)
 
 
 def test_update_matches_preserves_penalty_scores(mocker):
     db = Mock()
     tournament_id = 1
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=77)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(
@@ -779,8 +735,6 @@ def test_update_matches_keeps_penalties_none_when_match_has_no_penalty_shootout(
     db = Mock()
     tournament_id = 1
 
-    mocker.patch.object(matches_service.refresh_jobs_repo, "create_job", return_value=77)
-    mocker.patch.object(matches_service.refresh_jobs_repo, "complete_job")
     upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
     mocker.patch.object(matches_service.cache_service, "invalidate_cache")
     mocker.patch.object(

@@ -507,8 +507,6 @@ def test_update_standings_resolves_team_ids_and_calls_repo(mocker):
         "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
     )
     mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
 
     from app.schemas.standings import StandingRefreshRow
 
@@ -545,8 +543,6 @@ def test_update_standings_calls_repo_with_db_tournament_and_rows(mocker):
         "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
     )
     mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
 
     from app.schemas.standings import StandingRefreshRow
 
@@ -584,8 +580,6 @@ def test_update_standings_builds_rows_with_all_fields(mocker):
         "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
     )
     mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
 
     from app.schemas.standings import StandingRefreshRow
 
@@ -631,8 +625,6 @@ def test_update_standings_resolves_each_external_team_id(mocker):
         "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
     )
     mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
 
     from app.schemas.standings import StandingRefreshRow
 
@@ -684,8 +676,6 @@ def test_update_standings_invalidates_cache(mocker):
     mock_invalidate = mocker.patch(
         "app.api.v1.services.standings.cache_service.invalidate_cache",
     )
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1)
-    mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
 
     from app.schemas.standings import StandingRefreshRow
 
@@ -706,125 +696,3 @@ def test_update_standings_invalidates_cache(mocker):
     standings_service.update_standings(db, tournament_id=1, data=data)
 
     mock_invalidate.assert_called_once_with(db, "standings:1")
-
-
-def test_update_standings_logs_success_job(mocker):
-    db = Mock()
-
-    mocker.patch(
-        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
-        return_value=10,
-    )
-    mocker.patch("app.api.v1.services.standings.standings_repo.update_standings_in_tournament")
-    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-    mock_create = mocker.patch(
-        "app.api.v1.services.standings.refresh_jobs_repo.create_job", return_value=1
-    )
-    mock_complete = mocker.patch("app.api.v1.services.standings.refresh_jobs_repo.complete_job")
-
-    from app.schemas.standings import StandingRefreshRow
-
-    data = [
-        StandingRefreshRow(
-            external_team_id=99,
-            group="A",
-            position=1,
-            points=9,
-            wins=3,
-            draws=0,
-            losses=0,
-            goals_for=5,
-            goals_against=1,
-        )
-    ]
-
-    standings_service.update_standings(db, tournament_id=1, data=data)
-
-    mock_create.assert_called_once()
-    mock_complete.assert_called_once_with(db, 1, success=True)
-
-
-def test_update_standings_creates_refresh_job_with_expected_name(mocker):
-    db = Mock()
-
-    mocker.patch(
-        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
-        return_value=10,
-    )
-    mocker.patch("app.api.v1.services.standings.standings_repo.update_standings_in_tournament")
-    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-
-    create_job = mocker.patch(
-        "app.api.v1.services.standings.refresh_jobs_repo.create_job",
-        return_value=123,
-    )
-    complete_job = mocker.patch(
-        "app.api.v1.services.standings.refresh_jobs_repo.complete_job",
-    )
-
-    from app.schemas.standings import StandingRefreshRow
-
-    data = [
-        StandingRefreshRow(
-            external_team_id=99,
-            group="A",
-            position=1,
-            points=9,
-            wins=3,
-            draws=0,
-            losses=0,
-            goals_for=5,
-            goals_against=1,
-        )
-    ]
-
-    standings_service.update_standings(db, tournament_id=5, data=data)
-
-    create_job.assert_called_once_with(db, "standings_refresh")
-    complete_job.assert_called_once_with(db, 123, success=True)
-
-
-def test_update_standings_logs_failed_job_when_update_fails(mocker):
-    db = Mock()
-
-    mocker.patch(
-        "app.api.v1.services.standings.teams_service.get_team_id_from_external_id",
-        return_value=10,
-    )
-
-    mocker.patch(
-        "app.api.v1.services.standings.standings_repo.update_standings_in_tournament",
-        side_effect=Exception("database exploded"),
-    )
-
-    mocker.patch("app.api.v1.services.standings.cache_service.invalidate_cache")
-
-    create_job = mocker.patch(
-        "app.api.v1.services.standings.refresh_jobs_repo.create_job",
-        return_value=123,
-    )
-    complete_job = mocker.patch(
-        "app.api.v1.services.standings.refresh_jobs_repo.complete_job",
-    )
-
-    from app.schemas.standings import StandingRefreshRow
-
-    data = [
-        StandingRefreshRow(
-            external_team_id=99,
-            group="A",
-            position=1,
-            points=9,
-            wins=3,
-            draws=0,
-            losses=0,
-            goals_for=5,
-            goals_against=1,
-        )
-    ]
-
-    with pytest.raises(Exception, match="database exploded"):
-        standings_service.update_standings(db, tournament_id=5, data=data)
-
-    create_job.assert_called_once()
-    complete_job.assert_called_once_with(db, 123, success=False)
