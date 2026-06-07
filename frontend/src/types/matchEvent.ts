@@ -30,7 +30,7 @@ export interface MatchEvent {
   comments: string | null;
 }
 
-export interface MatchEventResponse {
+export interface MatchEventsResponse {
   data: MatchEvent[];
   metadata: ResponseMetadata;
 }
