@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import * as Sentry from '@sentry/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -45,6 +46,8 @@ createRoot(document.getElementById('root')!).render(
           <TournamentProvider>
             <BrowserRouter>
               <App />
+              {/* Show dev tool only in dev mode */}
+              {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
             </BrowserRouter>
           </TournamentProvider>
         </ThemeProvider>
