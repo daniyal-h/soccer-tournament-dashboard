@@ -1,4 +1,5 @@
-import type { MatchEvent, MatchEventsOptions } from '@/types/matchEvent';
+import type { MatchEvent, MatchEventsOptions, MatchEventsResponse } from '@/types/matchEvent';
+import type { ResponseMetadata } from '@/types/metadata';
 
 import { VALID_EVENT_TYPES } from '@/constants/matchEvents';
 
@@ -34,14 +35,40 @@ function isMatchEvent(value: unknown): value is MatchEvent {
   );
 }
 
-function isMatchEventsResponse(value: unknown): value is MatchEvent[] {
-  return Array.isArray(value) && value.every(isMatchEvent);
+function isResponseMetadata(value: unknown): value is ResponseMetadata {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const metadata = value as ResponseMetadata;
+
+  return (
+    typeof metadata.is_delayed === 'boolean' &&
+    (metadata.last_updated === null || typeof metadata.last_updated === 'string') &&
+    (metadata.last_successful_refresh === null ||
+      typeof metadata.last_successful_refresh === 'string') &&
+    (metadata.message === null || typeof metadata.message === 'string')
+  );
+}
+
+function isMatchEventsResponse(value: unknown): value is MatchEventsResponse {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const response = value as MatchEventsResponse;
+
+  return (
+    Array.isArray(response.data) &&
+    response.data.every(isMatchEvent) &&
+    isResponseMetadata(response.metadata)
+  );
 }
 
 export async function getMatchEvents({ match_id }: MatchEventsOptions) {
   const path = `/matches/${match_id}/events`;
 
-  const data = await apiGet<MatchEvent[]>(path);
+  const data = await apiGet<MatchEventsResponse>(path);
 
   if (!isMatchEventsResponse(data)) {
     throw new Error('Invalid match events response');
