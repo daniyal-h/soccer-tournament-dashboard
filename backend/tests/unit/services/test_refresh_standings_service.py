@@ -1,9 +1,16 @@
 from datetime import date
 from unittest.mock import Mock
 
+import pytest
+
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.constants.external_apis import API_FOOTBALL_STANDINGS_ENDPOINT
 from app.models.tournament import Tournament
+
+
+@pytest.fixture
+def db():
+    return Mock()
 
 
 def make_tournament(
@@ -221,8 +228,7 @@ def test_get_standings_for_tournament_returns_empty_list_when_response_key_missi
     assert rows == []
 
 
-def test_refresh_standings_updates_each_tournament_and_returns_success_summary(mocker):
-    db = Mock()
+def test_refresh_standings_updates_each_tournament_and_returns_success_summary(mocker, db):
     tournament_a = make_tournament(tournament_id=1, external_api_id=9, season="2024")
     tournament_b = make_tournament(tournament_id=2, external_api_id=4, season="2024")
 
@@ -264,8 +270,7 @@ def test_refresh_standings_updates_each_tournament_and_returns_success_summary(m
     assert result["failures"] == []
 
 
-def test_refresh_standings_skips_tournament_when_api_returns_no_rows(mocker):
-    db = Mock()
+def test_refresh_standings_skips_tournament_when_api_returns_no_rows(mocker, db):
     tournament = make_tournament()
 
     mocker.patch.object(
@@ -295,8 +300,7 @@ def test_refresh_standings_skips_tournament_when_api_returns_no_rows(mocker):
     assert result["failures"] == []
 
 
-def test_refresh_standings_records_failure_and_continues_with_next_tournament(mocker):
-    db = Mock()
+def test_refresh_standings_records_failure_and_continues_with_next_tournament(mocker, db):
     failing_tournament = make_tournament(tournament_id=1, external_api_id=9, season="2024")
     successful_tournament = make_tournament(tournament_id=2, external_api_id=4, season="2024")
 
@@ -340,8 +344,7 @@ def test_refresh_standings_records_failure_and_continues_with_next_tournament(mo
     ]
 
 
-def test_refresh_standings_records_update_failure_and_does_not_mark_refreshed(mocker):
-    db = Mock()
+def test_refresh_standings_records_update_failure_and_does_not_mark_refreshed(mocker, db):
     tournament = make_tournament()
     rows = [Mock(), Mock()]
 
@@ -380,9 +383,7 @@ def test_refresh_standings_records_update_failure_and_does_not_mark_refreshed(mo
     ]
 
 
-def test_refresh_standings_returns_empty_summary_when_no_tournaments_are_refreshable(mocker):
-    db = Mock()
-
+def test_refresh_standings_returns_empty_summary_when_no_tournaments_are_refreshable(mocker, db):
     mocker.patch.object(
         refresh_standings_service.tournaments_service,
         "get_refreshable_tournaments",
