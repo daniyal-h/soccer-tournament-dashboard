@@ -34,4 +34,4 @@ def get_match_events(
     May return an empty list for match events not yet populated.
     """
 
-    return match_events_service.get_match_events(db, match_id)
+    return match_events_service.get_match_events_response(db, match_id)

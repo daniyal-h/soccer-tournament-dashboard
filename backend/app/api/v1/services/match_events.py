@@ -6,22 +6,22 @@ from app.api.v1.services import cache as cache_service
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import players as players_service
 from app.api.v1.services import teams as teams_service
+from app.api.v1.services.freshness.match_events import get_match_events_delay_metadata
+from app.models.match import Match
 from app.models.match_event import MatchEvent
-from app.schemas.match_events import MatchEventRefreshRow
+from app.schemas.match_events import MatchEventRefreshRow, MatchEventsResponse
 from app.utils.cache_helper import get_expires_at, get_match_events_ttl
 
 
-def get_match_events(db: Session, match_id: int) -> list[MatchEvent]:
-    cache_key = f"match_events:{match_id}"
+def get_match_events(db: Session, match: Match) -> list[MatchEvent]:
+    cache_key = f"match_events:{match.id}"
     cached = cache_service.get_cache(db, cache_key)
 
     if cached:
         # cache stores serialized response-shaped data
         return cached
 
-    # validate match existence before retrieving and caching
-    match = matches_service.get_match(db, match_id)
-    match_events = match_events_repo.get_all_match_events(db, match_id)
+    match_events = match_events_repo.get_all_match_events(db, match.id)
 
     ttl = get_match_events_ttl(match, match_events)
 
@@ -30,6 +30,14 @@ def get_match_events(db: Session, match_id: int) -> list[MatchEvent]:
     )
 
     return match_events
+
+
+def get_match_events_response(db: Session, match_id: int) -> MatchEventsResponse:
+    match = matches_service.get_match(db, match_id)  # also validates the ID
+    events = get_match_events(db, match)
+    metadata = get_match_events_delay_metadata(db, match)
+
+    return MatchEventsResponse(data=events, metadata=metadata)
 
 
 def update_match_events(
