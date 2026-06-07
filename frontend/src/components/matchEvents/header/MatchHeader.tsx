@@ -7,30 +7,16 @@ import type { ResponseMetadata } from '@/types/metadata';
 
 import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
-import { formatMatchDate, formatStage, getScoreText } from '@/utils/matchEvents/matchHeaderHelper';
+import {
+  formatMatchDate,
+  formatStage,
+  getRelativeTime,
+  getScoreText,
+} from '@/utils/matchEvents/matchHeaderHelper';
 
 interface MatchHeaderProps {
   match: Match;
   metadata: ResponseMetadata;
-}
-
-function getRelativeTime(timestamp: string, now: number) {
-  const msPerMinute = 60 * 1000;
-  const msPerHour = msPerMinute * 60;
-  const msPerDay = msPerHour * 24;
-
-  const elapsed = new Date(timestamp).getTime() - now; // Negative if in the past
-  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-
-  if (Math.abs(elapsed) < msPerMinute) {
-    return rtf.format(Math.round(elapsed / 1000), 'second');
-  } else if (Math.abs(elapsed) < msPerHour) {
-    return rtf.format(Math.round(elapsed / msPerMinute), 'minute');
-  } else if (Math.abs(elapsed) < msPerDay) {
-    return rtf.format(Math.round(elapsed / msPerHour), 'hour');
-  } else {
-    return rtf.format(Math.round(elapsed / msPerDay), 'day');
-  }
 }
 
 const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
