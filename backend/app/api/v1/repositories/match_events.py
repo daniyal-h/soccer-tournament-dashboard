@@ -20,3 +20,13 @@ def get_all_match_events(db: Session, match_id: int) -> list[MatchEvent]:
         )
         .all()
     )
+
+
+# entirely replace all events in the given match with new ones
+def replace_match_events_for_match(db: Session, match_id: int, rows: list[MatchEvent]) -> None:
+    db.query(MatchEvent).where(MatchEvent.match_id == match_id).delete(
+        synchronize_session=False,
+    )
+
+    db.add_all(rows)
+    db.commit()

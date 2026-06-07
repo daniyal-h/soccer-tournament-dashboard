@@ -87,6 +87,23 @@ describe('MatchCenter', () => {
     expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
   });
 
+  it('renders score and penalty shootout line for live matches with penalties', () => {
+    const penaltyMatch: Match = {
+      ...baseMatch,
+      status: 'live',
+      team_a_score: 0,
+      team_b_score: 0,
+      team_a_penalties: 4,
+      team_b_penalties: 2,
+    };
+
+    render(<MatchCenter match={penaltyMatch} />);
+
+    expect(screen.getByText('0 - 0')).toBeInTheDocument();
+    expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
+    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+  });
+
   it('renders penalties when one side has zero penalties', () => {
     const penaltyMatch: Match = {
       ...baseMatch,
@@ -120,25 +137,5 @@ describe('MatchCenter', () => {
     expect(screen.getByText('1 - 1')).toBeInTheDocument();
     expect(screen.queryByText(/Pens:/)).not.toBeInTheDocument();
     expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(partialPenaltyMatch);
-  });
-
-  it('does not render penalties for live matches even when penalty fields exist', () => {
-    const liveMatch: Match = {
-      ...baseMatch,
-      status: 'live',
-      elapsed: 87,
-      team_a_score: 1,
-      team_b_score: 1,
-      team_a_penalties: 4,
-      team_b_penalties: 2,
-    };
-
-    mockGetMatchCenterDisplay.mockReturnValue('1 - 1');
-
-    render(<MatchCenter match={liveMatch} />);
-
-    expect(screen.getByText('1 - 1')).toBeInTheDocument();
-    expect(screen.queryByText('Pens: 4 - 2')).not.toBeInTheDocument();
-    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(liveMatch);
   });
 });

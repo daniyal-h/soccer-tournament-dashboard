@@ -18,6 +18,9 @@ class RefreshSummary:
     rows_processed: int = 0
     failures: list[RefreshFailure] = field(default_factory=list)
 
+    def has_failures(self) -> bool:
+        return bool(self.failures)
+
     def mark_refreshed(self, rows_count: int) -> None:
         self.tournaments_refreshed += 1
         self.rows_processed += rows_count
@@ -30,7 +33,7 @@ class RefreshSummary:
         *,
         tournament_id: int,
         external_api_id: int,
-        season: str,
+        season: str | None,
         reason: str,
     ) -> None:
         self.failures.append(

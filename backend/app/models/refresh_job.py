@@ -1,11 +1,18 @@
 import enum
 from datetime import datetime
 
-from sqlalchemy import DateTime, Index, Integer, String
+from sqlalchemy import DateTime, Index, Integer
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
+
+
+class JobName(str, enum.Enum):
+    STANDINGS_REFRESH = "standings_refresh"
+    MATCHES_REFRESH = "matches_refresh"
+    MATCH_EVENTS_REFRESH = "match_events_refresh"
+    PLAYER_STATS_REFRESH = "player_stats_refresh"
 
 
 class JobStatus(str, enum.Enum):
@@ -19,7 +26,15 @@ class RefreshJob(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
-    job_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    job_name: Mapped[JobName] = mapped_column(
+        SQLAlchemyEnum(
+            JobName,
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
+            name="job_name_enum",
+        ),
+        nullable=False,
+        index=True,
+    )
 
     status: Mapped[JobStatus] = mapped_column(
         SQLAlchemyEnum(

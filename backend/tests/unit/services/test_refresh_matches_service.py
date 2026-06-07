@@ -1,6 +1,8 @@
 from datetime import date, datetime, timezone
 from unittest.mock import Mock
 
+import pytest
+
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.constants.external_apis import API_FOOTBALL_FIXTURES_ENDPOINT
 from app.models.tournament import Tournament
@@ -21,6 +23,20 @@ def make_tournament(
         start_date=date(2024, 6, 21),
         end_date=date(2024, 7, 15),
     )
+
+
+def mock_refresh_job_lifecycle(mocker, job_id: int = 123):
+    create_job = mocker.patch.object(
+        refresh_matches_service.refresh_jobs_repo,
+        "create_job",
+        return_value=job_id,
+    )
+    complete_job = mocker.patch.object(
+        refresh_matches_service.refresh_jobs_repo,
+        "complete_job",
+    )
+
+    return create_job, complete_job
 
 
 def make_fixture_row(
@@ -261,6 +277,7 @@ def test_fetch_matches_for_tournament_returns_empty_list_when_response_key_missi
 
 def test_refresh_matches_updates_each_tournament_and_returns_success_summary(mocker):
     db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
     tournament_a = make_tournament(tournament_id=1, external_api_id=9, season="2024")
     tournament_b = make_tournament(tournament_id=2, external_api_id=4, season="2024")
 
@@ -284,6 +301,8 @@ def test_refresh_matches_updates_each_tournament_and_returns_success_summary(moc
 
     result = refresh_matches_service.refresh_matches(db, margin_days=7)
 
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 123, success=True)
     get_refreshable_tournaments.assert_called_once_with(db, 7)
     assert fetch_matches.call_args_list == [
         mocker.call(tournament_a),
@@ -304,6 +323,7 @@ def test_refresh_matches_updates_each_tournament_and_returns_success_summary(moc
 
 def test_refresh_matches_skips_tournament_when_api_returns_no_rows(mocker):
     db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
     tournament = make_tournament()
 
     mocker.patch.object(
@@ -323,6 +343,8 @@ def test_refresh_matches_skips_tournament_when_api_returns_no_rows(mocker):
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 123, success=True)
     update_matches.assert_not_called()
 
     assert result["message"] == "Matches refresh completed"
@@ -335,6 +357,7 @@ def test_refresh_matches_skips_tournament_when_api_returns_no_rows(mocker):
 
 def test_refresh_matches_records_fetch_failure_and_continues_with_next_tournament(mocker):
     db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
     failing_tournament = make_tournament(tournament_id=1, external_api_id=9, season="2024")
     successful_tournament = make_tournament(tournament_id=2, external_api_id=4, season="2024")
 
@@ -357,6 +380,8 @@ def test_refresh_matches_records_fetch_failure_and_continues_with_next_tournamen
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 123, success=False)
     assert fetch_matches.call_args_list == [
         mocker.call(failing_tournament),
         mocker.call(successful_tournament),
@@ -380,6 +405,7 @@ def test_refresh_matches_records_fetch_failure_and_continues_with_next_tournamen
 
 def test_refresh_matches_records_update_failure_and_does_not_mark_refreshed(mocker):
     db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
     tournament = make_tournament()
     rows = [Mock(), Mock()]
 
@@ -401,6 +427,8 @@ def test_refresh_matches_records_update_failure_and_does_not_mark_refreshed(mock
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 123, success=False)
     update_matches.assert_called_once_with(db, 1, rows)
 
     assert result["message"] == "Matches refresh completed with failures"
@@ -420,6 +448,7 @@ def test_refresh_matches_records_update_failure_and_does_not_mark_refreshed(mock
 
 def test_refresh_matches_returns_empty_summary_when_no_tournaments_are_refreshable(mocker):
     db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
 
     mocker.patch.object(
         refresh_matches_service.tournaments_service,
@@ -437,6 +466,8 @@ def test_refresh_matches_returns_empty_summary_when_no_tournaments_are_refreshab
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 123, success=True)
     fetch_matches.assert_not_called()
     update_matches.assert_not_called()
 
@@ -446,3 +477,30 @@ def test_refresh_matches_returns_empty_summary_when_no_tournaments_are_refreshab
     assert result["tournaments_skipped"] == 0
     assert result["rows_processed"] == 0
     assert result["failures"] == []
+
+
+def test_refresh_matches_marks_job_failed_and_reraises_when_command_fails(mocker):
+    db = Mock()
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker, job_id=456)
+
+    mocker.patch.object(
+        refresh_matches_service.tournaments_service,
+        "get_refreshable_tournaments",
+        side_effect=RuntimeError("tournament lookup failed"),
+    )
+    fetch_matches = mocker.patch.object(
+        refresh_matches_service,
+        "fetch_matches_for_tournament",
+    )
+    update_matches = mocker.patch.object(
+        refresh_matches_service.matches_service,
+        "update_matches",
+    )
+
+    with pytest.raises(RuntimeError, match="tournament lookup failed"):
+        refresh_matches_service.refresh_matches(db, margin_days=1)
+
+    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    complete_job.assert_called_once_with(db, 456, success=False)
+    fetch_matches.assert_not_called()
+    update_matches.assert_not_called()

@@ -1,17 +1,42 @@
+import { useEffect, useState } from 'react';
+
 import { Card } from '@/components/ui/card';
 
 import type { Match } from '@/types/match';
+import type { ResponseMetadata } from '@/types/metadata';
+
+import { TICK_SPEED } from '@/constants/matchEvents';
 
 import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
-import { formatMatchDate, formatStage, getScoreText } from '@/utils/matchEvents/matchHeaderHelper';
+import {
+  formatMatchDate,
+  formatStage,
+  getRelativeTime,
+  getScoreText,
+} from '@/utils/matchEvents/matchHeaderHelper';
 
 interface MatchHeaderProps {
   match: Match;
+  metadata: ResponseMetadata;
 }
 
-const MatchHeader = ({ match }: MatchHeaderProps) => {
+const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
   const hasPenalties = match.team_a_penalties != null && match.team_b_penalties != null;
+  const displayedLastUpdated = metadata.last_updated ?? metadata.last_successful_refresh;
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!displayedLastUpdated) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, TICK_SPEED);
+
+    return () => clearInterval(interval);
+  }, [displayedLastUpdated]);
 
   return (
     <Card className="mb-10 p-6 text-center shadow-sm">
@@ -65,10 +90,20 @@ const MatchHeader = ({ match }: MatchHeaderProps) => {
         </div>
       </div>
 
-      {/* Footer with extra details (venue, date, time) */}
-      <div className="mt-6 space-y-1 text-sm text-muted-foreground">
-        {match.venue && <p>{match.venue}</p>}
-        <p>{formatMatchDate(match.kickoff_time)}</p>
+      {/* Footer with extra details (venue, date, time, freshness) */}
+      <div className="mt-6 text-sm text-muted-foreground">
+        <div className="space-y-1">
+          {match.venue && <p>{match.venue}</p>}
+          <p>{formatMatchDate(match.kickoff_time)}</p>
+        </div>
+
+        {displayedLastUpdated && (
+          <div className="mt-4 text-left text-xs">
+            <p>Last updated: {getRelativeTime(displayedLastUpdated, now)}</p>
+
+            {metadata.message && <p className="mt-1 italic">{metadata.message}</p>}
+          </div>
+        )}
       </div>
     </Card>
   );

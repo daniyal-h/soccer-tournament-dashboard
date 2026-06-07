@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 
 from app.api.v1.clients.football_api import football_get
+from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.constants.external_apis import (
@@ -14,6 +15,7 @@ from app.constants.external_apis import (
     POSTPONED_STATUS_SHORT_CODES,
     SCHEDULED_STATUS_SHORT_CODES,
 )
+from app.models.refresh_job import JobName
 from app.schemas.matches import MatchRefreshRow
 from app.utils.refresh_summary import RefreshSummary
 
@@ -115,30 +117,43 @@ def refresh_matches(db: Session, margin_days: int = MATCHES_MARGIN_DAYS) -> dict
     Transform fixtures into MatchesRefreshRow objects.
     Upsert matches for each tournament.
     Return a refresh summary.
+    Track job in refresh jobs table.
     """
-    tournaments = tournaments_service.get_refreshable_tournaments(db, margin_days)
+    job_id = refresh_jobs_repo.create_job(db, JobName.MATCHES_REFRESH)
+    summary = RefreshSummary(resource_name="Matches")
 
-    summary = RefreshSummary(resource_name="Matches", tournaments_checked=len(tournaments))
+    try:
+        # entire command fails, mark job failed and crash
+        tournaments = tournaments_service.get_refreshable_tournaments(db, margin_days)
+        summary.tournaments_checked = len(tournaments)
 
-    # upsert new matches data into each tournament
-    # every step adds to the summary
-    for tournament in tournaments:
-        try:
-            rows = fetch_matches_for_tournament(tournament)
+        # upsert new matches data into each tournament
+        # every step adds to the summary
+        for tournament in tournaments:
+            try:
+                rows = fetch_matches_for_tournament(tournament)
 
-            if not rows:
-                summary.mark_skipped()
-                continue
+                if not rows:
+                    summary.mark_skipped()
+                    continue
 
-            matches_service.update_matches(db, tournament.id, rows)
-            summary.mark_refreshed(rows_count=len(rows))
+                matches_service.update_matches(db, tournament.id, rows)
+                summary.mark_refreshed(rows_count=len(rows))
 
-        except Exception as exc:
-            summary.add_failure(
-                tournament_id=tournament.id,
-                external_api_id=tournament.external_api_id,
-                season=tournament.season,
-                reason=str(exc),
-            )
+            except Exception as exc:
+                summary.add_failure(
+                    tournament_id=tournament.id,
+                    external_api_id=tournament.external_api_id,
+                    season=tournament.season,
+                    reason=str(exc),
+                )
 
-    return summary.to_dict()
+        success = not summary.has_failures()
+        result = summary.to_dict()
+
+    except Exception:
+        refresh_jobs_repo.complete_job(db, job_id, success=False)
+        raise
+
+    refresh_jobs_repo.complete_job(db, job_id, success=success)
+    return result
