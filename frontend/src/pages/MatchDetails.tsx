@@ -5,10 +5,12 @@ import ErrorState from '@/components/feedback/ErrorState';
 import MatchDetailsContent from '@/components/matchEvents/MatchDetailsContent';
 import { Button } from '@/components/ui/button';
 
+import { ROUTES } from '@/constants/navigation';
+
 const MatchDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state?.from;
+  const from = location.state?.from ?? ROUTES.SCHEDULE;
 
   const handleBack = () => {
     if (from && globalThis.history.length > 1) {
