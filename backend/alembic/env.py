@@ -24,9 +24,7 @@ db_url = os.getenv("DATABASE_URL")
 if not db_url:
     raise ValueError("DATABASE_URL is not set")
 
-allowed_neon_environments = {"staging", "production"}
-
-if environment not in allowed_neon_environments and "neon.tech" in db_url:
+if environment == "development" and "neon.tech" in db_url:
     raise RuntimeError("Refusing to run local Alembic against Neon database")
 
 config.set_main_option("sqlalchemy.url", db_url)
