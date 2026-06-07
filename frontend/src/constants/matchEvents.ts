@@ -54,7 +54,7 @@ export const TIMELINE_MARKERS = {
   },
 } satisfies Record<string, TimelineMarkerConfig>;
 
-export const TICK_SPEED = 10000  // every 10s
+export const TICK_SPEED = 10000; // every 10s
 export const MS_PER_MINUTE = 60 * 1000;
 export const MS_PER_HOUR = MS_PER_MINUTE * 60;
 export const MS_PER_DAY = MS_PER_HOUR * 24;

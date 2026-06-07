@@ -86,7 +86,7 @@ describe('MatchCenter', () => {
     expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
     expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
   });
-  
+
   it('renders score and penalty shootout line for live matches with penalties', () => {
     const penaltyMatch: Match = {
       ...baseMatch,
