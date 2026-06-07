@@ -5,6 +5,8 @@ import { Card } from '@/components/ui/card';
 import type { Match } from '@/types/match';
 import type { ResponseMetadata } from '@/types/metadata';
 
+import { TICK_SPEED } from '@/constants/matchEvents';
+
 import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
 import {
@@ -31,7 +33,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
 
     const interval = setInterval(() => {
       setNow(Date.now());
-    }, 10000);
+    }, TICK_SPEED);
 
     return () => clearInterval(interval);
   }, [displayedLastUpdated]);
