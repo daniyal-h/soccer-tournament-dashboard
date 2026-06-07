@@ -5,7 +5,8 @@ export const queryKeys = {
   },
 
   standings: {
-    all: (tournamentId: number) => ['standings', tournamentId] as const,
+    all: (tournamentId: number, group?: string) =>
+      ['standings', tournamentId, group ?? 'all'] as const,
   },
 
   matches: {
