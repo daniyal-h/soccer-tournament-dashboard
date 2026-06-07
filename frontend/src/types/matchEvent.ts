@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 
+import type { ResponseMetadata } from './metadata';
 import type { Player } from './player';
 import type { Team } from './team';
 
@@ -27,6 +28,11 @@ export interface MatchEvent {
   extra_minute: number | null;
   detail: string | null;
   comments: string | null;
+}
+
+export interface MatchEventResponse {
+  data: MatchEvent[];
+  metadata: ResponseMetadata;
 }
 
 export interface MatchEventsOptions {
