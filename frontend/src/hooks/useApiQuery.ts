@@ -1,6 +1,7 @@
 import {
   type QueryKey,
   useQuery,
+  useQueryClient,
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
@@ -26,7 +27,7 @@ type ApiQueryResult<TData> = UseQueryResult<TData, Error> & {
   canRetry: boolean;
   isInitialLoading: boolean;
   isRefreshing: boolean;
-  retry: () => Promise<void>;
+  retry: (refetchTournamentsOnRetry?: boolean) => Promise<void>;
 };
 
 export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
@@ -35,6 +36,8 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
   errorMessages,
   ...options
 }: UseApiQueryOptions<TQueryFnData, TData>): ApiQueryResult<TData> {
+  const queryClient = useQueryClient();
+
   const query = useQuery<TQueryFnData, Error, TData, QueryKey>({
     queryKey,
     queryFn,
@@ -43,14 +46,28 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
 
   const errorState = query.error ? getApiErrorState(query.error, errorMessages) : null;
 
+  const retry = async (refetchTournamentsOnRetry = false) => {
+    if (refetchTournamentsOnRetry) {
+      await Promise.all([
+        query.refetch(),
+        queryClient.refetchQueries({
+          queryKey: ['tournaments'],
+          type: 'active',
+        }),
+      ]);
+
+      return;
+    }
+
+    await query.refetch();
+  };
+
   return {
     ...query,
     displayError: errorState ? new Error(errorState.message) : null,
     canRetry: errorState?.canRetry ?? false,
     isInitialLoading: query.isPending && !query.data,
     isRefreshing: query.isFetching && !!query.data,
-    retry: async () => {
-      await query.refetch();
-    },
+    retry,
   };
 }

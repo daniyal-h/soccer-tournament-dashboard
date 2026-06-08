@@ -13,7 +13,7 @@ import { useStandings } from '@/hooks/useStandings';
  * Render a skeleton when loading or error state upon error
  */
 const Standings = () => {
-  const { selectedTournament, selectedTournamentId } = useTournament();
+  const { selectedTournament, selectedTournamentId, error: tournamentError } = useTournament();
   const { standings, isLoading, error, refetch, canRetry } = useStandings({
     tournamentId: selectedTournamentId,
   });
@@ -36,7 +36,8 @@ const Standings = () => {
         title="Standings Unavailable"
         description={error.message}
         // show retry button if allowed
-        onAction={canRetry ? refetch : undefined}
+        // refetch tournaments if that is also broken
+        onAction={canRetry ? () => refetch(Boolean(tournamentError)) : undefined}
       />
     );
   }

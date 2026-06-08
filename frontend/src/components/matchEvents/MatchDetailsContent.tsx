@@ -1,3 +1,5 @@
+import { useTournament } from '@/context/TournamentContext';
+
 import { useMatch } from '@/hooks/useMatch';
 import { useMatchEvents } from '@/hooks/useMatchEvents';
 
@@ -13,6 +15,8 @@ interface MatchDetailsProps {
 }
 
 const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
+  const { error: tournamentError } = useTournament();
+
   const {
     match,
     isLoading: isMatchLoading,
@@ -40,7 +44,9 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
       <ErrorState
         title="Match Unavailable"
         description={matchError.message}
-        onAction={canRetryMatch ? refetchMatch : undefined}
+        // show retry button if allowed
+        // refetch tournaments if that is also broken
+        onAction={canRetryMatch ? () => refetchMatch(Boolean(tournamentError)) : undefined}
       />
     );
   }
@@ -57,7 +63,9 @@ const MatchDetailsContent = ({ matchId }: MatchDetailsProps) => {
         <ErrorState
           title="Match Events Unavailable"
           description={eventsError.message}
-          onAction={canRetryEvents ? refetchEvents : undefined}
+          // show retry button if allowed
+          // refetch tournaments if that is also broken
+          onAction={canRetryEvents ? () => refetchEvents(Boolean(tournamentError)) : undefined}
         />
       ) : (
         <MatchTimeline

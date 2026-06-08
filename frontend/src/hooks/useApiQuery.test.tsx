@@ -20,9 +20,11 @@ function createWrapper() {
     },
   });
 
-  return ({ children }: { children: ReactNode }) => (
+  const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
   );
+
+  return { wrapper, queryClient };
 }
 
 function createDeferred<T>() {
@@ -45,6 +47,7 @@ describe('useApiQuery', () => {
   it('returns queried data after a successful request', async () => {
     const queryFn = vi.fn().mockResolvedValue(['World Cup']);
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -55,7 +58,7 @@ describe('useApiQuery', () => {
             generic: 'Failed.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -73,6 +76,7 @@ describe('useApiQuery', () => {
   it('reports initial loading while the first request is pending', async () => {
     const deferred = createDeferred<string[]>();
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -83,7 +87,7 @@ describe('useApiQuery', () => {
             generic: 'Failed.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     expect(result.current.data).toBeUndefined();
@@ -111,6 +115,7 @@ describe('useApiQuery', () => {
       canRetry: true,
     });
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -121,7 +126,7 @@ describe('useApiQuery', () => {
             generic: 'Failed to load tournaments.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -144,6 +149,7 @@ describe('useApiQuery', () => {
       canRetry: false,
     });
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -154,7 +160,7 @@ describe('useApiQuery', () => {
             generic: 'Failed to load match.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -175,6 +181,7 @@ describe('useApiQuery', () => {
       canRetry: true,
     });
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -185,7 +192,7 @@ describe('useApiQuery', () => {
             generic: 'Failed to load tournaments.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -213,6 +220,7 @@ describe('useApiQuery', () => {
       .mockResolvedValueOnce(['cached match'])
       .mockReturnValueOnce(deferred.promise);
 
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery({
@@ -223,7 +231,7 @@ describe('useApiQuery', () => {
             generic: 'Failed to load match.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
@@ -256,6 +264,7 @@ describe('useApiQuery', () => {
   });
 
   it('applies select transformations from query options', async () => {
+    const { wrapper } = createWrapper();
     const { result } = renderHook(
       () =>
         useApiQuery<string[], number>({
@@ -267,11 +276,51 @@ describe('useApiQuery', () => {
             generic: 'Failed to load items.',
           },
         }),
-      { wrapper: createWrapper() },
+      { wrapper },
     );
 
     await waitFor(() => {
       expect(result.current.data).toBe(3);
     });
+  });
+
+  it('retry does not refetch tournaments when explicitly passed false', async () => {
+    const { wrapper, queryClient } = createWrapper();
+
+    const queryFn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('matches failed'))
+      .mockResolvedValueOnce(['matches']);
+
+    const refetchQueriesSpy = vi.spyOn(queryClient, 'refetchQueries');
+
+    vi.mocked(getApiErrorState).mockReturnValue({
+      message: 'Failed to load matches.',
+      canRetry: true,
+    });
+
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          queryKey: ['matches-explicit-false'],
+          queryFn,
+          errorMessages: {
+            notFound: 'Matches were not found.',
+            generic: 'Failed to load matches.',
+          },
+        }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.displayError?.message).toBe('Failed to load matches.');
+    });
+
+    await act(async () => {
+      await result.current.retry(false);
+    });
+
+    expect(queryFn).toHaveBeenCalledTimes(2);
+    expect(refetchQueriesSpy).not.toHaveBeenCalled();
   });
 });

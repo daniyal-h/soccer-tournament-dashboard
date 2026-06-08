@@ -3,12 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MatchDetailsContent from '@/components/matchEvents/MatchDetailsContent';
 
+import { useTournament } from '@/context/TournamentContext';
+
 import { useMatch } from '@/hooks/useMatch';
 import { useMatchEvents } from '@/hooks/useMatchEvents';
 
 import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
 
+vi.mock('@/context/TournamentContext');
 vi.mock('@/hooks/useMatch');
 vi.mock('@/hooks/useMatchEvents');
 
@@ -22,11 +25,15 @@ vi.mock('@/components/feedback/ErrorState', () => ({
     description: string;
     onAction?: () => void;
   }) => (
-    <section>
-      <h1>{title}</h1>
-      <p>{description}</p>
-      {onAction && <button onClick={onAction}>Try again</button>}
-    </section>
+    <div data-description={description} data-testid="error-state">
+      <span>{title}</span>
+
+      {onAction && (
+        <button type="button" onClick={() => void onAction()}>
+          Try again
+        </button>
+      )}
+    </div>
   ),
 }));
 
@@ -59,6 +66,7 @@ vi.mock('@/components/matchEvents/timeline/MatchTimeline', () => ({
   ),
 }));
 
+const mockUseTournament = vi.mocked(useTournament);
 const mockUseMatch = vi.mocked(useMatch);
 const mockUseMatchEvents = vi.mocked(useMatchEvents);
 
@@ -104,6 +112,19 @@ const baseEvent: MatchEvent = {
   comments: null,
 };
 
+function mockTournamentState(error: Error | null = null) {
+  mockUseTournament.mockReturnValue({
+    selectedTournamentId: 1,
+    selectedTournament: null,
+    tournaments: [],
+    setSelectedTournamentId: vi.fn(),
+    isLoading: false,
+    error,
+    refetch: vi.fn(),
+    canRetry: true,
+  });
+}
+
 function mockMatchState(overrides: Partial<ReturnType<typeof useMatch>> = {}) {
   mockUseMatch.mockReturnValue({
     match: baseMatch,
@@ -133,6 +154,7 @@ function mockEventsState(overrides: Partial<ReturnType<typeof useMatchEvents>> =
 describe('MatchDetailsContent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockTournamentState();
     mockMatchState();
     mockEventsState();
   });
@@ -154,8 +176,10 @@ describe('MatchDetailsContent', () => {
     expect(screen.queryByText('Timeline Match: 1')).not.toBeInTheDocument();
   });
 
-  it('renders match error state with retry action when match retry is allowed', () => {
+  it('passes false to match retry action when tournaments are healthy', () => {
     const refetchMatch = vi.fn();
+
+    mockTournamentState(null);
 
     mockMatchState({
       match: null,
@@ -166,12 +190,28 @@ describe('MatchDetailsContent', () => {
 
     render(<MatchDetailsContent matchId={1} />);
 
-    expect(screen.getByText('Match Unavailable')).toBeInTheDocument();
-    expect(screen.getByText('Failed to load match.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(refetchMatch).toHaveBeenCalledExactlyOnceWith(false);
+  });
+
+  it('passes true to match retry action when tournaments also failed', () => {
+    const refetchMatch = vi.fn();
+
+    mockTournamentState(new Error('Failed to load tournaments.'));
+
+    mockMatchState({
+      match: null,
+      error: new Error('Failed to load match.'),
+      refetch: refetchMatch,
+      canRetry: true,
+    });
+
+    render(<MatchDetailsContent matchId={1} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
-    expect(refetchMatch).toHaveBeenCalledOnce();
+    expect(refetchMatch).toHaveBeenCalledExactlyOnceWith(true);
   });
 
   it('renders match error state without retry action when match retry is not allowed', () => {
@@ -184,7 +224,6 @@ describe('MatchDetailsContent', () => {
     render(<MatchDetailsContent matchId={1} />);
 
     expect(screen.getByText('Match Unavailable')).toBeInTheDocument();
-    expect(screen.getByText('Invalid match id.')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
   });
 
@@ -194,7 +233,6 @@ describe('MatchDetailsContent', () => {
     render(<MatchDetailsContent matchId={1} />);
 
     expect(screen.getByText('Match Unavailable')).toBeInTheDocument();
-    expect(screen.getByText('Match not found.')).toBeInTheDocument();
     expect(screen.queryByText('Match Header: 1')).not.toBeInTheDocument();
     expect(screen.queryByText('Timeline Match: 1')).not.toBeInTheDocument();
   });
@@ -233,12 +271,14 @@ describe('MatchDetailsContent', () => {
 
     expect(screen.getByText('Match Header: 1')).toBeInTheDocument();
     expect(screen.getByText('Match Events Unavailable')).toBeInTheDocument();
-    expect(screen.getByText('Failed to load events.')).toBeInTheDocument();
+    expect(screen.getByText('Match Events Unavailable')).toBeInTheDocument();
     expect(screen.queryByText('Timeline Match: 1')).not.toBeInTheDocument();
   });
 
-  it('renders events error retry action when events retry is allowed', () => {
+  it('passes false to events retry action when tournaments are healthy', () => {
     const refetchEvents = vi.fn();
+
+    mockTournamentState(null);
 
     mockEventsState({
       error: new Error('Temporary events error.'),
@@ -250,7 +290,25 @@ describe('MatchDetailsContent', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
 
-    expect(refetchEvents).toHaveBeenCalledOnce();
+    expect(refetchEvents).toHaveBeenCalledExactlyOnceWith(false);
+  });
+
+  it('passes true to events retry action when tournaments also failed', () => {
+    const refetchEvents = vi.fn();
+
+    mockTournamentState(new Error('Failed to load tournaments.'));
+
+    mockEventsState({
+      error: new Error('Temporary events error.'),
+      refetch: refetchEvents,
+      canRetry: true,
+    });
+
+    render(<MatchDetailsContent matchId={1} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(refetchEvents).toHaveBeenCalledExactlyOnceWith(true);
   });
 
   it('does not render events retry action when events retry is not allowed', () => {

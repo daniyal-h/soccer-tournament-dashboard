@@ -8,7 +8,7 @@ import { useTournament } from '@/context/TournamentContext';
 import { useMatches } from '@/hooks/useMatches';
 
 const Schedule = () => {
-  const { selectedTournament, selectedTournamentId } = useTournament();
+  const { selectedTournament, selectedTournamentId, error: tournamentError } = useTournament();
   const { groupedMatches, isLoading, error, emptyState, refetch, canRetry } = useMatches({
     tournament_id: selectedTournamentId,
   });
@@ -25,7 +25,8 @@ const Schedule = () => {
         title="Schedule Unavailable"
         description={error.message}
         // show retry button if allowed
-        onAction={canRetry ? refetch : undefined}
+        // refetch tournaments if that is also broken
+        onAction={canRetry ? () => refetch(Boolean(tournamentError)) : undefined}
       />
     );
   }
