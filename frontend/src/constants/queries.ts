@@ -39,3 +39,4 @@ export const QUERY_GC_TIMES = {
 } as const;
 
 export const RETRY_COUNT = 2;
+export const AUTO_REFETCH_TIME = 1 * MINUTE;

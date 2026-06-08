@@ -1,6 +1,6 @@
 import { getMatch } from '@/api/matchesApi';
 
-import { QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 
@@ -9,6 +9,11 @@ export function useMatch(match_id: number) {
     queryKey: queryKeys.matches.detail(match_id),
     queryFn: () => getMatch({ match_id }),
     staleTime: QUERY_STALE_TIMES.matches,
+
+    refetchInterval: (query) => {
+      const match = query.state.data;
+      return match?.status === 'live' ? AUTO_REFETCH_TIME : false;
+    },
     errorMessages: {
       notFound: 'Match was not found.',
       generic: 'Failed to load match.',
