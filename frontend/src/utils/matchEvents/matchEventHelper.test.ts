@@ -90,7 +90,7 @@ function makeEvent(overrides: Partial<MatchEvent> = {}): MatchEvent {
 
 describe('getEventKey', () => {
   it('builds a stable key from minute, team, players, and event type', () => {
-    expect(getEventKey(baseEvent)).toBe('12-Canada-Davies-goal-David');
+    expect(getEventKey(baseEvent)).toBe('12-Canada-Davies-goal-David--');
   });
 
   it('uses empty segments when player fields are missing', () => {
@@ -102,7 +102,7 @@ describe('getEventKey', () => {
       team: teamB,
     });
 
-    expect(getEventKey(event)).toBe('45-Belgium--yellow_card-');
+    expect(getEventKey(event)).toBe('45-Belgium--yellow_card---');
   });
 });
 
