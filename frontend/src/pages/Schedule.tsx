@@ -52,7 +52,7 @@ const Schedule = () => {
 
       <p className="text-muted-foreground">{description}</p>
 
-      <MatchSchedule groupedMatches={groupedMatches} />
+      <MatchSchedule key={selectedTournamentId} groupedMatches={groupedMatches} />
     </section>
   );
 };
