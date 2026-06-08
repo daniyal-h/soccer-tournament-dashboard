@@ -457,9 +457,7 @@ describe('Standings', () => {
 
     render(<Standings />);
 
-    expect(
-      screen.getByText('Standings Unavailable'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Standings Unavailable')).toBeInTheDocument();
 
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
     expect(refetch).not.toHaveBeenCalled();
