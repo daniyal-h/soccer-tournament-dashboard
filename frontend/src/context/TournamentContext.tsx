@@ -22,6 +22,8 @@ type TournamentContextType = {
   setSelectedTournamentId: Dispatch<SetStateAction<number>>;
   isLoading: boolean;
   error: Error | null;
+  refetch: () => Promise<void>;
+  canRetry: boolean;
 };
 
 const TournamentContext = createContext<TournamentContextType | undefined>(undefined);
@@ -31,7 +33,7 @@ type TournamentProviderProps = {
 };
 
 export const TournamentProvider = ({ children }: TournamentProviderProps) => {
-  const { tournaments, isLoading, error } = useTournaments();
+  const { tournaments, isLoading, error, refetch, canRetry } = useTournaments();
 
   // initialize selected tournament from localStorage
   // fallback to default if value is missing or invalid
@@ -89,8 +91,10 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
       setSelectedTournamentId,
       isLoading,
       error,
+      refetch,
+      canRetry,
     }),
-    [tournaments, selectedTournamentId, selectedTournament, isLoading, error],
+    [tournaments, selectedTournamentId, selectedTournament, isLoading, error, refetch, canRetry],
   );
 
   return <TournamentContext.Provider value={value}>{children}</TournamentContext.Provider>;
