@@ -25,12 +25,14 @@ vi.mock('@/components/feedback/ErrorState', () => ({
     description: string;
     onAction?: () => void;
   }) => (
-    <div
-      data-description={description}
-      data-has-action={String(Boolean(onAction))}
-      data-testid="error-state"
-    >
-      {title}
+    <div data-description={description} data-testid="error-state">
+      <span>{title}</span>
+
+      {onAction && (
+        <button type="button" onClick={() => void onAction()}>
+          Try again
+        </button>
+      )}
     </div>
   ),
 }));
@@ -165,24 +167,79 @@ describe('Schedule', () => {
 
     expect(errorState).toHaveTextContent('Schedule Unavailable');
     expect(errorState).toHaveAttribute('data-description', 'Backend unavailable');
-    expect(errorState).toHaveAttribute('data-has-action', 'true');
+    expect(screen.getByRole('button', { name: /try again/i })).toBeInTheDocument();
+  });
+
+  it('retry action also requests tournament refetch when tournament context has an error', async () => {
+    const refetch = vi.fn();
+
+    mockedUseTournament.mockReturnValue({
+      ...defaultTournament,
+      error: new Error('Tournaments unavailable'),
+    } as never);
+
+    mockedUseMatches.mockReturnValue({
+      groupedMatches: [],
+      isLoading: false,
+      error: new Error('Backend unavailable'),
+      emptyState: null,
+      refetch,
+      canRetry: true,
+    } as never);
+
+    render(<Schedule />);
+
+    screen.getByRole('button', { name: /try again/i }).click();
+
+    expect(refetch).toHaveBeenCalledExactlyOnceWith(true);
   });
 
   it('renders error state without retry action when retries are disabled', () => {
-    mockedUseTournament.mockReturnValue(defaultTournament as never);
+    const refetch = vi.fn();
+
+    mockedUseTournament.mockReturnValue({
+      ...defaultTournament,
+      error: new Error('Tournaments unavailable'),
+    } as never);
 
     mockedUseMatches.mockReturnValue({
       groupedMatches: [],
       isLoading: false,
       error: new Error('Rate limited'),
       emptyState: null,
-      refetch: vi.fn(),
+      refetch,
       canRetry: false,
     } as never);
 
     render(<Schedule />);
 
-    expect(screen.getByTestId('error-state')).toHaveAttribute('data-has-action', 'false');
+    expect(screen.getByTestId('error-state')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /try again/i })).not.toBeInTheDocument();
+    expect(refetch).not.toHaveBeenCalled();
+  });
+
+  it('retry action refetches only schedule when tournament context has no error', async () => {
+    const refetch = vi.fn();
+
+    mockedUseTournament.mockReturnValue({
+      ...defaultTournament,
+      error: null,
+    } as never);
+
+    mockedUseMatches.mockReturnValue({
+      groupedMatches: [],
+      isLoading: false,
+      error: new Error('Backend unavailable'),
+      emptyState: null,
+      refetch,
+      canRetry: true,
+    } as never);
+
+    render(<Schedule />);
+
+    screen.getByRole('button', { name: /try again/i }).click();
+
+    expect(refetch).toHaveBeenCalledExactlyOnceWith(false);
   });
 
   it('renders empty state when emptyState is provided', () => {

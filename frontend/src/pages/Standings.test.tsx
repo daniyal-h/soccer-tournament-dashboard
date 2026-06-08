@@ -35,11 +35,11 @@ vi.mock('@/components/feedback/ErrorState', () => ({
   }: {
     title: string;
     description: string;
-    onAction?: () => void | Promise<void>;
+    onAction?: () => void;
   }) => (
-    <div>
-      <h2>{title}</h2>
-      <p>{description}</p>
+    <div data-description={description} data-testid="error-state">
+      <span>{title}</span>
+
       {onAction && (
         <button type="button" onClick={() => void onAction()}>
           Try again
@@ -157,7 +157,7 @@ describe('Standings', () => {
 
     render(<Standings />);
 
-    expect(screen.getByText('Failed to load standings.')).toBeInTheDocument();
+    expect(screen.getByText('Standings Unavailable')).toBeInTheDocument();
     expect(screen.queryByText('Legend Mock')).not.toBeInTheDocument();
     expect(screen.queryByText('GroupGrid Mock')).not.toBeInTheDocument();
   });
@@ -369,8 +369,26 @@ describe('Standings', () => {
     ).toBeInTheDocument();
   });
 
-  it('passes retry action to ErrorState when the error is retryable', async () => {
+  it('passes false to retry action when standings fail but tournaments are healthy', () => {
     const refetch = vi.fn();
+
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'FIFA World Cup 2026',
+        season: '2026',
+        logo_url: null,
+        start_date: '2099-01-01',
+        end_date: '2099-07-19',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      canRetry: true,
+    });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
@@ -385,24 +403,65 @@ describe('Standings', () => {
 
     screen.getByRole('button', { name: 'Try again' }).click();
 
-    expect(refetch).toHaveBeenCalledTimes(1);
+    expect(refetch).toHaveBeenCalledExactlyOnceWith(false);
+  });
+
+  it('passes true to retry action when standings and tournaments both fail', () => {
+    const refetch = vi.fn();
+
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: {
+        id: 1,
+        name: 'FIFA World Cup 2026',
+        season: '2026',
+        logo_url: null,
+        start_date: '2099-01-01',
+        end_date: '2099-07-19',
+      },
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: new Error('Unable to load tournaments.'),
+      refetch: vi.fn(),
+      canRetry: true,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      isRefreshing: false,
+      error: new Error('Unable to reach the server.'),
+      refetch,
+      canRetry: true,
+    });
+
+    render(<Standings />);
+
+    screen.getByRole('button', { name: 'Try again' }).click();
+
+    expect(refetch).toHaveBeenCalledExactlyOnceWith(true);
   });
 
   it('does not render retry action when the error is not retryable', () => {
+    const refetch = vi.fn();
+
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
       isRefreshing: false,
       error: new Error('Groups and rankings will appear once tournament data is available.'),
-      refetch: vi.fn(),
+      refetch,
       canRetry: false,
     });
 
     render(<Standings />);
 
     expect(
-      screen.getByText('Groups and rankings will appear once tournament data is available.'),
+      screen.getByText('Standings Unavailable'),
     ).toBeInTheDocument();
+
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+    expect(refetch).not.toHaveBeenCalled();
   });
 });
