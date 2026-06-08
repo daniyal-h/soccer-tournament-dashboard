@@ -20,7 +20,6 @@ interface UseApiQueryOptions<TQueryFnData, TData> extends Omit<
   queryKey: QueryKey;
   queryFn: () => Promise<TQueryFnData>;
   errorMessages: ApiErrorMessages;
-  refetchTournamentsOnRetry?: boolean;
 }
 
 type ApiQueryResult<TData> = UseQueryResult<TData, Error> & {
@@ -28,14 +27,13 @@ type ApiQueryResult<TData> = UseQueryResult<TData, Error> & {
   canRetry: boolean;
   isInitialLoading: boolean;
   isRefreshing: boolean;
-  retry: () => Promise<void>;
+  retry: (refetchTournamentsOnRetry?: boolean) => Promise<void>;
 };
 
 export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
   queryKey,
   queryFn,
   errorMessages,
-  refetchTournamentsOnRetry = false,
   ...options
 }: UseApiQueryOptions<TQueryFnData, TData>): ApiQueryResult<TData> {
   const queryClient = useQueryClient();
@@ -48,23 +46,28 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
 
   const errorState = query.error ? getApiErrorState(query.error, errorMessages) : null;
 
+  const retry = async (refetchTournamentsOnRetry = false) => {
+    if (refetchTournamentsOnRetry) {
+      await Promise.all([
+        query.refetch(),
+        queryClient.refetchQueries({
+          queryKey: ['tournaments'],
+          type: 'active',
+        }),
+      ]);
+
+      return;
+    }
+
+    await query.refetch();
+  };
+
   return {
     ...query,
     displayError: errorState ? new Error(errorState.message) : null,
     canRetry: errorState?.canRetry ?? false,
     isInitialLoading: query.isPending && !query.data,
     isRefreshing: query.isFetching && !!query.data,
-
-    // refetch for the query and optionally, also the tournament selector in parallel
-    retry: async () => {
-      if (refetchTournamentsOnRetry) {
-        await Promise.all([
-          query.refetch(),
-          queryClient.refetchQueries({ queryKey: ['tournaments'], type: 'active' }),
-        ]);
-        return;
-      }
-      await query.refetch();
-    },
+    retry,
   };
 }
