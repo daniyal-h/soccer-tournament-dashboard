@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -5,10 +6,31 @@ import ErrorState from '@/components/feedback/ErrorState';
 import MatchDetailsContent from '@/components/matchEvents/MatchDetailsContent';
 import { Button } from '@/components/ui/button';
 
+import { ROUTES } from '@/constants/navigation';
+
 const MatchDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state?.from;
+  const from = location.state?.from ?? ROUTES.SCHEDULE;
+
+  useEffect(() => {
+    // Always scroll to top when this page mounts or the match changes
+    const id = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [location.key]);
+
+  const handleBack = () => {
+    if (from && globalThis.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+
+    if (from) {
+      navigate(from);
+    }
+  };
 
   const { matchId } = useParams();
 
@@ -21,11 +43,7 @@ const MatchDetails = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Button
-        variant="outline"
-        className="w-fit cursor-pointer"
-        onClick={() => navigate(from ?? '/schedule')}
-      >
+      <Button variant="outline" className="w-fit cursor-pointer" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
         Back to Schedule
       </Button>

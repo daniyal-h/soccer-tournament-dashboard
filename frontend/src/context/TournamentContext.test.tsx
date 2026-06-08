@@ -1,4 +1,5 @@
 import { createElement, type ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,8 +9,22 @@ import { DEFAULT_TOURNAMENT_ID } from '@/constants/tournaments';
 
 import { TournamentProvider, useTournament } from './TournamentContext';
 
-const wrapper = ({ children }: { children: ReactNode }) =>
-  createElement(TournamentProvider, null, children);
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
+  return ({ children }: { children: ReactNode }) =>
+    createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      createElement(TournamentProvider, null, children),
+    );
+};
 
 const tournaments = [
   {
@@ -41,7 +56,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -56,7 +73,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -69,7 +88,9 @@ describe('TournamentContext', () => {
   it('falls back to default tournament when localStorage is empty', async () => {
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -83,7 +104,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -96,7 +119,9 @@ describe('TournamentContext', () => {
   it('uses default tournament ID when localStorage is missing', () => {
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.selectedTournamentId).toBe(DEFAULT_TOURNAMENT_ID);
   });
@@ -106,7 +131,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.selectedTournamentId).toBe(2);
   });
@@ -114,7 +141,9 @@ describe('TournamentContext', () => {
   it('updates selected tournament and persists it to localStorage', async () => {
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -134,7 +163,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.selectedTournamentId).toBe(DEFAULT_TOURNAMENT_ID);
@@ -148,7 +179,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.selectedTournamentId).toBe(DEFAULT_TOURNAMENT_ID);
   });
@@ -158,7 +191,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockReturnValue(new Promise(() => {}));
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current.isLoading).toBe(true);
     expect(result.current.selectedTournamentId).toBe(999);
@@ -170,7 +205,9 @@ describe('TournamentContext', () => {
 
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -186,7 +223,9 @@ describe('TournamentContext', () => {
   it('returns null selected tournament before tournaments are available', async () => {
     vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue([]);
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -198,7 +237,9 @@ describe('TournamentContext', () => {
   it('exposes loading errors from useTournaments', async () => {
     vi.spyOn(tournamentsApi, 'getTournaments').mockRejectedValue(new Error('boom'));
 
-    const { result } = renderHook(() => useTournament(), { wrapper });
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
@@ -211,5 +252,44 @@ describe('TournamentContext', () => {
     expect(() => renderHook(() => useTournament())).toThrow(
       'useTournamentContext must be used within TournamentProvider',
     );
+  });
+
+  it('exposes retry handler after loading failure', async () => {
+    vi.spyOn(tournamentsApi, 'getTournaments').mockRejectedValue(new Error('boom'));
+
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.canRetry).toBe(true);
+    });
+
+    expect(result.current.refetch).toBeDefined();
+  });
+
+  it('reloads tournaments when refetch is called', async () => {
+    const spy = vi
+      .spyOn(tournamentsApi, 'getTournaments')
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce(tournaments);
+
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).not.toBeNull();
+    });
+
+    await act(async () => {
+      await result.current.refetch();
+    });
+
+    await waitFor(() => {
+      expect(result.current.tournaments).toHaveLength(2);
+    });
+
+    expect(spy).toHaveBeenCalledTimes(2);
   });
 });

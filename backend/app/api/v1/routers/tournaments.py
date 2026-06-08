@@ -15,7 +15,7 @@ from app.schemas.tournaments import TournamentResponse
 router = APIRouter()
 
 
-@router.get("/", response_model=list[TournamentResponse])
+@router.get("", response_model=list[TournamentResponse])
 def get_tournaments(db: Annotated[Session, Depends(get_db)]):
     return tournaments_service.get_tournaments(db)
 

@@ -1,48 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import { getMatch } from '@/api/matchesApi';
 
-import type { Match } from '@/types/match';
+import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
-import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
+import { useApiQuery } from './useApiQuery';
 
-/**
- * Logic for getting a specified match.
- * Catch and wrap known errors.
- */
 export function useMatch(match_id: number) {
-  const [match, setMatch] = useState<Match | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [canRetry, setCanRetry] = useState(true);
+  const query = useApiQuery({
+    queryKey: queryKeys.matches.detail(match_id),
+    queryFn: () => getMatch({ match_id }),
+    staleTime: QUERY_STALE_TIMES.matches,
 
-  const loadMatch = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setCanRetry(true);
+    refetchInterval: (query) => {
+      const match = query.state.data;
+      return match?.status === 'live' ? AUTO_REFETCH_TIME : false;
+    },
+    errorMessages: {
+      notFound: 'Match was not found.',
+      generic: 'Failed to load match.',
+    },
+  });
 
-    return getMatch({ match_id })
-      .then(setMatch)
-      .catch((err) => {
-        setMatch(null);
-
-        const errorState = getApiErrorState(err, {
-          notFound: 'Match was not found.',
-          generic: 'Failed to load match.',
-        });
-
-        setError(new Error(errorState.message));
-        setCanRetry(errorState.canRetry);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [match_id]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadMatch();
-  }, [loadMatch]);
-
-  return { match, isLoading, error, refetch: loadMatch, canRetry };
+  return {
+    match: query.data ?? null,
+    isLoading: query.isInitialLoading,
+    isRefreshing: query.isRefreshing,
+    error: query.displayError,
+    refetch: query.retry,
+    canRetry: query.canRetry,
+  };
 }

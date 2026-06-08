@@ -19,6 +19,8 @@ export function getEventKey(event: MatchEvent) {
     event.player?.last_name ?? '',
     event.event_type,
     event.secondary_player?.last_name ?? '',
+    event.comments ?? '',
+    event.detail ?? '',
   ].join('-');
 }
 

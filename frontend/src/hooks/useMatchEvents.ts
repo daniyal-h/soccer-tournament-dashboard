@@ -1,75 +1,43 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import { getMatchEvents } from '@/api/matchEventsApi';
 
-import type { MatchEvent, MatchEventsOptions } from '@/types/matchEvent';
-import type { ResponseMetadata } from '@/types/metadata';
+import type { MatchEventsOptions } from '@/types/matchEvent';
 
-import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
+import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
-/**
- * Logic for fetching and processing matches events.
- * Catch and wrap known errors.
- */
-export function useMatchEvents({ match_id }: MatchEventsOptions) {
-  const [matchEvents, setMatchEvents] = useState<MatchEvent[]>([]);
-  const [metadata, setMetadata] = useState<ResponseMetadata | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [emptyState, setEmptyState] = useState<string | null>(null);
-  const [canRetry, setCanRetry] = useState(true);
+import { useApiQuery } from './useApiQuery';
 
-  const loadMatchEvents = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setEmptyState(null);
-    setCanRetry(true);
+export function useMatchEvents({ match_id, isLive = false }: MatchEventsOptions) {
+  const query = useApiQuery({
+    queryKey: queryKeys.matches.events(match_id),
+    queryFn: () => getMatchEvents({ match_id }),
+    staleTime: QUERY_STALE_TIMES.matchEvents,
 
-    return getMatchEvents({ match_id })
-      .then((matchEventsResponse) => {
-        const { data: matchEvents, metadata } = matchEventsResponse;
+    // auto-refetch for live matches
+    refetchInterval: isLive ? AUTO_REFETCH_TIME : false,
 
-        setMetadata(metadata);
+    errorMessages: {
+      notFound: 'No events were found for this match.',
+      generic: 'Failed to load match events.',
+    },
+  });
 
-        // check for empty state
-        if (matchEvents.length === 0) {
-          setMatchEvents([]);
-          setEmptyState('Match events will appear once the data is available.');
-          setCanRetry(false);
-          return;
-        }
+  // extract data and check for empty state
+  const matchEvents = query.data?.data ?? [];
+  const metadata = query.data?.metadata ?? null;
 
-        setMatchEvents(matchEvents);
-      })
-      .catch((err) => {
-        setMatchEvents([]);
-        setMetadata(null);
-
-        const errorState = getApiErrorState(err, {
-          notFound: 'No events were found for this match.',
-          generic: 'Failed to load match events.',
-        });
-
-        setError(new Error(errorState.message));
-        setCanRetry(errorState.canRetry);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [match_id]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadMatchEvents();
-  }, [loadMatchEvents]);
+  const emptyState =
+    !query.isInitialLoading && !query.displayError && matchEvents.length === 0
+      ? 'Match events will appear once the data is available.'
+      : null;
 
   return {
     matchEvents,
     metadata,
-    isLoading,
-    error,
+    isLoading: query.isInitialLoading,
+    isRefreshing: query.isRefreshing,
+    error: query.displayError,
     emptyState,
-    refetch: loadMatchEvents,
-    canRetry,
+    refetch: query.retry,
+    canRetry: query.canRetry,
   };
 }

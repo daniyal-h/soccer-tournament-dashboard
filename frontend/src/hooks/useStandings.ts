@@ -1,55 +1,28 @@
-import { useCallback, useEffect, useState } from 'react';
-
 import { getStandings } from '@/api/standingsApi';
 
-import type { Standing, StandingsOptions } from '@/types/standing';
+import type { StandingsOptions } from '@/types/standing';
 
-import { getApiErrorState } from '@/utils/errors/apiErrorHelper';
+import { QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
-/**
- * Logic for getting and processing standings data for a given tournament
- * Catch and wrap known errors, otherwise keep them generic
- * Include retry logic triggered upon error state rendering
- */
+import { useApiQuery } from './useApiQuery';
+
 export function useStandings({ tournamentId, group }: StandingsOptions) {
-  const [standings, setStandings] = useState<Record<string, Standing[]>>({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [canRetry, setCanRetry] = useState(true);
-
-  const loadStandings = useCallback(() => {
-    setIsLoading(true);
-    setError(null);
-    setCanRetry(true);
-
-    return getStandings({ tournamentId, group })
-      .then(setStandings)
-      .catch((err) => {
-        setStandings({});
-
-        const errorState = getApiErrorState(err, {
-          notFound: 'Groups and rankings will appear once tournament data is available.',
-          generic: 'Failed to load standings.',
-        });
-
-        setError(new Error(errorState.message));
-        setCanRetry(errorState.canRetry);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [tournamentId, group]);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadStandings();
-  }, [loadStandings]);
+  const query = useApiQuery({
+    queryKey: queryKeys.standings.all(tournamentId, group),
+    queryFn: () => getStandings({ tournamentId, group }),
+    staleTime: QUERY_STALE_TIMES.standings,
+    errorMessages: {
+      notFound: 'Groups and rankings will appear once tournament data is available.',
+      generic: 'Failed to load standings.',
+    },
+  });
 
   return {
-    standings,
-    isLoading,
-    error,
-    refetch: loadStandings,
-    canRetry,
+    standings: query.data ?? {},
+    isLoading: query.isInitialLoading,
+    isRefreshing: query.isRefreshing,
+    error: query.displayError,
+    refetch: query.retry,
+    canRetry: query.canRetry,
   };
 }

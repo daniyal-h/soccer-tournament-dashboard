@@ -108,6 +108,7 @@ function mockMatchState(overrides: Partial<ReturnType<typeof useMatch>> = {}) {
   mockUseMatch.mockReturnValue({
     match: baseMatch,
     isLoading: false,
+    isRefreshing: false,
     error: null,
     refetch: vi.fn(),
     canRetry: false,
@@ -120,6 +121,7 @@ function mockEventsState(overrides: Partial<ReturnType<typeof useMatchEvents>> =
     matchEvents: [baseEvent],
     metadata: null,
     isLoading: false,
+    isRefreshing: false,
     error: null,
     emptyState: null,
     refetch: vi.fn(),
@@ -139,7 +141,7 @@ describe('MatchDetailsContent', () => {
     render(<MatchDetailsContent matchId={7} />);
 
     expect(mockUseMatch).toHaveBeenCalledWith(7);
-    expect(mockUseMatchEvents).toHaveBeenCalledWith({ match_id: 7 });
+    expect(mockUseMatchEvents).toHaveBeenCalledWith({ match_id: 7, isLive: false });
   });
 
   it('renders the match skeleton while the match is loading', () => {
@@ -261,5 +263,32 @@ describe('MatchDetailsContent', () => {
 
     expect(screen.getByText('Match Events Unavailable')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Try again' })).not.toBeInTheDocument();
+  });
+
+  it('passes isLive true to match-events hook when match is live', () => {
+    mockMatchState({
+      match: {
+        ...baseMatch,
+        status: 'live',
+      },
+    });
+
+    render(<MatchDetailsContent matchId={7} />);
+
+    expect(mockUseMatchEvents).toHaveBeenCalledWith({
+      match_id: 7,
+      isLive: true,
+    });
+  });
+
+  it('passes isLive false to match-events hook when match data is missing', () => {
+    mockMatchState({ match: null });
+
+    render(<MatchDetailsContent matchId={7} />);
+
+    expect(mockUseMatchEvents).toHaveBeenCalledWith({
+      match_id: 7,
+      isLive: false,
+    });
   });
 });

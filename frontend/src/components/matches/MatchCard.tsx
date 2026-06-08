@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 
 import { type Match } from '@/types/match';
 
+import { ROUTES } from '@/constants/navigation';
+
 import { cn } from '@/lib/utils';
 
 import MatchCenter from './MatchCenter';
@@ -21,7 +23,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
   return (
     <Link
       to={`/matches/${match.id}`}
-      state={{ from: '/schedule' }}
+      state={{ from: ROUTES.SCHEDULE }}
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >
