@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
@@ -11,6 +12,14 @@ const MatchDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const from = location.state?.from ?? ROUTES.SCHEDULE;
+
+  useEffect(() => {
+    // Always scroll to top when this page mounts or the match changes
+    const id = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [location.key]);
 
   const handleBack = () => {
     if (from && globalThis.history.length > 1) {
