@@ -20,7 +20,7 @@ export function useTournaments() {
     isLoading: query.isInitialLoading,
     isRefreshing: query.isRefreshing,
     error: query.displayError,
-    refetch: query.refetch,
+    refetch: query.retry,
     canRetry: query.canRetry,
   };
 }
