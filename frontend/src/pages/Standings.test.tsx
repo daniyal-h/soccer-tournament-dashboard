@@ -72,6 +72,8 @@ beforeEach(() => {
     setSelectedTournamentId: vi.fn(),
     isLoading: false,
     error: null,
+    refetch: vi.fn(),
+    canRetry: true,
   });
 });
 
@@ -80,6 +82,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -96,6 +99,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -111,6 +115,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: true,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -127,6 +132,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -143,6 +149,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: new Error('Failed to load standings.'),
       refetch: vi.fn(),
       canRetry: true,
@@ -170,11 +177,14 @@ describe('Standings', () => {
       setSelectedTournamentId: vi.fn(),
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -208,6 +218,7 @@ describe('Standings', () => {
         ],
       },
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -237,11 +248,14 @@ describe('Standings', () => {
       setSelectedTournamentId: vi.fn(),
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: true,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -273,11 +287,14 @@ describe('Standings', () => {
       setSelectedTournamentId: vi.fn(),
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -303,11 +320,14 @@ describe('Standings', () => {
       setSelectedTournamentId: vi.fn(),
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: true,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -327,11 +347,14 @@ describe('Standings', () => {
       setSelectedTournamentId: vi.fn(),
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     });
 
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: true,
+      isRefreshing: false,
       error: null,
       refetch: vi.fn(),
       canRetry: true,
@@ -352,6 +375,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: new Error('Unable to reach the server.'),
       refetch,
       canRetry: true,
@@ -368,6 +392,7 @@ describe('Standings', () => {
     mockedUseStandings.mockReturnValue({
       standings: {},
       isLoading: false,
+      isRefreshing: false,
       error: new Error('Groups and rankings will appear once tournament data is available.'),
       refetch: vi.fn(),
       canRetry: false,

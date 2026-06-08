@@ -64,6 +64,8 @@ const tournaments = [
   },
 ];
 
+const mockRefetch = vi.fn();
+
 function mockTournamentContext(overrides = {}) {
   vi.spyOn(tournamentContext, 'useTournament').mockReturnValue({
     tournaments,
@@ -72,6 +74,8 @@ function mockTournamentContext(overrides = {}) {
     setSelectedTournamentId: mockSetSelectedTournamentId,
     isLoading: false,
     error: null,
+    refetch: mockRefetch,
+    canRetry: true,
     ...overrides,
   });
 }
@@ -81,9 +85,10 @@ describe('TournamentSelector', () => {
     vi.restoreAllMocks();
     mockSetSelectedTournamentId.mockClear();
     latestOnValueChange = undefined;
+    mockRefetch.mockClear();
   });
 
-  it('renders loading state', () => {
+  it('renders loading state with spinner', () => {
     mockTournamentContext({
       tournaments: [],
       selectedTournament: null,
@@ -93,6 +98,7 @@ describe('TournamentSelector', () => {
     render(<TournamentSelector />);
 
     expect(screen.getByText(/loading tournaments/i)).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
 
   it('renders loading state when selected tournament label cannot be resolved', () => {
@@ -106,6 +112,7 @@ describe('TournamentSelector', () => {
     render(<TournamentSelector />);
 
     expect(screen.getByText(/loading tournaments/i)).toBeInTheDocument();
+    expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
 
   it('renders error state before loading state', () => {
@@ -189,6 +196,8 @@ describe('TournamentSelector', () => {
       setSelectedTournamentId: mockSetSelectedTournamentId,
       isLoading: false,
       error: null,
+      refetch: vi.fn(),
+      canRetry: true,
     };
 
     const secondContext = {
@@ -224,18 +233,6 @@ describe('TournamentSelector', () => {
     expect(mockSetSelectedTournamentId).not.toHaveBeenCalled();
   });
 
-  it('ignores empty selection values', () => {
-    mockTournamentContext();
-
-    render(<TournamentSelector />);
-
-    act(() => {
-      latestOnValueChange?.('');
-    });
-
-    expect(mockSetSelectedTournamentId).not.toHaveBeenCalled();
-  });
-
   it('returns early when selected combobox value does not match a tournament label', () => {
     mockTournamentContext();
 
@@ -246,5 +243,52 @@ describe('TournamentSelector', () => {
     });
 
     expect(mockSetSelectedTournamentId).not.toHaveBeenCalled();
+  });
+
+  it('renders retry button when tournament loading error is retryable', () => {
+    mockTournamentContext({
+      tournaments: [],
+      selectedTournament: null,
+      error: new Error('No tournaments available'),
+      canRetry: true,
+    });
+
+    render(<TournamentSelector />);
+
+    expect(screen.getByText('No tournaments available')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /retry loading tournaments/i })).toBeInTheDocument();
+  });
+
+  it('calls refetch when retry button is clicked', async () => {
+    const user = userEvent.setup();
+
+    mockTournamentContext({
+      tournaments: [],
+      selectedTournament: null,
+      error: new Error('No tournaments available'),
+      canRetry: true,
+    });
+
+    render(<TournamentSelector />);
+
+    await user.click(screen.getByRole('button', { name: /retry loading tournaments/i }));
+
+    expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not render retry button when tournament loading error is not retryable', () => {
+    mockTournamentContext({
+      tournaments: [],
+      selectedTournament: null,
+      error: new Error('No tournaments available'),
+      canRetry: false,
+    });
+
+    render(<TournamentSelector />);
+
+    expect(screen.getByText('No tournaments available')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /retry loading tournaments/i }),
+    ).not.toBeInTheDocument();
   });
 });

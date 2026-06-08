@@ -22,7 +22,7 @@ describe('getTournaments', () => {
 
     await getTournaments();
 
-    expect(apiGetSpy).toHaveBeenCalledWith('/tournaments/');
+    expect(apiGetSpy).toHaveBeenCalledWith('/tournaments');
   });
 
   it('returns valid tournaments', async () => {
