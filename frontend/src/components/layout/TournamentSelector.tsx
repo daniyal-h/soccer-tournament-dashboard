@@ -13,6 +13,7 @@ import {
 import { useTournament } from '@/context/TournamentContext';
 
 import { Button } from '../ui/button';
+import { Spinner } from '../ui/spinner';
 
 import { formatSeason } from '@/utils/layout/tournamentSelectorHelper';
 
@@ -63,8 +64,9 @@ const TournamentSelector = () => {
 
   if (isLoading || selectedTournamentLabel === undefined) {
     return (
-      <div className="w-full md:w-55 lg:w-75 rounded-md border px-3 py-2 bg-accent">
-        Loading tournaments...
+      <div className="flex w-full items-center justify-between md:w-55 lg:w-75  rounded-md border px-3 py-2 bg-accent">
+        <span>Loading tournaments...</span>
+        <Spinner role="status" aria-label="Loading" />
       </div>
     );
   }
