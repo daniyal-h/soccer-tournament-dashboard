@@ -48,8 +48,18 @@ vi.mock('@/components/matches/ScheduleSkeleton', () => ({
 }));
 
 vi.mock('@/components/matches/MatchSchedule', () => ({
-  default: ({ groupedMatches }: { groupedMatches: unknown[] }) => (
-    <div data-count={groupedMatches.length} data-testid="match-schedule" />
+  default: ({
+    groupedMatches,
+    tournamentKey,
+  }: {
+    groupedMatches: unknown[];
+    tournamentKey?: unknown;
+  }) => (
+    <div
+      data-count={groupedMatches.length}
+      data-tournament-key={tournamentKey}
+      data-testid="match-schedule"
+    />
   ),
 }));
 
@@ -263,5 +273,39 @@ describe('Schedule', () => {
 
     expect(screen.getByTestId('schedule-skeleton')).toBeInTheDocument();
     expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
+  });
+
+  it('passes selectedTournamentId as the key to MatchSchedule so tournament switches force a remount', () => {
+    const groupedMatches = [{ day: 'June 11, 2026', matches: [{ id: 1 }] }];
+
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: { id: 1, name: 'FIFA World Cup 2026' },
+    } as never);
+
+    mockedUseMatches.mockReturnValue({
+      groupedMatches,
+      isLoading: false,
+      error: null,
+      emptyState: null,
+      refetch: vi.fn(),
+      canRetry: false,
+    } as never);
+
+    const { rerender } = render(<Schedule />);
+    const firstInstance = screen.getByTestId('match-schedule');
+
+    // Switch to a different tournament
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 2,
+      selectedTournament: { id: 2, name: 'UEFA Euro 2026' },
+    } as never);
+
+    rerender(<Schedule />);
+    const secondInstance = screen.getByTestId('match-schedule');
+
+    // A changed key causes React to unmount and remount — the DOM node is a
+    // different object even though the testid is the same.
+    expect(firstInstance).not.toBe(secondInstance);
   });
 });
