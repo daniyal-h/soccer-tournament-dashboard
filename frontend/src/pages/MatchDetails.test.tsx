@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MatchDetails from './MatchDetails';
 
@@ -130,5 +130,63 @@ describe('MatchDetails', () => {
     fireEvent.click(screen.getByRole('button', { name: /back to schedule/i }));
 
     expect(screen.getByTestId('location-pathname')).toHaveTextContent('/schedule');
+  });
+
+  // scroll behaviour
+  describe('scroll to top', () => {
+    beforeEach(() => {
+      vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+        cb(0);
+        return 0;
+      });
+      vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('scrolls to the top on initial mount', () => {
+      act(() => {
+        renderMatchDetails(['/matches/42']);
+      });
+
+      expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+    });
+    it('scrolls to the top again when navigating to a different match', () => {
+      function NavigateTrigger({ to }: { to: string }) {
+        const navigate = useNavigate();
+        return <button onClick={() => navigate(to)}>go</button>;
+      }
+
+      act(() => {
+        render(
+          <MemoryRouter initialEntries={['/matches/42']}>
+            <Routes>
+              <Route path="/matches/:matchId" element={<MatchDetails />} />
+            </Routes>
+            <NavigateTrigger to="/matches/99" />
+          </MemoryRouter>,
+        );
+      });
+
+      const callsAfterMount = (window.scrollTo as ReturnType<typeof vi.spyOn>).mock.calls.length;
+
+      act(() => {
+        fireEvent.click(screen.getByRole('button', { name: 'go' }));
+      });
+
+      expect(window.scrollTo).toHaveBeenCalledTimes(callsAfterMount + 1);
+    });
+
+    it('scrolls to the top even when an invalid match id is provided', () => {
+      act(() => {
+        renderMatchDetails(['/matches/not-a-number']);
+      });
+
+      expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+      expect(screen.getByTestId('error-state')).toBeInTheDocument();
+    });
   });
 });
