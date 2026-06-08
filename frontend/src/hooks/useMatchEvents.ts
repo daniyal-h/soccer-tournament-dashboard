@@ -2,7 +2,7 @@ import { getMatchEvents } from '@/api/matchEventsApi';
 
 import type { MatchEventsOptions } from '@/types/matchEvent';
 
-import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys,  } from '@/constants/queries';
+import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 
