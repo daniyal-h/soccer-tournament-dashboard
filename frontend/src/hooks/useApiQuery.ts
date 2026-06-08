@@ -1,6 +1,7 @@
 import {
   type QueryKey,
   useQuery,
+  useQueryClient,
   type UseQueryOptions,
   type UseQueryResult,
 } from '@tanstack/react-query';
@@ -19,6 +20,7 @@ interface UseApiQueryOptions<TQueryFnData, TData> extends Omit<
   queryKey: QueryKey;
   queryFn: () => Promise<TQueryFnData>;
   errorMessages: ApiErrorMessages;
+  refetchTournamentsOnRetry?: boolean;
 }
 
 type ApiQueryResult<TData> = UseQueryResult<TData, Error> & {
@@ -33,8 +35,11 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
   queryKey,
   queryFn,
   errorMessages,
+  refetchTournamentsOnRetry = false,
   ...options
 }: UseApiQueryOptions<TQueryFnData, TData>): ApiQueryResult<TData> {
+  const queryClient = useQueryClient();
+
   const query = useQuery<TQueryFnData, Error, TData, QueryKey>({
     queryKey,
     queryFn,
@@ -49,7 +54,16 @@ export function useApiQuery<TQueryFnData, TData = TQueryFnData>({
     canRetry: errorState?.canRetry ?? false,
     isInitialLoading: query.isPending && !query.data,
     isRefreshing: query.isFetching && !!query.data,
+
+    // refetch for the query and optionally, also the tournament selector in parallel
     retry: async () => {
+      if (refetchTournamentsOnRetry) {
+        await Promise.all([
+          query.refetch(),
+          queryClient.refetchQueries({ queryKey: ['tournaments'], type: 'active' }),
+        ]);
+        return;
+      }
       await query.refetch();
     },
   };
