@@ -60,8 +60,13 @@ const TournamentSelector = () => {
       </div>
     );
   }
+
   if (isLoading || selectedTournamentLabel === undefined) {
-    return <div className="w-full md:w-55 lg:w-75">Loading tournaments...</div>;
+    return (
+      <div className="w-full md:w-55 lg:w-75 rounded-md border px-3 py-2 bg-accent">
+        Loading tournaments...
+      </div>
+    );
   }
 
   return (
