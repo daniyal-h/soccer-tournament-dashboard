@@ -135,19 +135,27 @@ The test validates that the backend remains responsive while enforcing rate limi
 
 ## Results
 
-| Metric             | Result |
-| ------------------ | ------ |
-| Total Requests     |        |
-| Successful Checks  |        |
-| Average Latency    |        |
-| p95 Latency        |        |
-| Max Latency        |        |
-| HTTP 429 Responses |        |
-| HTTP Failure Rate  |        |
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 507      |
+| Successful Checks  | 100.00%  |
+| Average Latency    | 9.42ms   |
+| p95 Latency        | 15.00ms  |
+| Max Latency        | 47.36ms  |
+| HTTP 429 Responses | 158      |
+| HTTP Failure Rate  | 31.16%\* |
+
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected because the spike test intentionally exceeded configured rate limits.
 
 ## Outcome
 
-TODO
+The combined schedule navigation flow remained stable during sudden bursts of elevated traffic. The test simulated users loading the schedule page and navigating into individual match details, triggering requests across the schedule, match metadata, and match events endpoints.
+
+All validation checks completed successfully, with the backend correctly returning either successful responses or rate-limited responses when traffic exceeded configured limits.
+
+Rate limiting activated as expected during the spike, producing 158 HTTP 429 responses. Despite the sudden traffic increase, latency remained consistently low, with an average response time of 9.42ms and a p95 latency of 15.00ms.
+
+The test confirms that the complete schedule navigation flow can handle abrupt traffic spikes while maintaining responsiveness and enforcing API protection mechanisms.
 
 ---
 
@@ -222,7 +230,7 @@ Evaluate backend behavior under extreme sustained traffic while repeatedly exerc
 | Average Latency    | 636.56ms |
 | p95 Latency        | 190.61ms |
 | Max Latency        | 1m 0s    |
-| HTTP Failure Rate  | 98.50%*  |
+| HTTP Failure Rate  | 98.50%\* |
 | Peak Virtual Users | 200      |
 
 \* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected during stress testing because the test intentionally exceeded configured rate limits. A small number of additional failures occurred when the database connection pool reached its configured capacity during peak load.
