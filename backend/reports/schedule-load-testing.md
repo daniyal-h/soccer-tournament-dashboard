@@ -18,7 +18,7 @@ This sprint introduced the Schedule feature, including match schedule retrieval 
 | Endpoints Tested  | `GET /api/v1/tournaments/1/matches` |
 |                   | `GET /api/v1/matches/1`             |
 |                   | `GET /api/v1/matches/1/events`      |
-| Rate Limit        | 100 requests/min/IP                 |
+| Rate Limit        | 60 requests/min/IP                  |
 
 ---
 
@@ -257,4 +257,14 @@ The test identified database connection capacity as the primary scaling limitati
 
 # Conclusion
 
-TODO
+The Schedule feature load tests validated that the backend can reliably support match schedule browsing and match detail navigation under expected usage patterns.
+
+Normal load testing confirmed that both the schedule endpoint and match detail flow handled sustained traffic with no failed requests. The schedule endpoint completed 550 requests with a p95 latency of 20.13ms, while the match detail flow completed 1,100 combined requests across match metadata and event endpoints with a p95 latency of 20.10ms.
+
+Spike testing demonstrated that the complete schedule navigation flow remained responsive during sudden increases in traffic. Rate limiting activated correctly when request volume exceeded configured limits, preventing excessive traffic from impacting backend stability.
+
+The dedicated match events rate-limit test verified that frequently refreshed event data is protected against excessive requests. The endpoint correctly returned HTTP 429 responses while maintaining low latency and stable behaviour.
+
+Stress testing with 200 virtual users successfully identified the database connection pool as the primary scaling constraint under extreme concurrent load. The backend continued serving accepted requests efficiently, but some requests timed out once the configured SQLAlchemy connection pool capacity was exceeded.
+
+Overall, the Schedule feature met performance expectations for normal and burst traffic scenarios. The tests confirmed that caching, rate limiting, and backend request handling provide stable performance, while also identifying database connection capacity as the next optimization point for supporting significantly higher concurrent traffic.
