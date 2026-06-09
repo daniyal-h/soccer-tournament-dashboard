@@ -181,19 +181,23 @@ Verify that excessive requests to frequently refreshed match event data are corr
 
 ## Results
 
-| Metric            | Result |
-| ----------------- | ------ |
-| Total Requests    |        |
-| 200 Responses     |        |
-| 429 Responses     |        |
-| Successful Checks |        |
-| Average Latency   |        |
-| p95 Latency       |        |
-| Max Latency       |        |
+| Metric            | Result  |
+| ----------------- | ------- |
+| Total Requests    | 121     |
+| 200 Responses     | 60      |
+| 429 Responses     | 61      |
+| Successful Checks | 100.00% |
+| Average Latency   | 8.90ms  |
+| p95 Latency       | 15.87ms |
+| Max Latency       | 59.78ms |
 
 ## Outcome
 
-TODO
+The match events endpoint correctly enforced the configured rate limit under excessive request traffic. The test sent 121 requests in one minute, exceeding the 60 requests/minute/IP limit and producing 61 HTTP 429 responses.
+
+All validation checks passed because both successful responses and rate-limited responses were expected during this scenario. Latency remained low throughout the test, with an average response time of 8.90ms and a p95 latency of 15.87ms.
+
+The test confirms that the match events endpoint rejects excessive traffic without backend instability or response degradation.
 
 ---
 
