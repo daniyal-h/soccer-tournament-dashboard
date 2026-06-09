@@ -64,4 +64,31 @@ describe('ScrollToTopButton', () => {
       behavior: 'smooth',
     });
   });
+
+  it('registers and removes the scroll listener', () => {
+    const addEventListenerSpy = vi.spyOn(window, 'addEventListener');
+    const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener');
+
+    const { unmount } = render(<ScrollToTopButton />);
+
+    expect(addEventListenerSpy).toHaveBeenCalledWith('scroll', expect.any(Function));
+
+    const scrollHandler = addEventListenerSpy.mock.calls.find(([event]) => event === 'scroll')?.[1];
+
+    unmount();
+
+    expect(removeEventListenerSpy).toHaveBeenCalledWith('scroll', scrollHandler);
+  });
+
+  it('only appears when scroll position is greater than 400', () => {
+    render(<ScrollToTopButton />);
+
+    setScrollY(400);
+
+    expect(screen.queryByRole('button', { name: /scroll to top/i })).not.toBeInTheDocument();
+
+    setScrollY(401);
+
+    expect(screen.getByRole('button', { name: /scroll to top/i })).toBeInTheDocument();
+  });
 });

@@ -50,6 +50,18 @@ describe('ScheduleSkeleton', () => {
     expect(screen.getAllByTestId('card-content')).toHaveLength(8);
   });
 
+  it('uses stable unique keys for the rendered match cards', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    render(<ScheduleSkeleton />);
+
+    expect(consoleErrorSpy).not.toHaveBeenCalledWith(
+      expect.stringContaining('Encountered two children with the same key'),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
   it('applies the expected card styling', () => {
     render(<ScheduleSkeleton />);
 

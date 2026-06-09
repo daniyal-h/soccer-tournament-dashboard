@@ -188,5 +188,24 @@ describe('MatchDetails', () => {
       expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
       expect(screen.getByTestId('error-state')).toBeInTheDocument();
     });
+
+    it('schedules the scroll with requestAnimationFrame', () => {
+      act(() => {
+        renderMatchDetails(['/matches/42']);
+      });
+
+      expect(window.requestAnimationFrame).toHaveBeenCalledTimes(1);
+      expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'instant' });
+    });
+
+    it('cancels the scheduled scroll animation frame on unmount', () => {
+      vi.mocked(window.requestAnimationFrame).mockImplementation(() => 123);
+
+      const { unmount } = renderMatchDetails(['/matches/42']);
+
+      unmount();
+
+      expect(window.cancelAnimationFrame).toHaveBeenCalledExactlyOnceWith(123);
+    });
   });
 });

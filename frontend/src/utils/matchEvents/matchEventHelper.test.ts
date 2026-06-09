@@ -104,6 +104,17 @@ describe('getEventKey', () => {
 
     expect(getEventKey(event)).toBe('45-Belgium--yellow_card---');
   });
+
+  it('includes comments and detail in the stable event key', () => {
+    expect(
+      getEventKey(
+        makeEvent({
+          comments: 'Penalty Shootout',
+          detail: 'Normal Goal',
+        }),
+      ),
+    ).toBe('12-Canada-Davies-goal-David-Penalty Shootout-Normal Goal');
+  });
 });
 
 describe('isPenaltyShootoutEvent', () => {
@@ -201,6 +212,24 @@ describe('buildTimelineItems', () => {
   it('does not add elapsed markers when elapsed is zero or undefined', () => {
     expect(buildTimelineItems([], { ...baseMatch, elapsed: 0 })).toEqual([]);
     expect(buildTimelineItems([], { ...baseMatch, elapsed: null })).toEqual([]);
+  });
+
+  it('does not add half-time marker before elapsed reaches half-time', () => {
+    const items = buildTimelineItems([], { ...baseMatch, elapsed: 44 });
+
+    expect(items).toEqual([]);
+  });
+
+  it('does not add any elapsed-time markers when elapsed is null even for an otherwise live match', () => {
+    const items = buildTimelineItems([], { ...baseMatch, elapsed: null });
+
+    expect(items).toEqual([]);
+  });
+
+  it('does not add any elapsed-time markers when elapsed is zero', () => {
+    const items = buildTimelineItems([], { ...baseMatch, elapsed: 0 });
+
+    expect(items).toEqual([]);
   });
 });
 

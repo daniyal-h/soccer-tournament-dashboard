@@ -14,12 +14,28 @@ vi.mock('motion/react', () => ({
       children,
       style,
       className,
+      initial,
+      whileInView,
+      viewport,
+      transition,
     }: {
       children: React.ReactNode;
       style?: React.CSSProperties;
       className?: string;
+      initial?: unknown;
+      whileInView?: unknown;
+      viewport?: unknown;
+      transition?: unknown;
     }) => (
-      <div style={style} className={className} data-testid="motion-div">
+      <div
+        style={style}
+        className={className}
+        data-testid="motion-div"
+        data-initial={JSON.stringify(initial)}
+        data-while-in-view={JSON.stringify(whileInView)}
+        data-viewport={JSON.stringify(viewport)}
+        data-transition={JSON.stringify(transition)}
+      >
         {children}
       </div>
     ),
@@ -138,5 +154,22 @@ describe('TimelineEvent', () => {
     render(<TimelineEvent event={baseEvent} match={baseMatch} score="1-0" />);
 
     expect(mockCalculateTimeGap).toHaveBeenCalledWith(34, undefined);
+  });
+
+  it('passes the expected motion animation props', () => {
+    render(<TimelineEvent event={baseEvent} match={baseMatch} score="1-0" />);
+
+    const motionDiv = screen.getByTestId('motion-div');
+
+    expect(motionDiv).toHaveAttribute('data-initial', JSON.stringify({ opacity: 0, y: 12 }));
+    expect(motionDiv).toHaveAttribute('data-while-in-view', JSON.stringify({ opacity: 1, y: 0 }));
+    expect(motionDiv).toHaveAttribute(
+      'data-viewport',
+      JSON.stringify({ once: true, amount: 0.25 }),
+    );
+    expect(motionDiv).toHaveAttribute(
+      'data-transition',
+      JSON.stringify({ duration: 0.25, ease: 'easeOut' }),
+    );
   });
 });

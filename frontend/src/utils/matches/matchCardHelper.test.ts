@@ -120,6 +120,29 @@ describe('matchCardHelper', () => {
     it('returns postponed label for postponed matches', () => {
       expect(getMatchCenterDisplay(createMatch({ status: 'postponed' }))).toBe('POSTPONED');
     });
+
+    it('returns unknown status through exhaustive fallback', () => {
+      expect(
+        getMatchCenterDisplay(
+          createMatch({
+            status: 'abandoned' as Match['status'],
+          }),
+        ),
+      ).toBe('abandoned');
+    });
+
+    it('formats kickoff time using hour and minute formatting', () => {
+      const result = getMatchCenterDisplay(
+        createMatch({
+          status: 'scheduled',
+          kickoff_time: '2026-06-11T19:30:00Z',
+        }),
+      );
+
+      expect(result).toMatch(/\d/);
+      expect(result).toContain('30');
+      expect(result).not.toBe('Stryker was here');
+    });
   });
 
   describe('getMatchMetaDisplay', () => {
@@ -151,6 +174,26 @@ describe('matchCardHelper', () => {
           }),
         ),
       ).toBe('Group');
+    });
+
+    it('uses stage label for knockout matches even when group exists', () => {
+      expect(
+        getMatchMetaDisplay(
+          createMatch({
+            stage: 'final',
+            group: 'A',
+          }),
+        ),
+      ).toContain('Final');
+
+      expect(
+        getMatchMetaDisplay(
+          createMatch({
+            stage: 'final',
+            group: 'A',
+          }),
+        ),
+      ).not.toContain('Group A');
     });
 
     it('omits venue when venue is missing', () => {
@@ -315,6 +358,50 @@ describe('getWinnerSide', () => {
     ).toBe('team_b');
   });
 
+  it('correctly distinguishes close team A and team B score wins', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 9,
+        team_b_score: 1,
+      }),
+    ).toBe('team_a');
+
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 9,
+      }),
+    ).toBe('team_b');
+  });
+
+  it('correctly distinguishes large penalty wins', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 0,
+        team_b_score: 0,
+        team_a_penalties: 10,
+        team_b_penalties: 1,
+      }),
+    ).toBe('team_a');
+
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 0,
+        team_b_score: 0,
+        team_a_penalties: 1,
+        team_b_penalties: 10,
+      }),
+    ).toBe('team_b');
+  });
+
   it('supports zero penalty values', () => {
     expect(
       getWinnerSide({
@@ -326,6 +413,28 @@ describe('getWinnerSide', () => {
         team_b_penalties: 2,
       }),
     ).toBe('team_b');
+  });
+
+  it('returns null when only team B score exists', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: null,
+        team_b_score: 2,
+      }),
+    ).toBeNull();
+  });
+
+  it('returns null when only team A score exists', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 2,
+        team_b_score: null,
+      }),
+    ).toBeNull();
   });
 
   it('returns null for a finished draw without penalties', () => {
@@ -347,6 +456,19 @@ describe('getWinnerSide', () => {
         team_a_score: 1,
         team_b_score: 1,
         team_a_penalties: 4,
+      }),
+    ).toBeNull();
+  });
+
+  it('returns null when only team B penalties exist', () => {
+    expect(
+      getWinnerSide({
+        ...baseMatch,
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+        team_a_penalties: null,
+        team_b_penalties: 5,
       }),
     ).toBeNull();
   });
