@@ -64,9 +64,9 @@ The API key never leaves the backend. The frontend is entirely agnostic to the d
 
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
-### Match Schedule (in-progress)
+### Match Schedule & Details (completed)
 
-The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 to 3 columns on desktop). Live matches auto-refresh only when an active match is in progress. Graceful fallback to cached data with a delay notice if the API is unavailable.
+The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 columns on desktop). Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
 ### Team Profile (planned)
 
@@ -251,9 +251,11 @@ soccer-tournament-dashboard/
   README.md
   docker-compose.yml
   docs/
-    ARCHITECTURE.md
-    TEST-PLAN.md
-    DECISIONS.md
+    api/
+    conventions/
+    database/
+    user-stories/
+
   frontend/
     src/
       api/
@@ -308,7 +310,8 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 | ------------------ | ------------------------- | ----------------------------------------------------------------------------------------- |
 | Backend language   | Python/FastAPI            | Adds stack breadth alongside TypeScript frontend; Python used in prior co-op              |
 | Database           | PostgreSQL                | NoSQL already on resume; relational experience fills the gap                              |
-| Caching strategy   | PostgreSQL response cache | Stays within API-Football free tier (100 requests/day) without sacrificing data freshness |
+| Backend caching    | PostgreSQL response cache | Stays within API-Football free tier (100 requests/day) without sacrificing data freshness |
+| Frontend caching   | TanStack Query            | Prevents unnecessary reloads during navigation while preserving controlled refetch logic  |
 | Sorting            | Server-side via DB query  | Client-side sorting of a visible subset produces incorrect tournament-wide rankings       |
 | Player data        | Daily seed job            | Fetching all 48 teams on demand would exhaust the free tier quota in a single page load   |
 | Preference storage | localStorage              | Cookies are sent with every HTTP request, unnecessary overhead for a UI-only preference   |
