@@ -65,6 +65,20 @@ def make_api_response() -> dict:
     }
 
 
+def mock_refresh_job_lifecycle(mocker, job_id: int = 123):
+    create_job = mocker.patch.object(
+        refresh_standings_service.refresh_jobs_repo,
+        "create_job",
+        return_value=job_id,
+    )
+    complete_job = mocker.patch.object(
+        refresh_standings_service.refresh_jobs_repo,
+        "complete_job",
+    )
+
+    return create_job, complete_job
+
+
 def test_transform_standings_response_maps_valid_group_rows():
     rows = refresh_standings_service.transform_standings_response(make_api_response())
 
@@ -84,6 +98,12 @@ def test_transform_standings_response_maps_valid_group_rows():
     assert rows[1].group == "A"
     assert rows[1].position == 2
     assert rows[1].points == 4
+
+    assert rows[1].wins == 1
+    assert rows[1].draws == 1
+    assert rows[1].losses == 1
+    assert rows[1].goals_for == 3
+    assert rows[1].goals_against == 3
 
 
 def test_transform_standings_response_skips_non_single_letter_groups():
@@ -170,8 +190,44 @@ def test_transform_standings_response_defaults_missing_numeric_values_to_zero():
     assert rows[0].goals_against == 0
 
 
+def test_transform_standings_response_skips_rows_with_missing_or_blank_group():
+    response = {
+        "league": {
+            "standings": [
+                [
+                    {
+                        "rank": 1,
+                        "points": 3,
+                        "team": {"id": 10},
+                        "all": {"win": 1, "draw": 0, "lose": 0, "goals": {"for": 2, "against": 0}},
+                    },
+                    {
+                        "rank": 2,
+                        "points": 1,
+                        "group": "",
+                        "team": {"id": 20},
+                        "all": {"win": 0, "draw": 1, "lose": 0, "goals": {"for": 1, "against": 1}},
+                    },
+                ]
+            ]
+        }
+    }
+
+    rows = refresh_standings_service.transform_standings_response(response)
+
+    assert rows == []
+
+
 def test_transform_standings_response_returns_empty_list_when_no_standings_groups():
     response = {"league": {"standings": []}}
+
+    rows = refresh_standings_service.transform_standings_response(response)
+
+    assert rows == []
+
+
+def test_transform_standings_response_returns_empty_list_when_standings_key_missing():
+    response = {"league": {}}
 
     rows = refresh_standings_service.transform_standings_response(response)
 
@@ -228,7 +284,64 @@ def test_get_standings_for_tournament_returns_empty_list_when_response_key_missi
     assert rows == []
 
 
+def test_refresh_standings_marks_job_failed_and_reraises_when_command_fails(mocker, db):
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker, job_id=456)
+
+    mocker.patch.object(
+        refresh_standings_service.tournaments_service,
+        "get_refreshable_tournaments",
+        side_effect=RuntimeError("tournament lookup failed"),
+    )
+    get_standings = mocker.patch.object(
+        refresh_standings_service,
+        "get_standings_for_tournament",
+    )
+    update_standings = mocker.patch.object(
+        refresh_standings_service.standings_service,
+        "update_standings",
+    )
+
+    with pytest.raises(RuntimeError, match="tournament lookup failed"):
+        refresh_standings_service.refresh_standings(db, margin_days=1)
+
+    create_job.assert_called_once_with(db, refresh_standings_service.JobName.STANDINGS_REFRESH)
+    complete_job.assert_called_once_with(db, 456, success=False)
+    get_standings.assert_not_called()
+    update_standings.assert_not_called()
+
+
+def test_refresh_standings_continues_after_skipped_tournament(mocker, db):
+    tournament_a = make_tournament(tournament_id=1, external_api_id=9)
+    tournament_b = make_tournament(tournament_id=2, external_api_id=4)
+
+    mocker.patch.object(
+        refresh_standings_service.tournaments_service,
+        "get_refreshable_tournaments",
+        return_value=[tournament_a, tournament_b],
+    )
+    mocker.patch.object(
+        refresh_standings_service,
+        "get_standings_for_tournament",
+        side_effect=[[], ["row"]],
+    )
+    update_standings = mocker.patch.object(
+        refresh_standings_service.standings_service,
+        "update_standings",
+    )
+
+    result = refresh_standings_service.refresh_standings(db, margin_days=1)
+
+    update_standings.assert_called_once_with(db, 2, ["row"])
+
+    assert result["tournaments_checked"] == 2
+    assert result["tournaments_skipped"] == 1
+    assert result["tournaments_refreshed"] == 1
+    assert result["rows_processed"] == 1
+
+
 def test_refresh_standings_updates_each_tournament_and_returns_success_summary(mocker, db):
+    create_job, complete_job = mock_refresh_job_lifecycle(mocker)
+
     tournament_a = make_tournament(tournament_id=1, external_api_id=9, season="2024")
     tournament_b = make_tournament(tournament_id=2, external_api_id=4, season="2024")
 
@@ -251,6 +364,12 @@ def test_refresh_standings_updates_each_tournament_and_returns_success_summary(m
     )
 
     result = refresh_standings_service.refresh_standings(db, margin_days=7)
+
+    create_job.assert_called_once_with(
+        db,
+        refresh_standings_service.JobName.STANDINGS_REFRESH,
+    )
+    complete_job.assert_called_once_with(db, 123, success=True)
 
     get_refreshable_tournaments.assert_called_once_with(db, 7)
     assert get_standings.call_args_list == [

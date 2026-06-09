@@ -147,6 +147,19 @@ describe('getMatch', () => {
     await expect(getMatch({ match_id: 1 })).rejects.toThrow('Invalid match response');
   });
 
+  it('accepts numeric penalty fields when present', async () => {
+    const matchWithPenalties = buildMatch({
+      team_a_penalties: 5,
+      team_b_penalties: 4,
+    });
+
+    mockApiGet.mockResolvedValueOnce(matchWithPenalties);
+
+    const result = await getMatch({ match_id: 1 });
+
+    expect(result).toEqual(matchWithPenalties);
+  });
+
   it('rejects a null response', async () => {
     mockApiGet.mockResolvedValueOnce(null);
 
@@ -236,6 +249,19 @@ describe('getMatches', () => {
     expect(mockIsTeamSummary).toHaveBeenCalledTimes(2);
     expect(mockIsTeamSummary).toHaveBeenNthCalledWith(1, validTeamA);
     expect(mockIsTeamSummary).toHaveBeenNthCalledWith(2, validTeamB);
+  });
+
+  it('accepts numeric penalty fields when present in a matches response', async () => {
+    const matchWithPenalties = buildMatch({
+      team_a_penalties: 5,
+      team_b_penalties: 4,
+    });
+
+    mockApiGet.mockResolvedValueOnce([matchWithPenalties]);
+
+    const result = await getMatches({ tournament_id: 1 });
+
+    expect(result).toEqual([matchWithPenalties]);
   });
 
   it('accepts an empty matches response without validating teams', async () => {

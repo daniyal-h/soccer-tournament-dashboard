@@ -126,6 +126,19 @@ describe('TournamentContext', () => {
     expect(result.current.selectedTournamentId).toBe(DEFAULT_TOURNAMENT_ID);
   });
 
+  it('returns default immediately when localStorage value is missing', () => {
+    const numberSpy = vi.spyOn(globalThis, 'Number');
+
+    vi.spyOn(tournamentsApi, 'getTournaments').mockResolvedValue(tournaments);
+
+    const { result } = renderHook(() => useTournament(), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.selectedTournamentId).toBe(DEFAULT_TOURNAMENT_ID);
+    expect(numberSpy).not.toHaveBeenCalled();
+  });
+
   it('initializes selected tournament ID from localStorage synchronously', () => {
     localStorage.setItem('selectedTournamentId', '2');
 

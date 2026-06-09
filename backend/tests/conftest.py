@@ -7,6 +7,7 @@ os.environ.setdefault(
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("SENTRY_DSN", "")
 os.environ.setdefault("ALLOWED_ORIGINS", '["http://localhost:5173","http://localhost:3000"]')
+os.environ.setdefault("API_FOOTBALL_API_KEY", "")
 os.environ["ADMIN_TOKEN"] = "test_token"
 
 from collections.abc import Generator

@@ -141,6 +141,36 @@ def test_map_fixture_stage_maps_known_rounds():
     assert refresh_matches_service.map_fixture_stage("Final") == "final"
 
 
+def test_map_fixture_stage_normalizes_whitespace_and_case():
+    assert refresh_matches_service.map_fixture_stage("  GROUP STAGE - 1  ") == "group"
+    assert refresh_matches_service.map_fixture_stage("  ROUND OF 32  ") == "round_of_32"
+    assert refresh_matches_service.map_fixture_stage("  ROUND OF 16  ") == "round_of_16"
+    assert refresh_matches_service.map_fixture_stage("  QUARTER-FINALS  ") == "quarter_final"
+    assert refresh_matches_service.map_fixture_stage("  SEMI-FINALS  ") == "semi_final"
+    assert refresh_matches_service.map_fixture_stage("  3RD PLACE FINAL  ") == "third_place"
+    assert refresh_matches_service.map_fixture_stage("THIRD PLACE FINAL") == "third_place"
+
+
+def test_map_fixture_stage_only_maps_final_when_final_is_standalone_or_suffix():
+    assert refresh_matches_service.map_fixture_stage("Final") == "final"
+    assert refresh_matches_service.map_fixture_stage("Gold Cup Final") == "final"
+    assert refresh_matches_service.map_fixture_stage("Final Round") == "other"
+
+
+def test_map_fixture_status_normalizes_whitespace_and_case():
+    assert refresh_matches_service.map_fixture_status({"short": " ns "}) == "scheduled"
+    assert refresh_matches_service.map_fixture_status({"short": " 1h "}) == "live"
+    assert refresh_matches_service.map_fixture_status({"short": " ft "}) == "finished"
+    assert refresh_matches_service.map_fixture_status({"short": " pst "}) == "postponed"
+    assert refresh_matches_service.map_fixture_status({"short": " canc "}) == "cancelled"
+
+
+def test_map_fixture_status_defaults_blank_or_none_short_to_scheduled():
+    assert refresh_matches_service.map_fixture_status({"short": ""}) == "scheduled"
+    assert refresh_matches_service.map_fixture_status({"short": "   "}) == "scheduled"
+    assert refresh_matches_service.map_fixture_status({"short": None}) == "scheduled"
+
+
 def test_map_fixture_stage_maps_unknown_or_missing_round_to_other():
     assert refresh_matches_service.map_fixture_stage("Some Weird Round") == "other"
     assert refresh_matches_service.map_fixture_stage(None) == "other"
@@ -223,6 +253,16 @@ def test_transform_fixture_defaults_missing_optional_nested_values_to_none():
     assert result.team_b_score is None
     assert result.team_a_penalties is None
     assert result.team_b_penalties is None
+
+
+def test_transform_fixture_handles_missing_status_object():
+    row = make_fixture_row()
+    del row["fixture"]["status"]
+
+    result = refresh_matches_service.transform_fixture(row)
+
+    assert result.status == "scheduled"
+    assert result.elapsed is None
 
 
 def test_fetch_matches_for_tournament_calls_football_api_with_expected_params(mocker):
@@ -353,6 +393,39 @@ def test_refresh_matches_skips_tournament_when_api_returns_no_rows(mocker):
     assert result["tournaments_skipped"] == 1
     assert result["rows_processed"] == 0
     assert result["failures"] == []
+
+
+def test_refresh_matches_continues_after_skipped_tournament(mocker):
+    db = Mock()
+    mock_refresh_job_lifecycle(mocker)
+
+    tournament_a = make_tournament(tournament_id=1)
+    tournament_b = make_tournament(tournament_id=2)
+
+    mocker.patch.object(
+        refresh_matches_service.tournaments_service,
+        "get_refreshable_tournaments",
+        return_value=[tournament_a, tournament_b],
+    )
+
+    mocker.patch.object(
+        refresh_matches_service,
+        "fetch_matches_for_tournament",
+        side_effect=[[], ["match"]],
+    )
+
+    update_matches = mocker.patch.object(
+        refresh_matches_service.matches_service,
+        "update_matches",
+    )
+
+    result = refresh_matches_service.refresh_matches(db)
+
+    update_matches.assert_called_once_with(db, 2, ["match"])
+
+    assert result["tournaments_checked"] == 2
+    assert result["tournaments_skipped"] == 1
+    assert result["tournaments_refreshed"] == 1
 
 
 def test_refresh_matches_records_fetch_failure_and_continues_with_next_tournament(mocker):

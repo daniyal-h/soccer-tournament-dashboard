@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import EventCard from '@/components/matchEvents/timeline/EventCard';
 
@@ -47,6 +47,14 @@ const baseEvent: MatchEvent = {
   comments: null,
 };
 
+vi.mock('@/components/ui/card', () => ({
+  Card: ({ className, children }: { className?: string; children: React.ReactNode }) => (
+    <div data-testid="event-card" className={className}>
+      {children}
+    </div>
+  ),
+}));
+
 function makeEvent(overrides: Partial<MatchEvent> = {}): MatchEvent {
   return {
     ...baseEvent,
@@ -55,6 +63,12 @@ function makeEvent(overrides: Partial<MatchEvent> = {}): MatchEvent {
 }
 
 describe('EventCard', () => {
+  it('applies base event card styling', () => {
+    render(<EventCard event={baseEvent} score="1-0" />);
+
+    expect(screen.getByTestId('event-card')).toHaveClass('w-[42vw]', 'p-4', 'shadow-md', 'sm:w-80');
+  });
+
   it('renders goal event title, player name, minute, assist, and score', () => {
     render(<EventCard event={baseEvent} score="1-0" />);
 
@@ -120,6 +134,20 @@ describe('EventCard', () => {
     expect(screen.getByText('1-0')).toBeInTheDocument();
   });
 
+  it('does not render replacement text for non-substitution events with secondary players', () => {
+    render(
+      <EventCard
+        event={makeEvent({
+          event_type: 'yellow_card',
+          secondary_player_name: 'Jonathan David',
+        })}
+        score="0-0"
+      />,
+    );
+
+    expect(screen.queryByText('Replaced Jonathan David')).not.toBeInTheDocument();
+  });
+
   it('renders detail and comments for non-shootout events', () => {
     render(
       <EventCard
@@ -136,6 +164,22 @@ describe('EventCard', () => {
     expect(screen.getByText('Foul')).toBeInTheDocument();
     expect(screen.getByText('Late challenge')).toBeInTheDocument();
     expect(screen.queryByText('0-0')).not.toBeInTheDocument();
+  });
+
+  it('renders regular penalty goals as goal events with score and assist', () => {
+    render(
+      <EventCard
+        event={makeEvent({
+          event_type: 'penalty_goal',
+          comments: null,
+        })}
+        score="2-1"
+      />,
+    );
+
+    expect(screen.getByText('PENALTY SCORED!')).toBeInTheDocument();
+    expect(screen.getByText('2-1')).toBeInTheDocument();
+    expect(screen.getByText('Assisted by Jonathan David')).toBeInTheDocument();
   });
 
   it('renders penalty shootout scored penalty state', () => {

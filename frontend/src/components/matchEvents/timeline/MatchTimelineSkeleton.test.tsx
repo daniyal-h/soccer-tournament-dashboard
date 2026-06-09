@@ -60,4 +60,17 @@ describe('MatchTimelineSkeleton', () => {
     expect(container.querySelector('.w-32')).toBeInTheDocument();
     expect(container.querySelector('.w-24')).toBeInTheDocument();
   });
+
+  it('renders score placeholders only on the first and fourth skeleton cards', () => {
+    const { container } = render(<MatchTimelineSkeleton />);
+
+    const eventRows = container.querySelectorAll(
+      '.grid-cols-\\[minmax\\(0\\,1fr\\)_auto_minmax\\(0\\,1fr\\)\\]',
+    );
+
+    expect(eventRows[0].querySelector('.mt-4.h-8.w-16')).toBeInTheDocument();
+    expect(eventRows[1].querySelector('.mt-4.h-8.w-16')).not.toBeInTheDocument();
+    expect(eventRows[2].querySelector('.mt-4.h-8.w-16')).not.toBeInTheDocument();
+    expect(eventRows[3].querySelector('.mt-4.h-8.w-16')).toBeInTheDocument();
+  });
 });

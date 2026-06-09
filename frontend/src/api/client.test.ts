@@ -126,6 +126,22 @@ describe('apiGet', () => {
     }
   });
 
+  it('rethrows ApiError without wrapping it as a network error', async () => {
+    const apiError = new ApiError('Original API error', 418, 'TEAPOT');
+
+    mockFetch.mockRejectedValueOnce(apiError);
+
+    try {
+      await apiGet('/teapot');
+      throw new Error('Expected apiGet to throw');
+    } catch (error) {
+      expect(error).toBe(apiError);
+      expect((error as ApiError).message).toBe('Original API error');
+      expect((error as ApiError).status).toBe(418);
+      expect((error as ApiError).code).toBe('TEAPOT');
+    }
+  });
+
   it('keeps response status when backend error status is missing', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,

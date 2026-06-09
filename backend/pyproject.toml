@@ -17,5 +17,6 @@ do_not_mutate = [
     "app/core/config.py",
     "app/core/database.py",
     "app/middleware/*",
+    "app/constants/*",
 ]
 debug = true

@@ -1,3 +1,4 @@
+from datetime import date
 from unittest.mock import Mock
 
 import pytest
@@ -82,3 +83,28 @@ def test_get_tournament_treats_falsy_result_as_not_found(mocker):
 
     with pytest.raises(NotFoundError, match="^Tournament 7 was not found$"):
         tournaments_service.get_tournament(db, tournament_id=7)
+
+
+def test_get_refreshable_tournaments_passes_today_and_margin_to_repo(mocker):
+    db = Mock()
+    today = date(2026, 6, 8)
+    tournaments = [Mock()]
+
+    date_mock = mocker.patch.object(tournaments_service, "date")
+    date_mock.today.return_value = today
+
+    get_refreshable_tournaments = mocker.patch.object(
+        tournaments_service.tournaments_repo,
+        "get_refreshable_tournaments",
+        return_value=tournaments,
+    )
+
+    result = tournaments_service.get_refreshable_tournaments(db, margin_days=7)
+
+    assert result == tournaments
+    date_mock.today.assert_called_once_with()
+    get_refreshable_tournaments.assert_called_once_with(
+        db,
+        today=today,
+        margin_days=7,
+    )

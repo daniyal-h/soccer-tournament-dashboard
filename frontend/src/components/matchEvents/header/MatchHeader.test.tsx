@@ -152,6 +152,38 @@ describe('MatchHeader', () => {
     expect(screen.getByText('(4 - 3 pens)')).toBeInTheDocument();
   });
 
+  it('does not start the freshness timer when no displayed timestamp exists', () => {
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+
+    renderMatchHeader(
+      baseMatch,
+      makeMetadata({
+        last_updated: null,
+        last_successful_refresh: null,
+      }),
+    );
+
+    expect(setIntervalSpy).not.toHaveBeenCalled();
+  });
+
+  it('starts the freshness timer when a displayed timestamp exists', () => {
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+
+    renderMatchHeader();
+
+    expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), expect.any(Number));
+  });
+
+  it('clears the freshness timer on unmount', () => {
+    const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
+
+    const { unmount } = renderMatchHeader();
+
+    unmount();
+
+    expect(clearIntervalSpy).toHaveBeenCalled();
+  });
+
   it('does not render penalty score when only one penalty value is present', () => {
     renderMatchHeader(
       makeMatch({
@@ -160,6 +192,20 @@ describe('MatchHeader', () => {
         team_b_score: 1,
         team_a_penalties: 4,
         team_b_penalties: null,
+      }),
+    );
+
+    expect(screen.queryByText(/pens/)).not.toBeInTheDocument();
+  });
+
+  it('does not render penalty score when only team B penalty value is present', () => {
+    renderMatchHeader(
+      makeMatch({
+        status: 'finished',
+        team_a_score: 1,
+        team_b_score: 1,
+        team_a_penalties: null,
+        team_b_penalties: 3,
       }),
     );
 

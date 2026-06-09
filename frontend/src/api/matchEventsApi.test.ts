@@ -225,6 +225,29 @@ describe('getMatchEvents', () => {
     expect(mockIsPlayerSummary).not.toHaveBeenCalled();
   });
 
+  it('rejects a null response', async () => {
+    await expectInvalidMatchEventsResponse(null);
+  });
+
+  it.each([
+    ['undefined metadata', undefined],
+    ['string metadata', 'metadata'],
+    ['number metadata', 123],
+    ['boolean metadata', true],
+  ])('rejects a response with %s', async (_label, metadata) => {
+    await expectInvalidMatchEventsResponse(createRawMatchEventsResponse({ metadata }));
+  });
+
+  it.each([
+    ['undefined response', undefined],
+    ['null response', null],
+    ['number response', 123],
+    ['boolean response', false],
+    ['array response', []],
+  ])('rejects a %s', async (_label, response) => {
+    await expectInvalidMatchEventsResponse(response);
+  });
+
   it('rejects the old array-only response shape', async () => {
     await expectInvalidMatchEventsResponse([createMatchEvent()]);
   });

@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { type Match } from '@/types/match';
+
+import { ROUTES } from '@/constants/navigation';
 
 import MatchCard from './MatchCard';
 
@@ -30,6 +33,16 @@ vi.mock('./MatchStatusBadge', () => ({
 const mockGetMatchCenterDisplay = vi.mocked(getMatchCenterDisplay);
 const mockGetMatchMetaDisplay = vi.mocked(getMatchMetaDisplay);
 const mockGetWinnerSide = vi.mocked(getWinnerSide);
+
+const LocationStateViewer = () => {
+  const location = useLocation();
+
+  return (
+    <div>
+      <span data-testid="location-from">{location.state?.from}</span>
+    </div>
+  );
+};
 
 const baseMatch: Match = {
   id: 1,
@@ -72,6 +85,24 @@ describe('MatchCard', () => {
     mockGetMatchCenterDisplay.mockReturnValue('19:00');
     mockGetMatchMetaDisplay.mockReturnValue('Group A · Estadio Azteca · Mexico City');
     mockGetWinnerSide.mockReturnValue(null);
+  });
+
+  it('links to match details with schedule state and no text decoration', async () => {
+    render(
+      <MemoryRouter>
+        <MatchCard match={baseMatch} />
+        <LocationStateViewer />
+      </MemoryRouter>,
+    );
+
+    const link = screen.getByRole('link');
+
+    expect(link).toHaveAttribute('href', '/matches/1');
+    expect(link).toHaveStyle({ textDecoration: 'none' });
+
+    await userEvent.click(link);
+
+    expect(screen.getByTestId('location-from')).toHaveTextContent(ROUTES.SCHEDULE);
   });
 
   it('renders both team names and logos', () => {
@@ -147,6 +178,35 @@ describe('MatchCard', () => {
 
     expect(teamA.compareDocumentPosition(center)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(center.compareDocumentPosition(teamB)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('truncates long team names', () => {
+    renderMatchCard({
+      ...baseMatch,
+      team_a: {
+        ...baseMatch.team_a,
+        name: 'A Very Very Very Long Canada Team Name',
+      },
+      team_b: {
+        ...baseMatch.team_b,
+        name: 'A Very Very Very Long Brazil Team Name',
+      },
+    });
+
+    expect(screen.getByText('A Very Very Very Long Canada Team Name')).toHaveClass('truncate');
+    expect(screen.getByText('A Very Very Very Long Brazil Team Name')).toHaveClass('truncate');
+  });
+
+  it('truncates match metadata', () => {
+    mockGetMatchMetaDisplay.mockReturnValue(
+      'Group A · Extremely Long Stadium Name · Extremely Long City Name',
+    );
+
+    renderMatchCard(baseMatch);
+
+    expect(
+      screen.getByText('Group A · Extremely Long Stadium Name · Extremely Long City Name'),
+    ).toHaveClass('truncate');
   });
 
   it('does not mute either team when there is no winner', () => {

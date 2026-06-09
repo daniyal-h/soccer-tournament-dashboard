@@ -138,4 +138,42 @@ describe('MatchCenter', () => {
     expect(screen.queryByText(/Pens:/)).not.toBeInTheDocument();
     expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(partialPenaltyMatch);
   });
+
+  it('falls back to helper when only team B penalty value is present', () => {
+    const partialPenaltyMatch: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 1,
+      team_b_score: 1,
+      team_a_penalties: null,
+      team_b_penalties: 4,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('1 - 1');
+
+    render(<MatchCenter match={partialPenaltyMatch} />);
+
+    expect(screen.getByText('1 - 1')).toBeInTheDocument();
+    expect(screen.queryByText(/Pens:/)).not.toBeInTheDocument();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(partialPenaltyMatch);
+  });
+
+  it('does not render penalties for scheduled matches even when penalty values exist', () => {
+    const scheduledPenaltyMatch: Match = {
+      ...baseMatch,
+      status: 'scheduled',
+      team_a_score: null,
+      team_b_score: null,
+      team_a_penalties: 4,
+      team_b_penalties: 2,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('19:00');
+
+    render(<MatchCenter match={scheduledPenaltyMatch} />);
+
+    expect(screen.getByText('19:00')).toBeInTheDocument();
+    expect(screen.queryByText(/Pens:/)).not.toBeInTheDocument();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(scheduledPenaltyMatch);
+  });
 });

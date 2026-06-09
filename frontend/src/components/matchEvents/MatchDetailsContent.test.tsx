@@ -10,6 +10,7 @@ import { useMatchEvents } from '@/hooks/useMatchEvents';
 
 import type { Match } from '@/types/match';
 import type { MatchEvent } from '@/types/matchEvent';
+import type { ResponseMetadata } from '@/types/metadata';
 
 vi.mock('@/context/TournamentContext');
 vi.mock('@/hooks/useMatch');
@@ -38,7 +39,13 @@ vi.mock('@/components/feedback/ErrorState', () => ({
 }));
 
 vi.mock('@/components/matchEvents/header/MatchHeader', () => ({
-  default: ({ match }: { match: Match }) => <div>Match Header: {match.id}</div>,
+  default: ({ match, metadata }: { match: Match; metadata: ResponseMetadata }) => (
+    <div>
+      <p>Match Header: {match.id}</p>
+      <p>Metadata delayed: {String(metadata.is_delayed)}</p>
+      <p>Metadata updated: {metadata.last_updated ?? 'none'}</p>
+    </div>
+  ),
 }));
 
 vi.mock('@/components/matchEvents/header/MatchHeaderSkeleton', () => ({
@@ -174,6 +181,33 @@ describe('MatchDetailsContent', () => {
     expect(screen.getByText('Match Header Skeleton')).toBeInTheDocument();
     expect(screen.queryByText('Match Header: 1')).not.toBeInTheDocument();
     expect(screen.queryByText('Timeline Match: 1')).not.toBeInTheDocument();
+  });
+
+  it('passes empty response metadata fallback when metadata is null', () => {
+    mockEventsState({
+      metadata: null,
+    });
+
+    render(<MatchDetailsContent matchId={1} />);
+
+    expect(screen.getByText('Metadata delayed: false')).toBeInTheDocument();
+    expect(screen.getByText('Metadata updated: none')).toBeInTheDocument();
+  });
+
+  it('passes returned metadata to match header when available', () => {
+    mockEventsState({
+      metadata: {
+        is_delayed: true,
+        last_updated: '2026-06-11T19:00:00Z',
+        last_successful_refresh: null,
+        message: 'Delayed',
+      },
+    });
+
+    render(<MatchDetailsContent matchId={1} />);
+
+    expect(screen.getByText('Metadata delayed: true')).toBeInTheDocument();
+    expect(screen.getByText('Metadata updated: 2026-06-11T19:00:00Z')).toBeInTheDocument();
   });
 
   it('passes false to match retry action when tournaments are healthy', () => {

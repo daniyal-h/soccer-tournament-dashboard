@@ -212,6 +212,54 @@ describe('useApiQuery', () => {
     expect(result.current.canRetry).toBe(false);
   });
 
+  it('retry refetches tournaments when explicitly requested', async () => {
+    const { wrapper, queryClient } = createWrapper();
+
+    const queryFn = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('matches failed'))
+      .mockResolvedValueOnce(['matches']);
+
+    const refetchQueriesSpy = vi.spyOn(queryClient, 'refetchQueries');
+
+    vi.mocked(getApiErrorState).mockReturnValue({
+      message: 'Failed to load matches.',
+      canRetry: true,
+    });
+
+    const { result } = renderHook(
+      () =>
+        useApiQuery({
+          queryKey: ['matches-with-tournament-retry'],
+          queryFn,
+          errorMessages: {
+            notFound: 'Matches were not found.',
+            generic: 'Failed to load matches.',
+          },
+        }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.displayError?.message).toBe('Failed to load matches.');
+    });
+
+    await act(async () => {
+      await result.current.retry(true);
+    });
+
+    expect(queryFn).toHaveBeenCalledTimes(2);
+
+    expect(refetchQueriesSpy).toHaveBeenCalledExactlyOnceWith({
+      queryKey: ['tournaments'],
+      type: 'active',
+    });
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual(['matches']);
+    });
+  });
+
   it('marks a refetch as refreshing when cached data already exists', async () => {
     const deferred = createDeferred<string[]>();
 

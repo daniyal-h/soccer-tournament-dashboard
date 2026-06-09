@@ -369,6 +369,38 @@ describe('Standings', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders pre-tournament description when no tournament name exists even if loading is false', () => {
+    mockedUseTournament.mockReturnValue({
+      selectedTournamentId: 1,
+      selectedTournament: null,
+      tournaments: [],
+      setSelectedTournamentId: vi.fn(),
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+      canRetry: true,
+    });
+
+    mockedUseStandings.mockReturnValue({
+      standings: {},
+      isLoading: false,
+      isRefreshing: false,
+      error: null,
+      refetch: vi.fn(),
+      canRetry: true,
+    });
+
+    render(<Standings />);
+
+    expect(
+      screen.getByText(
+        "The group stage hasn't started yet. Check back once the tournament kicks off.",
+      ),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText(/^View group standings for/)).not.toBeInTheDocument();
+  });
+
   it('passes false to retry action when standings fail but tournaments are healthy', () => {
     const refetch = vi.fn();
 

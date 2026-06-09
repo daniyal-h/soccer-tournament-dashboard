@@ -24,7 +24,6 @@ export default {
 
     // placeholder pages
     '!src/pages/PlayerStats.tsx',
-    '!src/pages/Schedule.tsx',
     '!src/pages/TeamProfile.tsx',
     '!src/pages/Teams.tsx',
     '!src/pages/Bracket.tsx',

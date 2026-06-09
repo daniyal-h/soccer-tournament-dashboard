@@ -54,8 +54,6 @@ def update_match_events(
             row.external_team_id,
         )
 
-        print("Team ID:", team_id)
-
         player_id = players_service.get_optional_player_id_from_external_id(
             db,
             row.player_external_id,
