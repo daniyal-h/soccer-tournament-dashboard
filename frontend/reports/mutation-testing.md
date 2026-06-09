@@ -10,9 +10,10 @@ Date of Test: Tues June 9 16:44:31 CDT 2026
 
 ## Results
 
-- Mutation score: 98.28%
-- Survived mutants reviewed
-- Equivalent/style-only mutants excluded or disabled intentionally
+- Total Mutants: 1516
+-  Mutation score: **98.28%** (1430/1455 non-ignored mutants killed)
+- Survived mutants (22) reviewed
+- Equivalent/style-only mutants excluded or disabled intentionally (64)
 
 ## Notes
 
