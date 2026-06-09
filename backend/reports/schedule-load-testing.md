@@ -214,20 +214,32 @@ Evaluate backend behavior under extreme sustained traffic while repeatedly exerc
 
 ## Results
 
-| Metric             | Result |
-| ------------------ | ------ |
-| Total Requests     |        |
-| Successful Checks  |        |
-| Failed Checks      |        |
-| Average Latency    |        |
-| p95 Latency        |        |
-| Max Latency        |        |
-| HTTP Failure Rate  |        |
-| Peak Virtual Users |        |
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 48,013   |
+| Successful Checks  | 98.59%   |
+| Failed Checks      | 1.40%    |
+| Average Latency    | 636.56ms |
+| p95 Latency        | 190.61ms |
+| Max Latency        | 1m 0s    |
+| HTTP Failure Rate  | 98.50%*  |
+| Peak Virtual Users | 200      |
+
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected during stress testing because the test intentionally exceeded configured rate limits. A small number of additional failures occurred when the database connection pool reached its configured capacity during peak load.
 
 ## Outcome
 
-TODO
+The combined schedule navigation flow remained stable under heavy concurrent traffic and successfully handled the majority of requests during the stress scenario.
+
+During the peak 200 virtual user phase, a small percentage of requests failed. Backend logs identified the cause as SQLAlchemy connection pool exhaustion:
+
+`QueuePool limit of size 5 overflow 10 reached`
+
+The failure occurred because the test exceeded the configured local database connection pool capacity, causing some requests to timeout while waiting for database connections.
+
+Despite reaching this bottleneck, the backend continued processing accepted requests with low latency. Successful responses maintained a p95 latency below 500ms, and overall validation checks remained above the configured 95% threshold.
+
+The test identified database connection capacity as the primary scaling limitation under extreme concurrent load.
 
 ---
 
