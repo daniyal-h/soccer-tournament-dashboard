@@ -2,7 +2,7 @@ import http from "k6/http";
 import { check } from "k6";
 import { Counter } from "k6/metrics";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:8000";
+import { BASE_URL, TOURNAMENT_ID } from "../constants.js";
 
 const rateLimitedResponses = new Counter("rate_limited_responses");
 
@@ -26,7 +26,9 @@ export const options = {
 };
 
 export default function standingsRateLimitTest() {
-    const response = http.get(`${BASE_URL}/api/v1/tournaments/1/standings`);
+    const response = http.get(
+        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/standings`,
+    );
 
     if (response.status === 429) {
         rateLimitedResponses.add(1);

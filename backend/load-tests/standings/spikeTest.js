@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:8000";
+import { BASE_URL, TOURNAMENT_ID } from "../constants.js";
 
 export const options = {
     scenarios: {
@@ -40,7 +40,9 @@ export const options = {
 };
 
 export default function standingsSpikeLoadTest() {
-    const response = http.get(`${BASE_URL}/api/v1/tournaments/1/standings`);
+    const response = http.get(
+        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/standings`,
+    );
 
     check(response, {
         "status is 200 or 429": (r) => r.status === 200 || r.status === 429,

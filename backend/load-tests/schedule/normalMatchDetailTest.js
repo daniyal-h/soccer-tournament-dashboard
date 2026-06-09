@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-const BASE_URL = __ENV.BASE_URL || "http://localhost:8000";
+import { BASE_URL, MATCH_ID } from "../constants.js";
 
 export const options = {
     scenarios: {
@@ -25,8 +25,8 @@ export const options = {
 
 export default function matchDetailNormalLoadTest() {
     const responses = http.batch([
-        ["GET", `${BASE_URL}/api/v1/matches/169`],
-        ["GET", `${BASE_URL}/api/v1/matches/169/events`],
+        ["GET", `${BASE_URL}/api/v1/matches/${MATCH_ID}`],
+        ["GET", `${BASE_URL}/api/v1/matches/${MATCH_ID}/events`],
     ]);
 
     check(responses[0], {
