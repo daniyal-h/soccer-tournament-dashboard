@@ -41,7 +41,7 @@ export const options = {
 
 export default function scheduleNavigationSpikeLoadTest() {
     const scheduleResponse = http.get(
-        `${BASE_URL}/api/v1/tournaments/${MATCH_ID}/matches`,
+        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/matches`,
     );
 
     check(scheduleResponse, {
@@ -51,8 +51,8 @@ export default function scheduleNavigationSpikeLoadTest() {
     });
 
     const matchResponses = http.batch([
-        ["GET", `${BASE_URL}/api/v1/matches/${TOURNAMENT_ID}`],
-        ["GET", `${BASE_URL}/api/v1/matches/${TOURNAMENT_ID}/events`],
+        ["GET", `${BASE_URL}/api/v1/matches/${MATCH_ID}`],
+        ["GET", `${BASE_URL}/api/v1/matches/${MATCH_ID}/events`],
     ]);
 
     check(matchResponses[0], {
