@@ -43,18 +43,22 @@ Validate sustained schedule endpoint performance under expected traffic while re
 
 ## Results
 
-| Metric            | Result |
-| ----------------- | ------ |
-| Total Requests    |        |
-| Failure Rate      |        |
-| Successful Checks |        |
-| Average Latency   |        |
-| p95 Latency       |        |
-| Max Latency       |        |
+| Metric            | Result   |
+| ----------------- | -------- |
+| Total Requests    | 550      |
+| Failure Rate      | 0.00%    |
+| Successful Checks | 100.00%  |
+| Average Latency   | 12.07ms  |
+| p95 Latency       | 20.13ms  |
+| Max Latency       | 298.37ms |
 
 ## Outcome
 
-TODO
+The schedule endpoint remained stable under sustained load with zero failed requests and consistently low latency. All 550 requests completed successfully, and all validation checks passed.
+
+The endpoint maintained a p95 latency of 20.13ms, remaining well below the 500ms threshold. Although the maximum observed latency reached 298.37ms, this remained within the acceptable range and did not indicate sustained degradation.
+
+The test confirms that the schedule endpoint can handle expected traffic below the configured rate limit while maintaining reliable response times.
 
 ---
 
