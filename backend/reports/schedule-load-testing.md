@@ -87,18 +87,24 @@ A user navigating from the schedule page triggers both requests, so they are tes
 
 ## Results
 
-| Metric            | Result |
-| ----------------- | ------ |
-| Total Requests    |        |
-| Failure Rate      |        |
-| Successful Checks |        |
-| Average Latency   |        |
-| p95 Latency       |        |
-| Max Latency       |        |
+| Metric            | Result   |
+| ----------------- | -------- |
+| Total Requests    | 1,100    |
+| Failure Rate      | 0.00%    |
+| Successful Checks | 100.00%  |
+| Average Latency   | 12.80ms  |
+| p95 Latency       | 20.10ms  |
+| Max Latency       | 276.42ms |
 
 ## Outcome
 
-TODO
+The match detail flow remained stable under sustained load with zero failed requests and all validation checks passing successfully.
+
+The test completed 550 simulated match detail page loads, generating 1,100 total HTTP requests across the match metadata and match events endpoints. Both endpoints consistently returned successful responses throughout the test duration.
+
+The combined flow maintained low response times, with an average latency of 12.80ms and a p95 latency of 20.10ms, remaining well below the configured 500ms threshold. The maximum observed latency of 276.42ms represented an isolated spike and did not result in sustained performance degradation.
+
+The test confirms that users can repeatedly navigate into match detail pages while the backend continues serving match information and timeline data reliably under expected traffic conditions.
 
 ---
 
