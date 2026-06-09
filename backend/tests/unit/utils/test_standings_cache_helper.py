@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, timedelta
 from types import SimpleNamespace
 
 from app.constants.cache_ttl import (
@@ -7,7 +7,7 @@ from app.constants.cache_ttl import (
     STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     STANDINGS_TTL,
 )
-from app.utils.cache_helper import get_standings_ttl
+from app.utils.cache_helper import get_expires_at, get_standings_ttl
 
 
 def make_tournament(
@@ -18,6 +18,17 @@ def make_tournament(
         start_date=start_date,
         end_date=end_date,
     )
+
+
+def test_get_expires_at_returns_future_utc_datetime():
+    ttl = timedelta(minutes=30)
+
+    before = datetime.now(UTC)
+    expires_at = get_expires_at(ttl)
+    after = datetime.now(UTC)
+
+    assert before + ttl <= expires_at <= after + ttl
+    assert expires_at.tzinfo is UTC
 
 
 class TestGetStandingsTtl:

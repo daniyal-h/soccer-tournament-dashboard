@@ -449,6 +449,29 @@ def test_get_matches_caches_database_matches_with_penalties(mocker):
     assert payload[0]["team_b_penalties"] == 4
 
 
+def test_get_live_matches_fetches_live_matches_using_current_utc_time(mocker):
+    db = Mock()
+    live_matches = [make_match(1, StatusType.LIVE)]
+
+    get_all_live_matches = mocker.patch.object(
+        matches_service.matches_repo,
+        "get_all_live_matches",
+        return_value=live_matches,
+    )
+
+    result = matches_service.get_live_matches(db)
+
+    assert result is live_matches
+
+    get_all_live_matches.assert_called_once()
+    assert get_all_live_matches.call_args.args[0] is db
+
+    passed_now = get_all_live_matches.call_args.args[1]
+    assert isinstance(passed_now, datetime)
+    assert passed_now.tzinfo is not None
+    assert passed_now.utcoffset() == timedelta(0)
+
+
 def make_row(
     *,
     external_api_id: int = 100,
@@ -521,6 +544,7 @@ def test_update_matches_builds_group_match_rows_and_invalidates_cache(mocker):
     assert match.elapsed is None
     assert match.team_a_score is None
     assert match.team_b_score is None
+    assert match.kickoff_time == datetime(2026, 6, 11, 20, 0, tzinfo=timezone.utc)
 
     invalidate_cache.assert_called_once_with(db, "matches:1")
 
@@ -762,3 +786,34 @@ def test_update_matches_keeps_penalties_none_when_match_has_no_penalty_shootout(
     assert match.team_b_score == 0
     assert match.team_a_penalties is None
     assert match.team_b_penalties is None
+
+
+def test_update_matches_preserves_kickoff_time_and_elapsed(mocker):
+    db = Mock()
+    tournament_id = 1
+
+    kickoff_time = datetime(2026, 6, 11, 20, 0, tzinfo=timezone.utc)
+
+    upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
+    mocker.patch.object(matches_service.cache_service, "invalidate_cache")
+    mocker.patch.object(
+        matches_service.teams_service,
+        "get_team_id_from_external_id",
+        side_effect=[101, 202],
+    )
+    mocker.patch.object(
+        matches_service.tournament_teams_service,
+        "get_team_group",
+        side_effect=["A", "A"],
+    )
+
+    row = make_row()
+    row.kickoff_time = kickoff_time
+    row.elapsed = 67
+
+    matches_service.update_matches(db, tournament_id, [row])
+
+    match = upsert.call_args.args[2][0]
+
+    assert match.kickoff_time == kickoff_time
+    assert match.elapsed == 67

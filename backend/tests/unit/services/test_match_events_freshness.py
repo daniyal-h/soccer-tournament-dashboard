@@ -47,6 +47,7 @@ def assert_metadata(
         StatusType.CANCELLED,
     ],
 )
+
 def test_get_match_events_delay_metadata_returns_static_metadata_for_non_live_matches(
     mocker,
     db,

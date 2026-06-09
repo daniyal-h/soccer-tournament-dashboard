@@ -213,6 +213,7 @@ def test_refresh_match_events_completes_successfully_when_there_are_no_live_matc
     update_events.assert_not_called()
     complete_job.assert_called_once_with(db, 123, success=True)
     assert result["tournaments_checked"] == 0
+    assert result["message"] == "Match Events refresh completed"
 
 
 def test_refresh_match_events_skips_match_when_api_returns_no_rows(mocker, db):
@@ -246,6 +247,53 @@ def test_refresh_match_events_skips_match_when_api_returns_no_rows(mocker, db):
     assert result["tournaments_checked"] == 1
     assert result["tournaments_skipped"] == 1
     assert result["tournaments_refreshed"] == 0
+    assert result["message"] == "Match Events refresh completed"
+
+
+def test_refresh_match_events_continues_after_skipped_match(mocker, db):
+    skipped_match = make_match(match_id=5, external_api_id=9005, tournament_id=22)
+    updated_match = make_match(match_id=6, external_api_id=9006, tournament_id=22)
+    rows = [SimpleNamespace(name="row-1")]
+
+    mocker.patch.object(
+        refresh_match_events_service.refresh_jobs_repo,
+        "create_job",
+        return_value=123,
+    )
+    complete_job = mocker.patch.object(
+        refresh_match_events_service.refresh_jobs_repo,
+        "complete_job",
+    )
+    mocker.patch.object(
+        refresh_match_events_service.matches_service,
+        "get_live_matches",
+        return_value=[skipped_match, updated_match],
+    )
+    fetch_events = mocker.patch.object(
+        refresh_match_events_service,
+        "fetch_match_events_for_match",
+        side_effect=[[], rows],
+    )
+    update_events = mocker.patch.object(
+        refresh_match_events_service.match_events_service,
+        "update_match_events",
+    )
+
+    result = refresh_match_events_service.refresh_match_events(db)
+
+    assert fetch_events.call_args_list == [
+        mocker.call(skipped_match),
+        mocker.call(updated_match),
+    ]
+    update_events.assert_called_once_with(db, 6, rows)
+    complete_job.assert_called_once_with(db, 123, success=True)
+
+    assert result["message"] == "Match Events refresh completed"
+    assert result["tournaments_checked"] == 2
+    assert result["tournaments_skipped"] == 1
+    assert result["tournaments_refreshed"] == 1
+    assert result["rows_processed"] == 1
+    assert result["failures"] == []
 
 
 def test_refresh_match_events_updates_events_and_counts_rows(mocker, db):
@@ -328,6 +376,7 @@ def test_refresh_match_events_records_individual_match_failure_and_continues(moc
             "reason": "api exploded",
         }
     ]
+    assert result["message"] == "Match Events refresh completed with failures"
 
 
 def test_refresh_match_events_marks_job_failed_and_reraises_when_live_match_lookup_fails(
