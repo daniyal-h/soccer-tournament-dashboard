@@ -27,7 +27,7 @@ export const QUERY_STALE_TIMES = {
 
   standings: 60 * MINUTE,
 
-  matches: 3 * MINUTE,
+  matches: 5 * MINUTE,
 
   match: 1 * MINUTE,
 
