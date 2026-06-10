@@ -28,4 +28,6 @@ class TournamentTeam(Base):
 
     team: Mapped[Team] = relationship("Team", lazy="joined")
 
-    Index("ix_tournament_teams_tournament_final_rank", "tournament_id", "final_rank")
+    __table_args__ = (
+        Index("ix_tournament_teams_tournament_final_rank", "tournament_id", "final_rank"),
+    )
