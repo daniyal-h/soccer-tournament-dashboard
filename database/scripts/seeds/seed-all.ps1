@@ -68,8 +68,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/euro-2024/08-tournament-team-ranks.sql",
     "database/scripts/seeds/static/copa-america-2024/08-tournament-team-ranks.sql",
     "database/scripts/seeds/static/africa-cup-of-nations-2025/08-tournament-team-ranks.sql",
-    "database/scripts/seeds/static/club-world-cup-2025/08-tournament-team-ranks.sql",
-    "database/scripts/seeds/static/world-cup-2026/08-tournament-team-ranks.sql"
+    "database/scripts/seeds/static/club-world-cup-2025/08-tournament-team-ranks.sql"
 
     # intentionally excluding:
     # world-cup-2026/03-standings.sql
