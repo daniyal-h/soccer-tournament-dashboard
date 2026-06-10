@@ -99,7 +99,7 @@ const TournamentSelector = () => {
 
         <ComboboxList>
           {(item) => (
-            <ComboboxItem key={item} value={item} >
+            <ComboboxItem key={item} value={item}>
               {item}
             </ComboboxItem>
           )}
