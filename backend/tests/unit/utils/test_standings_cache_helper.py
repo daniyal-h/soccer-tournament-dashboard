@@ -151,4 +151,4 @@ class TestGetStandingsTtl:
         ttl = get_standings_ttl(tournament, has_rows=False, today=date(2026, 6, 10))
 
         assert isinstance(ttl, timedelta)
-        assert ttl == timedelta(minutes=15)
+        assert ttl == timedelta(minutes=60)
