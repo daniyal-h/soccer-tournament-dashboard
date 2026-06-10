@@ -25,11 +25,11 @@ const HOUR = 60 * MINUTE;
 export const QUERY_STALE_TIMES = {
   tournaments: 24 * HOUR,
 
-  standings: 4 * MINUTE,
+  standings: 60 * MINUTE,
 
-  matches: 4 * MINUTE,
+  matches: 3 * MINUTE,
 
-  match: 4 * MINUTE,
+  match: 1 * MINUTE,
 
   matchEvents: 45 * SECOND,
 } as const;
