@@ -64,11 +64,11 @@ The API key never leaves the backend. The frontend is entirely agnostic to the d
 
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
-### Match Schedule & Details (completed)
+### Match Schedule & Details (in-progress)
 
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 columns on desktop). Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
-### Team Profile (planned)
+### Team Profile (completed)
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
@@ -76,7 +76,7 @@ Dedicated team page showing the squad, recent form (last 5 results as W/D/L indi
 
 Tournament-wide player rankings pre-seeded into PostgreSQL via a daily scheduled job. Sortable by goals, assists, and cards. Filterable by position and country. Hover (desktop) or tap (mobile) reveals a full player detail card.
 
-### Global Search (planned)
+### Global Search (in-progress)
 
 Persistent search bar in the navbar. Searches teams and players from the PostgreSQL cache using full-text search (tsvector/tsquery). Filter chips for All, Teams, and Players. Debounced input to avoid unnecessary queries.
 
