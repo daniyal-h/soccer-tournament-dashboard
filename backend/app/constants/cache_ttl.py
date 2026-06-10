@@ -2,10 +2,10 @@ from datetime import timedelta
 
 # STANDINGS
 
-STANDINGS_TTL = timedelta(minutes=5)  # GitHub cron floor
-STANDINGS_PRE_TOURNAMENT_SOON_TTL = timedelta(minutes=15)
+STANDINGS_TTL = timedelta(hours=1)  # API-Football standings refresh hourly
+STANDINGS_PRE_TOURNAMENT_SOON_TTL = timedelta(hours=1)
 STANDINGS_PRE_TOURNAMENT_FAR_TTL = timedelta(days=1)
-STANDINGS_FINISHED_TOURNAMENT_TTL = timedelta(days=1)
+STANDINGS_FINISHED_TOURNAMENT_TTL = timedelta(days=7)
 
 # MATCHES
 
