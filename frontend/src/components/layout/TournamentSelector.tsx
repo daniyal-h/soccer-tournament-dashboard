@@ -45,7 +45,7 @@ const TournamentSelector = () => {
 
   if (error) {
     return (
-      <div className="flex w-full items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive md:w-55 lg:w-75">
+      <div className="flex w-full items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
         <span className="min-w-0 truncate">{error.message}</span>
 
         {canRetry && (
@@ -64,7 +64,7 @@ const TournamentSelector = () => {
 
   if (isLoading || selectedTournamentLabel === undefined) {
     return (
-      <div className="flex w-full items-center justify-between md:w-55 lg:w-75  rounded-md border px-3 py-2 bg-accent">
+      <div className="flex w-full items-center justify-between rounded-md border px-3 py-2 bg-accent">
         <span>Loading tournaments...</span>
         <Spinner role="status" aria-label="Loading" />
       </div>
@@ -72,42 +72,40 @@ const TournamentSelector = () => {
   }
 
   return (
-    <div className="w-full md:w-55 lg:w-75">
-      <Combobox
-        items={tournamentOptions}
-        value={selectedTournamentLabel}
-        onValueChange={(label) => {
-          // Stryker disable next-line ConditionalExpression, BlockStatement: empty label already guarded
-          if (!label) {
-            return;
-          }
+    <Combobox
+      items={tournamentOptions}
+      value={selectedTournamentLabel}
+      onValueChange={(label) => {
+        // Stryker disable next-line ConditionalExpression, BlockStatement: empty label already guarded
+        if (!label) {
+          return;
+        }
 
-          const tournament = tournaments.find(
-            (tournament) => `${tournament.name} ${formatSeason(tournament)}` === label,
-          );
+        const tournament = tournaments.find(
+          (tournament) => `${tournament.name} ${formatSeason(tournament)}` === label,
+        );
 
-          if (!tournament) {
-            return;
-          }
+        if (!tournament) {
+          return;
+        }
 
-          setSelectedTournamentId(tournament.id);
-        }}
-      >
-        <ComboboxInput placeholder="Select a tournament" />
+        setSelectedTournamentId(tournament.id);
+      }}
+    >
+      <ComboboxInput placeholder="Select a tournament" />
 
-        <ComboboxContent>
-          <ComboboxEmpty>No tournaments found.</ComboboxEmpty>
+      <ComboboxContent>
+        <ComboboxEmpty>No tournaments found.</ComboboxEmpty>
 
-          <ComboboxList>
-            {(item) => (
-              <ComboboxItem key={item} value={item}>
-                {item}
-              </ComboboxItem>
-            )}
-          </ComboboxList>
-        </ComboboxContent>
-      </Combobox>
-    </div>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item} value={item} >
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
   );
 };
 
