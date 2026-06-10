@@ -157,6 +157,8 @@ GET /api/v1/tournaments
 GET /api/v1/tournaments/{tournament_id}
 GET /api/v1/tournaments/{tournament_id}/standings
 GET /api/v1/tournaments/{tournament_id}/matches
+GET /api/v1/matches/{match_id}
+GET /api/v1/matches/{match_id}/events
 GET /api/v1/tournaments/{tournament_id}/player-stats
 GET /api/v1/teams/{team_id}
 GET /api/v1/teams/{team_id}/roster?tournament_id={tournament_id}
@@ -259,9 +261,9 @@ docker exec -it postgres_db psql -U app_user -d app_db
 
 ## Caching
 
-The backend caches API-Football responses in PostgreSQL.
+The backend caches API responses in PostgreSQL to reduce repeated database work and protect the external API quota.
 
-Cache entries should include:
+Cache entries include:
 
 ```txt
 cache_key
@@ -272,11 +274,19 @@ expires_at
 
 Rules:
 
-- Fresh cache is returned immediately, no DB query
-- Cache miss fetches from DB, writes to cache
-- Pre-tournament data uses 24-hour TTL
-- Live standings use 1-minute TTL
-- Refresh job invalidates cache after writing new data
+- Fresh cache is returned immediately
+- Cache miss queries the database or external source depending on the endpoint
+- Stale cache can be returned with delayed metadata when refresh fails
+- Live data uses shorter TTLs than scheduled or completed data
+- Refresh jobs invalidate affected cache entries after writing new data
+
+Current cache behaviour:
+
+```txt
+Standings: live 5 minutes, pre-tournament/future data longer, completed data longer
+Matches: live 1 minute, upcoming soon 5 minutes, future 12 hours, completed 1 day
+Match events: live 1 minute, upcoming soon 5 minutes, future 12 hours, completed 1 day
+```
 
 ---
 
@@ -478,18 +488,33 @@ Load tests are organized by feature area:
 
 ```txt
 load-tests/
+  constants.js
+
   standings/
     normalTest.js
     spikeTest.js
     rateLimitTest.js
     stressTest.js
+
+  schedule/
+    normalScheduleTest.js
+    normalMatchDetailTest.js
+    spikeNavigationTest.js
+    rateLimitEventsTest.js
+    stressNavigationTest.js
 ```
 
-Current coverage includes standings endpoint performance and rate limiting behaviour.
+Shared load test values are defined in:
+
+```txt
+load-tests/constants.js
+```
+
+The constants file contains test identifiers such as the base URL, tournament ID, and match ID. Match-specific tests require a `MATCH_ID` that exists in the current seeded database. If the database is reseeded, update the constant before rerunning the tests.
 
 ### Install k6
 
-Windows (winget):
+Windows:
 
 ```bash
 winget install GrafanaLabs.k6
@@ -501,33 +526,26 @@ Verify installation:
 k6 version
 ```
 
-### Run Load Tests
-
-Run the normal load test:
+### Run Standings Load Tests
 
 ```bash
 k6 run load-tests/standings/normalTest.js
-```
-
-Run the spike test:
-
-```bash
 k6 run load-tests/standings/spikeTest.js
-```
-
-Run the rate-limit validation test:
-
-```bash
 k6 run load-tests/standings/rateLimitTest.js
-```
-
-Run the stress test:
-
-```bash
 k6 run load-tests/standings/stressTest.js
 ```
 
-### Load Testing Report
+### Run Schedule Load Tests
+
+```bash
+k6 run load-tests/schedule/normalScheduleTest.js
+k6 run load-tests/schedule/normalMatchDetailTest.js
+k6 run load-tests/schedule/spikeNavigationTest.js
+k6 run load-tests/schedule/rateLimitEventsTest.js
+k6 run load-tests/schedule/stressNavigationTest.js
+```
+
+### Load Testing Reports
 
 Reports and analysis are stored in:
 
@@ -535,12 +553,20 @@ Reports and analysis are stored in:
 backend/reports/
 ```
 
+Current reports:
+
+```txt
+backend/reports/standings-load-testing.md
+backend/reports/schedule-load-testing.md
+```
+
 ### Notes
 
-- Normal load tests remain below configured endpoint rate limits
-- Spike and stress tests intentionally trigger HTTP 429 responses
-- HTTP 429 responses are considered expected behaviour during overload scenarios
-- Heavy stress testing should be performed locally against Dockerized PostgreSQL rather than hosted environments
+* Normal load tests remain below configured endpoint rate limits
+* Spike and stress tests intentionally trigger HTTP 429 responses
+* HTTP 429 responses are expected behaviour during overload scenarios
+* Load tests run from one local IP, so rate-limit tests simulate repeated traffic from the same source
+* Heavy stress testing should be performed locally against Dockerized PostgreSQL rather than hosted environments
 
 ---
 

@@ -5,8 +5,7 @@ import { BASE_URL, TOURNAMENT_ID } from "../constants.js";
 
 export const options = {
     scenarios: {
-        // 55 req/min for 5 mins
-        standings_normal: {
+        schedule_normal: {
             executor: "constant-arrival-rate",
             rate: 55,
             timeUnit: "1m",
@@ -15,6 +14,7 @@ export const options = {
             maxVUs: 10,
         },
     },
+
     // <1% failed requests, 95% of responses under 500ms, and >99% successful validation checks
     thresholds: {
         http_req_failed: ["rate<0.01"],
@@ -23,9 +23,9 @@ export const options = {
     },
 };
 
-export default function standingsNormalLoadTest() {
+export default function scheduleNormalLoadTest() {
     const response = http.get(
-        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/standings`,
+        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/matches`,
     );
 
     check(response, {

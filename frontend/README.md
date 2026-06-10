@@ -13,6 +13,7 @@ Built with Vite, Tailwind CSS, React Router, and Sentry. The frontend communicat
 - Vite
 - Tailwind CSS v4
 - React Router
+- TanStack Query
 - Vitest + Testing Library
 - StrykerJS
 - Sentry
@@ -81,7 +82,7 @@ src/
   assets/       static assets
   components/   reusable UI components
   config/       frontend config and feature flags
-  constants/    app-wide constants
+  constants/    app-wide constants including query keys and cache timings
   context/      React context providers
   hooks/        custom React hooks
   lib/          tailwind cn function
@@ -100,7 +101,27 @@ src/
 - The frontend never calls API-Football directly
 - Base URL is configured via `VITE_API_BASE_URL`
 - Requests should be defined in `src/api/`
-- Business logic should live in `src/hooks/`
+- API hooks in `src/hooks/` wrap TanStack Query and expose UI-friendly loading, error, retry, and refresh state
+
+---
+
+## Frontend Caching
+
+TanStack Query is used for frontend request state, caching, retries, and background refresh behavior.
+
+- API hooks use `useQuery` through a shared `useApiQuery` wrapper
+- Query keys are centralized so cached data is scoped by resource and parameters
+- Cached data prevents unnecessary loading states when navigating between pages
+- Failed requests retry automatically using a controlled retry count and delay
+- Manual retry actions remain available through hook return values
+- `staleTime` controls when cached data should be considered old
+- `gcTime` controls how long inactive cached data remains in memory
+- Live match data can refetch on an interval while finished/static data does not poll
+
+Backend caching and frontend caching serve different purposes:
+
+- Backend cache protects API-Football quota and stores server-side fallback data
+- Frontend cache improves navigation speed and avoids redundant backend requests
 
 ---
 
@@ -200,7 +221,7 @@ The frontend distinguishes between:
 - Recoverable API failures
 - Non-recoverable failures
 
-User-facing feedback is provided through reusable ErrorState and EmptyState components.
+User-facing feedback is provided through reusable ErrorState and EmptyState components. Automatic retries are handled through TanStack Query. Components should use full error states only when no cached data is available; stale cached data may remain visible while a background refresh fails.
 
 ---
 
@@ -236,6 +257,9 @@ Formatting rules are defined in:
 - Keep components focused and reusable
 - Keep data fetching out of components (use hooks/services)
 - Always destructure props in function signatures
+- Use TanStack Query hooks for API-backed data
+- Include all request-shaping values in query keys, such as IDs, filters, groups, and search terms
+- Use `isLoading` for first-load skeletons and `isRefreshing` only for background update indicators
 - Use `const` by default; avoid `let` unless necessary
 
 ---

@@ -1,0 +1,270 @@
+# Schedule Feature Load Testing Report
+
+## Overview
+
+Load testing was performed using k6 against the FastAPI backend running locally with Dockerized PostgreSQL. Tests focused on validating endpoint performance, latency consistency, and rate limiting behaviour under sustained and burst traffic patterns.
+
+This sprint introduced the Schedule feature, including match schedule retrieval and match detail navigation. Testing covers the primary schedule endpoint and the combined match detail flow used when a user selects a match.
+
+---
+
+## Environment
+
+| Component         | Configuration                       |
+| ----------------- | ----------------------------------- |
+| Backend           | FastAPI                             |
+| Database          | PostgreSQL (Docker)                 |
+| Load Testing Tool | k6                                  |
+| Endpoints Tested  | `GET /api/v1/tournaments/1/matches` |
+|                   | `GET /api/v1/matches/1`             |
+|                   | `GET /api/v1/matches/1/events`      |
+| Rate Limit        | 60 requests/min/IP                  |
+
+---
+
+# 1. Schedule Normal Load Test
+
+## Goal
+
+Validate sustained schedule endpoint performance under expected traffic while remaining below the configured rate limit.
+
+## Endpoint Tested
+
+`GET /api/v1/tournaments/1/matches`
+
+## Configuration
+
+| Setting      | Value                                             |
+| ------------ | ------------------------------------------------- |
+| Executor     | `constant-arrival-rate`                           |
+| Request Rate | 55 requests/minute                                |
+| Duration     | 10 minutes                                        |
+| Thresholds   | <1% failures, p95 < 500ms, >99% successful checks |
+
+## Results
+
+| Metric            | Result   |
+| ----------------- | -------- |
+| Total Requests    | 550      |
+| Failure Rate      | 0.00%    |
+| Successful Checks | 100.00%  |
+| Average Latency   | 12.07ms  |
+| p95 Latency       | 20.13ms  |
+| Max Latency       | 298.37ms |
+
+## Outcome
+
+The schedule endpoint remained stable under sustained load with zero failed requests and consistently low latency. All 550 requests completed successfully, and all validation checks passed.
+
+The endpoint maintained a p95 latency of 20.13ms, remaining well below the 500ms threshold. Although the maximum observed latency reached 298.37ms, this remained within the acceptable range and did not indicate sustained degradation.
+
+The test confirms that the schedule endpoint can handle expected traffic below the configured rate limit while maintaining reliable response times.
+
+---
+
+# 2. Match Detail Flow Normal Load Test
+
+## Goal
+
+Validate performance of loading an individual match page, including both match metadata and timeline event data.
+
+A user navigating from the schedule page triggers both requests, so they are tested together to represent real application behavior.
+
+## Endpoints Tested
+
+`GET /api/v1/matches/1`
+
+`GET /api/v1/matches/1/events`
+
+## Configuration
+
+| Setting      | Value                                             |
+| ------------ | ------------------------------------------------- |
+| Executor     | `constant-arrival-rate`                           |
+| Request Rate | 55 user flows/minute                              |
+| Duration     | 10 minutes                                        |
+| Thresholds   | <1% failures, p95 < 500ms, >99% successful checks |
+
+## Results
+
+| Metric            | Result   |
+| ----------------- | -------- |
+| Total Requests    | 1,100    |
+| Failure Rate      | 0.00%    |
+| Successful Checks | 100.00%  |
+| Average Latency   | 12.80ms  |
+| p95 Latency       | 20.10ms  |
+| Max Latency       | 276.42ms |
+
+## Outcome
+
+The match detail flow remained stable under sustained load with zero failed requests and all validation checks passing successfully.
+
+The test completed 550 simulated match detail page loads, generating 1,100 total HTTP requests across the match metadata and match events endpoints. Both endpoints consistently returned successful responses throughout the test duration.
+
+The combined flow maintained low response times, with an average latency of 12.80ms and a p95 latency of 20.10ms, remaining well below the configured 500ms threshold. The maximum observed latency of 276.42ms represented an isolated spike and did not result in sustained performance degradation.
+
+The test confirms that users can repeatedly navigate into match detail pages while the backend continues serving match information and timeline data reliably under expected traffic conditions.
+
+---
+
+# 3. Combined Schedule Navigation Spike Test
+
+## Goal
+
+Simulate sudden traffic increases during active tournament periods where users frequently refresh schedules and open match details.
+
+The test validates that the backend remains responsive while enforcing rate limits during burst traffic.
+
+## Flow Tested
+
+1. `GET /api/v1/tournaments/1/matches`
+2. `GET /api/v1/matches/1`
+3. `GET /api/v1/matches/1/events`
+
+## Configuration
+
+| Setting            | Value                                              |
+| ------------------ | -------------------------------------------------- |
+| Executor           | `ramping-arrival-rate`                             |
+| Peak Request Rate  | 120 user flows/minute                              |
+| Duration           | 2 minutes 20 seconds                               |
+| Stages             | warmup, spike, sustained spike, recovery, cooldown |
+| Thresholds         | p95 < 1000ms, >99% successful checks               |
+| Accepted Responses | 200 OK, 429 Too Many Requests                      |
+
+## Results
+
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 507      |
+| Successful Checks  | 100.00%  |
+| Average Latency    | 9.42ms   |
+| p95 Latency        | 15.00ms  |
+| Max Latency        | 47.36ms  |
+| HTTP 429 Responses | 158      |
+| HTTP Failure Rate  | 31.16%\* |
+
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected because the spike test intentionally exceeded configured rate limits.
+
+## Outcome
+
+The combined schedule navigation flow remained stable during sudden bursts of elevated traffic. The test simulated users loading the schedule page and navigating into individual match details, triggering requests across the schedule, match metadata, and match events endpoints.
+
+All validation checks completed successfully, with the backend correctly returning either successful responses or rate-limited responses when traffic exceeded configured limits.
+
+Rate limiting activated as expected during the spike, producing 158 HTTP 429 responses. Despite the sudden traffic increase, latency remained consistently low, with an average response time of 9.42ms and a p95 latency of 15.00ms.
+
+The test confirms that the complete schedule navigation flow can handle abrupt traffic spikes while maintaining responsiveness and enforcing API protection mechanisms.
+
+---
+
+# 4. Match Events Rate Limit Validation Test
+
+## Goal
+
+Verify that excessive requests to frequently refreshed match event data are correctly limited without backend instability.
+
+## Endpoint Tested
+
+`GET /api/v1/matches/1/events`
+
+## Configuration
+
+| Setting            | Value                                                          |
+| ------------------ | -------------------------------------------------------------- |
+| Executor           | `constant-arrival-rate`                                        |
+| Request Rate       | 120 requests/minute                                            |
+| Duration           | 1 minute                                                       |
+| Thresholds         | p95 < 500ms, >99% successful checks, at least one 429 response |
+| Accepted Responses | 200 OK, 429 Too Many Requests                                  |
+
+## Results
+
+| Metric            | Result  |
+| ----------------- | ------- |
+| Total Requests    | 121     |
+| 200 Responses     | 60      |
+| 429 Responses     | 61      |
+| Successful Checks | 100.00% |
+| Average Latency   | 8.90ms  |
+| p95 Latency       | 15.87ms |
+| Max Latency       | 59.78ms |
+
+## Outcome
+
+The match events endpoint correctly enforced the configured rate limit under excessive request traffic. The test sent 121 requests in one minute, exceeding the 60 requests/minute/IP limit and producing 61 HTTP 429 responses.
+
+All validation checks passed because both successful responses and rate-limited responses were expected during this scenario. Latency remained low throughout the test, with an average response time of 8.90ms and a p95 latency of 15.87ms.
+
+The test confirms that the match events endpoint rejects excessive traffic without backend instability or response degradation.
+
+---
+
+# 5. Combined Schedule Flow Stress Test
+
+## Goal
+
+Evaluate backend behavior under extreme sustained traffic while repeatedly exercising the complete schedule browsing flow.
+
+## Flow Tested
+
+1. `GET /api/v1/tournaments/1/matches`
+2. `GET /api/v1/matches/1`
+3. `GET /api/v1/matches/1/events`
+
+## Configuration
+
+| Setting            | Value                                                        |
+| ------------------ | ------------------------------------------------------------ |
+| Executor           | `ramping-vus`                                                |
+| Peak Virtual Users | 200                                                          |
+| Duration           | 8 minutes                                                    |
+| Stages             | gradual ramp-up, sustained heavy load, peak stress, recovery |
+| Thresholds         | p95 < 2000ms, >95% successful checks                         |
+| Accepted Responses | 200 OK, 429 Too Many Requests                                |
+
+## Results
+
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 48,013   |
+| Successful Checks  | 98.59%   |
+| Failed Checks      | 1.40%    |
+| Average Latency    | 636.56ms |
+| p95 Latency        | 190.61ms |
+| Max Latency        | 1m 0s    |
+| HTTP Failure Rate  | 98.50%\* |
+| Peak Virtual Users | 200      |
+
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected during stress testing because the test intentionally exceeded configured rate limits. A small number of additional failures occurred when the database connection pool reached its configured capacity during peak load.
+
+## Outcome
+
+The combined schedule navigation flow remained stable under heavy concurrent traffic and successfully handled the majority of requests during the stress scenario.
+
+During the peak 200 virtual user phase, a small percentage of requests failed. Backend logs identified the cause as SQLAlchemy connection pool exhaustion:
+
+`QueuePool limit of size 5 overflow 10 reached`
+
+The failure occurred because the test exceeded the configured local database connection pool capacity, causing some requests to timeout while waiting for database connections.
+
+Despite reaching this bottleneck, the backend continued processing accepted requests with low latency. Successful responses maintained a p95 latency below 500ms, and overall validation checks remained above the configured 95% threshold.
+
+The test identified database connection capacity as the primary scaling limitation under extreme concurrent load.
+
+---
+
+# Conclusion
+
+The Schedule feature load tests validated that the backend can reliably support match schedule browsing and match detail navigation under expected usage patterns.
+
+Normal load testing confirmed that both the schedule endpoint and match detail flow handled sustained traffic with no failed requests. The schedule endpoint completed 550 requests with a p95 latency of 20.13ms, while the match detail flow completed 1,100 combined requests across match metadata and event endpoints with a p95 latency of 20.10ms.
+
+Spike testing demonstrated that the complete schedule navigation flow remained responsive during sudden increases in traffic. Rate limiting activated correctly when request volume exceeded configured limits, preventing excessive traffic from impacting backend stability.
+
+The dedicated match events rate-limit test verified that frequently refreshed event data is protected against excessive requests. The endpoint correctly returned HTTP 429 responses while maintaining low latency and stable behaviour.
+
+Stress testing with 200 virtual users successfully identified the database connection pool as the primary scaling constraint under extreme concurrent load. The backend continued serving accepted requests efficiently, but some requests timed out once the configured SQLAlchemy connection pool capacity was exceeded.
+
+Overall, the Schedule feature met performance expectations for normal and burst traffic scenarios. The tests confirmed that caching, rate limiting, and backend request handling provide stable performance, while also identifying database connection capacity as the next optimization point for supporting significantly higher concurrent traffic.
