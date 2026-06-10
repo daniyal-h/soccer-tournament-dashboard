@@ -60,12 +60,22 @@ $seedFiles = @(
     "database/scripts/seeds/static/euro-2024/07-match-events.sql",
     "database/scripts/seeds/static/copa-america-2024/07-match-events.sql",
     "database/scripts/seeds/static/africa-cup-of-nations-2025/07-match-events.sql",
-    "database/scripts/seeds/static/club-world-cup-2025/07-match-events.sql"
+    "database/scripts/seeds/static/club-world-cup-2025/07-match-events.sql",
+
+    
+    # tournament teams rankings
+    "database/scripts/seeds/static/world-cup-2022/08-tournament-teams-rankings.sql",
+    "database/scripts/seeds/static/euro-2024/08-tournament-teams-rankings.sql",
+    "database/scripts/seeds/static/copa-america-2024/08-tournament-teams-rankings.sql",
+    "database/scripts/seeds/static/africa-cup-of-nations-2025/08-tournament-teams-rankings.sql",
+    "database/scripts/seeds/static/club-world-cup-2025/08-tournament-teams-rankings.sql",
+    "database/scripts/seeds/static/world-cup-2026/08-tournament-teams-rankings.sql"
 
     # intentionally excluding:
     # world-cup-2026/03-standings.sql
     # world-cup-2026/04-matches.sql
     # world-cup-2026/07-matches-events.sql
+    # world-cup-2026/08-tournament-teams-ranking.sql
 )
 
 foreach ($file in $seedFiles) {
