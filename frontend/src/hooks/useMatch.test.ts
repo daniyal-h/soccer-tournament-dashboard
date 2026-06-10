@@ -70,7 +70,7 @@ describe('useMatch', () => {
     expect(mockUseApiQuery).toHaveBeenCalledWith(
       expect.objectContaining({
         queryKey: queryKeys.matches.detail(7),
-        staleTime: QUERY_STALE_TIMES.matches,
+        staleTime: QUERY_STALE_TIMES.match,
         errorMessages: {
           notFound: 'Match was not found.',
           generic: 'Failed to load match.',
