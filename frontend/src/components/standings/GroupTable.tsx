@@ -28,7 +28,7 @@ export function GroupTable({ rows }: GroupTableProps) {
         {/* Include a header row of the columns */}
         <TableRow>
           <TableHead className="w-4 md:w-6">#</TableHead>
-          <TableHead className='w-16 sm:w-40'>Team</TableHead>
+          <TableHead className="w-16 sm:w-40">Team</TableHead>
           {COLUMNS.map((col) => (
             <TableHead
               key={col.key}
