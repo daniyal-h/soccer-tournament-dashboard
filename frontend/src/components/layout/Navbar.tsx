@@ -15,28 +15,37 @@ import TournamentSelector from './TournamentSelector';
 const Navbar = () => {
   return (
     <header className="border-b border-border bg-background">
-      <nav className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between md:px-6 lg:px-8">
-        <NavLink to="/" className="text-lg font-semibold">
+      <nav className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-3 min-[1050px]:flex-row min-[1050px]:items-center min-[1050px]:gap-4 min-[500px]:px-6 min-[1050px]:px-8">
+        <NavLink to="/" className="text-lg font-semibold shrink-0">
           Soccer Dashboard
         </NavLink>
 
-        <div className="w-full md:w-auto">
-          <TournamentSelector />
+        <div className="w-full min-[1050px]:flex-1 min-[1050px]:flex min-[1050px]:justify-center">
+          <div className="w-full min-[1050px]:w-75">
+            <TournamentSelector />
+          </div>
         </div>
 
-        <div className="hidden min-[500px]:flex items-center gap-4 justify-between">
-          <InLineNav navItems={NAV_ITEMS} className="gap-4" />
-
-          <ThemeToggle />
-        </div>
-
-        <div className="grid w-full grid-cols-[auto_1fr_auto] items-center min-[500px]:hidden">
+        {/* Smallest: hamburger + 2 primary + toggle */}
+        <div className="grid grid-cols-[auto_1fr_auto] items-center min-[500px]:hidden">
           <CompactNav navItems={NAV_ITEMS} />
-
           <div className="flex justify-center">
             <InLineNav navItems={PRIMARY_NAV_ITEMS} className="gap-2" />
           </div>
+          <ThemeToggle />
+        </div>
 
+        {/* Middle: 5 links inline + toggle (stacked as row 3) */}
+        <div className="hidden min-[500px]:flex min-[1050px]:hidden items-center gap-2">
+          <InLineNav navItems={NAV_ITEMS} className="gap-2" />
+          <div className="ml-auto">
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Largest: 5 links + toggle in single row */}
+        <div className="hidden min-[1050px]:flex items-center gap-4 ml-auto shrink-0">
+          <InLineNav navItems={NAV_ITEMS} className="gap-4" />
           <ThemeToggle />
         </div>
       </nav>
