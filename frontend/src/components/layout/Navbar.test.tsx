@@ -24,6 +24,6 @@ describe('Navbar', () => {
 
     expect(screen.getByText('Tournament Selector')).toBeInTheDocument();
 
-    expect(screen.getAllByText('Theme Toggle')).toHaveLength(2);
+    expect(screen.getAllByText('Theme Toggle')).toHaveLength(3);
   });
 });
