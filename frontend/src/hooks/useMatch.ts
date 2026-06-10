@@ -8,7 +8,7 @@ export function useMatch(match_id: number) {
   const query = useApiQuery({
     queryKey: queryKeys.matches.detail(match_id),
     queryFn: () => getMatch({ match_id }),
-    staleTime: QUERY_STALE_TIMES.matches,
+    staleTime: QUERY_STALE_TIMES.match,
 
     refetchInterval: (query) => {
       const match = query.state.data;
