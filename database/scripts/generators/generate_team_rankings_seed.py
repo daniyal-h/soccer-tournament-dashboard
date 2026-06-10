@@ -100,14 +100,14 @@ def assign_exact_rank(
     ranks_by_team_id: dict[int, dict],
     team_id: int | None,
     rank: int,
-    eliminated_stage: str,
+    stage_reached: str,
 ) -> None:
     if team_id is None:
         return
 
     ranks_by_team_id[team_id] = {
         "final_rank": rank,
-        "eliminated_stage": eliminated_stage,
+        "stage_reached": stage_reached,
     }
 
 
@@ -115,7 +115,7 @@ def assign_rank_bucket(
     ranks_by_team_id: dict[int, dict],
     team_ids: list[int],
     starting_rank: int,
-    eliminated_stage: str,
+    stage_reached: str,
     standings_by_team_id: dict[int, dict],
 ) -> int:
     unique_unranked_team_ids = sorted(
@@ -126,7 +126,7 @@ def assign_rank_bucket(
     for index, team_id in enumerate(unique_unranked_team_ids):
         ranks_by_team_id[team_id] = {
             "final_rank": starting_rank + index,
-            "eliminated_stage": eliminated_stage,
+            "stage_reached": stage_reached,
         }
 
     return starting_rank + len(unique_unranked_team_ids)
@@ -149,13 +149,13 @@ def build_update_sql(
     season: str,
     external_team_id: int,
     final_rank: int,
-    eliminated_stage: str,
+    stage_reached: str,
 ) -> str:
     return (
         "UPDATE tournament_teams\n"
         "SET\n"
         f"    final_rank = {final_rank},\n"
-        f"    eliminated_stage = '{escape_sql(eliminated_stage)}'\n"
+        f"    stage_reached = '{escape_sql(stage_reached)}'\n"
         f"WHERE tournament_id = {tournament_id_sql(tournament_api_id, season)}\n"
         f"AND team_id = {team_id_sql(external_team_id)};"
     )
@@ -232,7 +232,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
     if final_matches:
         winner_id, loser_id = get_match_winner_and_loser(final_matches[-1])
 
-        assign_exact_rank(ranks_by_team_id, winner_id, 1, "champion")
+        assign_exact_rank(ranks_by_team_id, winner_id, 1, "final")
         assign_exact_rank(ranks_by_team_id, loser_id, 2, "final")
 
         next_rank = 3
@@ -244,7 +244,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
     if third_place_matches:
         winner_id, loser_id = get_match_winner_and_loser(third_place_matches[-1])
 
-        assign_exact_rank(ranks_by_team_id, winner_id, next_rank, "third_place_winner")
+        assign_exact_rank(ranks_by_team_id, winner_id, next_rank, "third_place")
         assign_exact_rank(ranks_by_team_id, loser_id, next_rank + 1, "third_place")
 
         next_rank += 2
@@ -290,7 +290,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
         ranks_by_team_id,
         group_exit_team_ids,
         next_rank,
-        "group_stage",
+        "group",
         standings_by_team_id,
     )
 
@@ -304,7 +304,7 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
                 season=season,
                 external_team_id=external_team_id,
                 final_rank=rank_data["final_rank"],
-                eliminated_stage=rank_data["eliminated_stage"],
+                stage_reached=rank_data["stage_reached"],
             )
         )
 
