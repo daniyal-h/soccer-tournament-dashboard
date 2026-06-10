@@ -45,7 +45,7 @@ const TournamentSelector = () => {
 
   if (error) {
     return (
-      <div className="flex w-full items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+      <div className="flex w-full items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-1 text-sm text-destructive">
         <span className="min-w-0 truncate">{error.message}</span>
 
         {canRetry && (
