@@ -11,6 +11,7 @@ from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
+from app.schemas.tournament_teams import TournamentTeamResponse
 from app.schemas.tournaments import TournamentResponse
 
 router = APIRouter()
@@ -50,7 +51,7 @@ def get_matches(
     return matches_service.get_matches(db, tournament_id)
 
 
-@router.get("/{tournament_id}/teams")
+@router.get("/{tournament_id}/teams", response_model=list[TournamentTeamResponse])
 @limiter.limit("60/minute")
 def get_teams(
     request: Request,
@@ -61,4 +62,5 @@ def get_teams(
     Return all ranked teams in the tournament.
     Rank by final placement with a fallback to alphabetical.
     """
+
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
