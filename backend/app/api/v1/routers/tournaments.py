@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import standings as standings_service
+from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
@@ -41,9 +42,23 @@ def get_standings(
 
 @router.get("/{tournament_id}/matches", response_model=list[MatchResponse])
 @limiter.limit("60/minute")
-async def get_matches(
+def get_matches(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
     tournament_id: Annotated[int, Path(gt=0)],
 ):
     return matches_service.get_matches(db, tournament_id)
+
+
+@router.get("/{tournament_id}/teams")
+@limiter.limit("60/minute")
+def get_teams(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+):
+    """
+    Return all ranked teams in the tournament.
+    Rank by final placement with a fallback to alphabetical.
+    """
+    return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
