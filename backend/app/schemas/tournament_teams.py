@@ -11,3 +11,9 @@ class TournamentTeamResponse(BaseModel):
     stage_reached: StageType | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TeamRankingRefreshRow(BaseModel):
+    team_id: int
+    final_rank: int | None
+    stage_reached: StageType
