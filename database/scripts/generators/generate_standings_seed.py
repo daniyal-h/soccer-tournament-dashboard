@@ -45,10 +45,8 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
 
             external_team_id = team["id"]
             raw_group = row.get("group") or ""
+            group_name = raw_group.split()[-1] if raw_group else ""
 
-            group_name = raw_group.replace("Group ", "").strip()
-
-            # only allow for single-letter group classifications
             if len(group_name) != 1 or not group_name.isalpha():
                 continue
 
