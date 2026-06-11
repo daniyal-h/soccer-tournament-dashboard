@@ -18,7 +18,7 @@ def transform_standings_response(response: dict) -> list[StandingRefreshRow]:
     for group_rows in standings_groups:
         for row in group_rows:
             raw_group = row.get("group") or ""
-            group = raw_group.replace("Group ", "").strip()
+            group = raw_group.split()[-1] if raw_group else ""
 
             if len(group) != 1 or not group.isalpha():
                 continue
