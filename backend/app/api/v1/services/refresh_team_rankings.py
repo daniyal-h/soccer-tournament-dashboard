@@ -31,32 +31,56 @@ STAGE_SORT_ORDER = {
 }
 
 
-def get_match_winner_and_loser(match: Match) -> tuple[int | None, int | None]:
+def get_ranking_sort_key(row: TeamRankingRefreshRow) -> tuple:
     """
-    Return winner and loser team IDs for a completed match.
+    Sort derived rows for predictable update output.
 
-    Penalties are used only when regular/extra-time scores are tied.
-    If the winner cannot be determined, return None values.
+    Active knockout teams have no final_rank yet, so they come first by
+    stage_reached. Finalized teams then follow by final_rank.
     """
-    if match.team_a_score is None or match.team_b_score is None:
-        return None, None
+    # active knockout teams
+    if row.final_rank is None and row.stage_reached is not None:
+        return (
+            0,
+            STAGE_SORT_ORDER.get(row.stage_reached, 99),
+            row.team_id,
+        )
 
-    if match.team_a_score > match.team_b_score:
-        return match.team_a_id, match.team_b_id
+    # finalized teams
+    if row.final_rank is not None:
+        return (
+            1,
+            row.final_rank,
+            STAGE_SORT_ORDER.get(row.stage_reached, 99),
+            row.team_id,
+        )
 
-    if match.team_b_score > match.team_a_score:
-        return match.team_b_id, match.team_a_id
+    # defensive fallback
+    return (
+        2,
+        row.team_id,
+    )
 
-    if match.team_a_penalties is None or match.team_b_penalties is None:
-        return None, None
 
-    if match.team_a_penalties > match.team_b_penalties:
-        return match.team_a_id, match.team_b_id
+def assign_active_knockout_teams(
+    rankings_by_team_id: dict[int, TeamRankingRefreshRow],
+    latest_stage_by_team_id: dict[int, StageType],
+) -> None:
+    """
+    Mark teams that have reached knockouts but do not have final placement yet.
 
-    if match.team_b_penalties > match.team_a_penalties:
-        return match.team_b_id, match.team_a_id
+    These rows keep final_rank as None and use stage_reached to show current
+    tournament progress.
+    """
+    for team_id, stage_reached in latest_stage_by_team_id.items():
+        if team_id in rankings_by_team_id:
+            continue
 
-    return None, None
+        rankings_by_team_id[team_id] = TeamRankingRefreshRow(
+            team_id=team_id,
+            final_rank=None,
+            stage_reached=stage_reached,
+        )
 
 
 def get_group_stage_sort_key(team_id: int, standings_by_team_id: dict[int, dict]) -> tuple:
@@ -67,22 +91,6 @@ def get_group_stage_sort_key(team_id: int, standings_by_team_id: dict[int, dict]
         -(standing.get("goal_difference") or 0),
         -(standing.get("goals_for") or 0),
         standing.get("team_name") or "",
-    )
-
-
-def assign_rank(
-    rankings_by_team_id: dict[int, TeamRankingRefreshRow],
-    team_id: int | None,
-    final_rank: int,
-    stage_reached: StageType,
-) -> None:
-    if team_id is None:
-        return
-
-    rankings_by_team_id[team_id] = TeamRankingRefreshRow(
-        team_id=team_id,
-        final_rank=final_rank,
-        stage_reached=stage_reached,
     )
 
 
@@ -112,6 +120,54 @@ def assign_rank_bucket(
         )
 
     return starting_rank + len(unique_unranked_team_ids)
+
+
+def assign_rank(
+    rankings_by_team_id: dict[int, TeamRankingRefreshRow],
+    team_id: int | None,
+    final_rank: int,
+    stage_reached: StageType,
+) -> None:
+    if team_id is None:
+        return
+
+    rankings_by_team_id[team_id] = TeamRankingRefreshRow(
+        team_id=team_id,
+        final_rank=final_rank,
+        stage_reached=stage_reached,
+    )
+
+
+def get_match_winner_and_loser(match: Match) -> tuple[int | None, int | None]:
+    """
+    Return winner and loser team IDs for a completed match.
+
+    Penalties are used only when regular/extra-time scores are tied.
+    If the winner cannot be determined, return None values.
+    """
+    if match.team_a_score is None or match.team_b_score is None:
+        return None, None
+
+    if match.team_a_score > match.team_b_score:
+        return match.team_a_id, match.team_b_id
+
+    if match.team_b_score > match.team_a_score:
+        return match.team_b_id, match.team_a_id
+
+    if match.team_a_penalties is None or match.team_b_penalties is None:
+        return None, None
+
+    if match.team_a_penalties > match.team_b_penalties:
+        return match.team_a_id, match.team_b_id
+
+    if match.team_b_penalties > match.team_a_penalties:
+        return match.team_b_id, match.team_a_id
+
+    return None, None
+
+
+def all_matches_finished(matches: list[Match]) -> bool:
+    return all(m.status == StatusType.FINISHED for m in matches)
 
 
 def get_knockout_match_context(
@@ -155,27 +211,6 @@ def get_knockout_match_context(
     return matches_by_stage, latest_stage_by_team_id
 
 
-def assign_active_knockout_teams(
-    rankings_by_team_id: dict[int, TeamRankingRefreshRow],
-    latest_stage_by_team_id: dict[int, StageType],
-) -> None:
-    """
-    Mark teams that have reached knockouts but do not have final placement yet.
-
-    These rows keep final_rank as None and use stage_reached to show current
-    tournament progress.
-    """
-    for team_id, stage_reached in latest_stage_by_team_id.items():
-        if team_id in rankings_by_team_id:
-            continue
-
-        rankings_by_team_id[team_id] = TeamRankingRefreshRow(
-            team_id=team_id,
-            final_rank=None,
-            stage_reached=stage_reached,
-        )
-
-
 def build_standings_lookup(standings: list) -> tuple[dict[int, dict], set[int]]:
     # convert standings into fast lookup data for sorting tied buckets
     standings_by_team_id = {}
@@ -195,41 +230,6 @@ def build_standings_lookup(standings: list) -> tuple[dict[int, dict], set[int]]:
         all_team_ids.add(standing.team_id)
 
     return standings_by_team_id, all_team_ids
-
-
-def get_ranking_sort_key(row: TeamRankingRefreshRow) -> tuple:
-    """
-    Sort derived rows for predictable update output.
-
-    Active knockout teams have no final_rank yet, so they come first by
-    stage_reached. Finalized teams then follow by final_rank.
-    """
-    # active knockout teams
-    if row.final_rank is None and row.stage_reached is not None:
-        return (
-            0,
-            STAGE_SORT_ORDER.get(row.stage_reached, 99),
-            row.team_id,
-        )
-
-    # finalized teams
-    if row.final_rank is not None:
-        return (
-            1,
-            row.final_rank,
-            STAGE_SORT_ORDER.get(row.stage_reached, 99),
-            row.team_id,
-        )
-
-    # defensive fallback
-    return (
-        2,
-        row.team_id,
-    )
-
-
-def all_matches_finished(matches: list[Match]) -> bool:
-    return all(m.status == StatusType.FINISHED for m in matches)
 
 
 def derive_team_rankings(
