@@ -21,7 +21,7 @@ KNOCKOUT_STAGES = {
 
 STAGE_SORT_ORDER = {
     StageType.FINAL: 1,
-    # third stage and semi final have equal weight as not all tournaments have 3rd place matches
+    # third place and semi final have equal weight as not all tournaments have 3rd place matches
     StageType.SEMI_FINAL: 2,
     StageType.THIRD_PLACE: 2,
     StageType.QUARTER_FINAL: 3,
@@ -335,12 +335,12 @@ def derive_team_rankings(
     # keep currently alive knockout teams above finalized/eliminated teams
     assign_active_knockout_teams(rankings_by_team_id, latest_stage_by_team_id)
 
-    # assign group exits only after the final exists
-    if final_matches:
-        group_exit_team_ids = [
-            team_id for team_id in all_team_ids if team_id not in rankings_by_team_id
-        ]
+    # keep group-stage exits visible but unranked until final placement is known
+    group_exit_team_ids = [
+        team_id for team_id in all_team_ids if team_id not in rankings_by_team_id
+    ]
 
+    if final_matches and all_matches_finished(final_matches):
         assign_rank_bucket(
             rankings_by_team_id,
             group_exit_team_ids,
@@ -348,6 +348,13 @@ def derive_team_rankings(
             StageType.GROUP,
             standings_by_team_id,
         )
+    else:
+        for team_id in group_exit_team_ids:
+            rankings_by_team_id[team_id] = TeamRankingRefreshRow(
+                team_id=team_id,
+                final_rank=None,
+                stage_reached=None,
+            )
 
     return sorted(rankings_by_team_id.values(), key=get_ranking_sort_key)
 
