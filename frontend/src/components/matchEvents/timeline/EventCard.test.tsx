@@ -114,8 +114,8 @@ describe('EventCard', () => {
     );
 
     expect(screen.getByText('SUB')).toBeInTheDocument();
-    expect(screen.getByText('Cyle Larin')).toBeInTheDocument();
-    expect(screen.getByText('Replaced Jonathan David')).toBeInTheDocument();
+    expect(screen.getByText('Jonathan David')).toBeInTheDocument();
+    expect(screen.getByText('Replaced Cyle Larin')).toBeInTheDocument();
     expect(screen.queryByText('1-0')).not.toBeInTheDocument();
   });
 
