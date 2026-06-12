@@ -20,10 +20,17 @@ from app.constants.cache_ttl import (
     STANDINGS_PRE_TOURNAMENT_FAR_TTL,
     STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     STANDINGS_TTL,
+    TEAMS_FINISHED_TTL,
+    TEAMS_GROUP_STAGE_TTL,
+    TEAMS_KNOCKOUT_TTL,
+    TEAMS_PRE_TOURNAMENT_FAR_TTL,
+    TEAMS_PRE_TOURNAMENT_SOON_TTL,
 )
+from app.constants.team_rankings import KNOCKOUT_STAGES
 from app.models.match import Match, StageType, StatusType
 from app.models.match_event import MatchEvent
 from app.models.tournament import Tournament
+from app.models.tournament_team import TournamentTeam
 
 
 def get_expires_at(ttl: timedelta) -> datetime:
@@ -159,3 +166,36 @@ def get_match_events_ttl(
         return MATCH_EVENTS_FINISHED_TTL
 
     return MATCH_EVENTS_DEFAULT_TTL
+
+
+def get_teams_ttl(
+    tournament: Tournament, teams: list[TournamentTeam], now: datetime | None = None
+) -> timedelta:
+    """
+    Determine the cache TTL for teams.
+
+    Pre- and post-tournament teams are static.
+    Ongoing tournaments differ in TTL based on group or knockout stage.
+    """
+    current_time = now or datetime.now(UTC)
+    tournament_start = datetime.combine(tournament.start_date, time.min, tzinfo=UTC)  # to datetime
+
+    # pre- and post-tournaments
+    if current_time > tournament.end_date and all(team.final_rank is not None for team in teams):
+        return TEAMS_FINISHED_TTL
+
+    if tournament_start > current_time:
+        if tournament_start > current_time + timedelta(days=1):
+            return TEAMS_PRE_TOURNAMENT_SOON_TTL
+
+        return TEAMS_PRE_TOURNAMENT_FAR_TTL
+
+    # ongoing tournament is done group play if even one has reached a knockout stage
+    stages_reached = {team.stage_reached for team in teams}
+
+    finished_group_play = bool(stages_reached & KNOCKOUT_STAGES)
+
+    if finished_group_play:
+        return TEAMS_KNOCKOUT_TTL
+    else:
+        return TEAMS_GROUP_STAGE_TTL

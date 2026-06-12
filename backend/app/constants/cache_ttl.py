@@ -36,3 +36,12 @@ MATCH_EVENTS_FAR_SCHEDULED_TTL = timedelta(hours=12)
 MATCH_EVENTS_FINISHED_TTL = timedelta(days=1)
 
 MATCH_EVENTS_DEFAULT_TTL = timedelta(minutes=5)
+
+
+# TEAMS
+
+TEAMS_PRE_TOURNAMENT_SOON_TTL = timedelta(hours=1)
+TEAMS_PRE_TOURNAMENT_FAR_TTL = timedelta(days=1)
+TEAMS_GROUP_STAGE_TTL = timedelta(days=1)
+TEAMS_KNOCKOUT_TTL = timedelta(hours=1)
+TEAMS_FINISHED_TTL = timedelta(days=7)
