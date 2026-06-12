@@ -232,6 +232,10 @@ def get_ranking_sort_key(row: TeamRankingRefreshRow) -> tuple:
     )
 
 
+def all_matches_finished(matches: list[Match]) -> bool:
+    return all(m.status == StatusType.FINISHED for m in matches)
+
+
 def derive_team_rankings(
     db: Session,
     tournament_id: int,
@@ -264,10 +268,10 @@ def derive_team_rankings(
 
     rankings_by_team_id: dict[int, TeamRankingRefreshRow] = {}
 
-    # assign champion and runner-up after final
+    # assign champion and runner-up after final has finished
     final_matches = matches_by_stage[StageType.FINAL]
 
-    if final_matches:
+    if final_matches and all_matches_finished(final_matches):
         winner_id, loser_id = get_match_winner_and_loser(final_matches[-1])
 
         assign_rank(rankings_by_team_id, winner_id, 1, StageType.FINAL)
@@ -277,10 +281,10 @@ def derive_team_rankings(
     else:
         next_rank = 1
 
-    # assign third and fourth if the tournament has a third-place match
+    # assign third and fourth if the tournament has a finished third-place match
     third_place_matches = matches_by_stage[StageType.THIRD_PLACE]
 
-    if third_place_matches:
+    if third_place_matches and all_matches_finished(third_place_matches):
         winner_id, loser_id = get_match_winner_and_loser(third_place_matches[-1])
 
         assign_rank(rankings_by_team_id, winner_id, next_rank, StageType.THIRD_PLACE)
@@ -288,11 +292,13 @@ def derive_team_rankings(
 
         next_rank += 2
 
-    # if no third-place match exists, rank semi-final losers only after the final exists
-    elif final_matches:
+    # if no third-place match exists, rank semi-final losers if those matches have finished
+    semi_finals = matches_by_stage[StageType.SEMI_FINAL]
+
+    if semi_finals and all_matches_finished(semi_finals):
         semi_final_losers = []
 
-        for match in matches_by_stage[StageType.SEMI_FINAL]:
+        for match in semi_finals:
             _, loser_id = get_match_winner_and_loser(match)
 
             if loser_id is not None:
@@ -308,6 +314,12 @@ def derive_team_rankings(
 
     # assign eliminated knockout teams stage by stage
     for stage in [StageType.QUARTER_FINAL, StageType.ROUND_OF_16, StageType.ROUND_OF_32]:
+        # set rank only if all matches in the stage are finished
+        stage_matches = matches_by_stage[stage]
+
+        if not stage_matches or not all_matches_finished(stage_matches):
+            continue
+
         losers = []
 
         for match in matches_by_stage[stage]:
