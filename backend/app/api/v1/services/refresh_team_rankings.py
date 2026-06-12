@@ -149,10 +149,6 @@ def get_knockout_match_context(
             if STAGE_SORT_ORDER[match.stage] < STAGE_SORT_ORDER[current_stage]:
                 latest_stage_by_team_id[team_id] = match.stage
 
-        # collect only completed knockout matches that can produce known winners/losers
-        if match.status != StatusType.FINISHED:
-            continue
-
         if match.stage in matches_by_stage:
             matches_by_stage[match.stage].append(match)
 
