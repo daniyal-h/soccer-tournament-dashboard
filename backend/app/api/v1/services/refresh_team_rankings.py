@@ -5,61 +5,11 @@ from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.repositories import standings as standings_repo
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
+from app.constants.team_rankings import KNOCKOUT_STAGES, STAGE_SORT_ORDER
 from app.models.match import Match, StageType, StatusType
 from app.models.refresh_job import JobName
 from app.schemas.tournament_teams import TeamRankingRefreshRow
 from app.utils.refresh_summary import RefreshSummary
-
-KNOCKOUT_STAGES = {
-    StageType.ROUND_OF_32,
-    StageType.ROUND_OF_16,
-    StageType.QUARTER_FINAL,
-    StageType.SEMI_FINAL,
-    StageType.THIRD_PLACE,
-    StageType.FINAL,
-}
-
-STAGE_SORT_ORDER = {
-    StageType.FINAL: 1,
-    # third place and semi final have equal weight as not all tournaments have 3rd place matches
-    StageType.SEMI_FINAL: 2,
-    StageType.THIRD_PLACE: 2,
-    StageType.QUARTER_FINAL: 3,
-    StageType.ROUND_OF_16: 4,
-    StageType.ROUND_OF_32: 5,
-    StageType.GROUP: 6,
-}
-
-
-def get_ranking_sort_key(row: TeamRankingRefreshRow) -> tuple:
-    """
-    Sort derived rows for predictable update output.
-
-    Active knockout teams have no final_rank yet, so they come first by
-    stage_reached. Finalized teams then follow by final_rank.
-    """
-    # active knockout teams
-    if row.final_rank is None and row.stage_reached is not None:
-        return (
-            0,
-            STAGE_SORT_ORDER.get(row.stage_reached, 99),
-            row.team_id,
-        )
-
-    # finalized teams
-    if row.final_rank is not None:
-        return (
-            1,
-            row.final_rank,
-            STAGE_SORT_ORDER.get(row.stage_reached, 99),
-            row.team_id,
-        )
-
-    # defensive fallback
-    return (
-        2,
-        row.team_id,
-    )
 
 
 def assign_active_knockout_teams(
@@ -355,7 +305,7 @@ def derive_team_rankings(
                 stage_reached=None,
             )
 
-    return sorted(rankings_by_team_id.values(), key=get_ranking_sort_key)
+    return list(rankings_by_team_id.values())
 
 
 def refresh_team_rankings(db: Session) -> dict:
