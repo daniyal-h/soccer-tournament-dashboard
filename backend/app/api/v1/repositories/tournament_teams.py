@@ -16,7 +16,7 @@ def get_teams_in_tournament(db: Session, tournament_id: int) -> list[TournamentT
     )
 
 
-# return ranked teams in a tournament, tie-break with name 
+# return ranked teams in a tournament, tie-break with name
 def get_ranked_teams_in_tournament(db: Session, tournament_id: int) -> list[TournamentTeam]:
     return (
         db.query(TournamentTeam)
@@ -34,3 +34,19 @@ def get_team_in_tournament(db: Session, tournament_id: int, team_id: int) -> Tou
         .where(TournamentTeam.team_id == team_id)
         .first()
     )
+
+
+def update_team_ranking_by_id(db: Session, tournament_id: int, row: TournamentTeam) -> None:
+    (
+        db.query(TournamentTeam)
+        .where(TournamentTeam.tournament_id == tournament_id, TournamentTeam.team.id == row.team.id)
+        .update(
+            {
+                TournamentTeam.final_rank == row.final_rank,
+                TournamentTeam.stage_reached == row.stage_reached,
+            },
+            synchronize_session=False,
+        )
+    )
+
+    db.commit()

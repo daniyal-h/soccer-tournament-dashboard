@@ -5,6 +5,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.constants.team_rankings import STAGE_SORT_ORDER
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
+from app.schemas.tournament_teams import TeamRankingRefreshRow
 
 
 def get_tournament_team_display_sort_key(row: TournamentTeam) -> tuple:
@@ -55,3 +56,10 @@ def get_team_group(db: Session, tournament_id: int, team_id: int) -> str | None:
     row = tournament_teams_repo.get_team_in_tournament(db, tournament_id, team_id)
 
     return row.group if row else None
+
+
+def update_team_rankings(
+    db: Session, tournament_id: int, data: list[TeamRankingRefreshRow]
+) -> None:
+    for row in data:
+        tournament_teams_repo.update_team_ranking_by_id(db, tournament_id, row)
