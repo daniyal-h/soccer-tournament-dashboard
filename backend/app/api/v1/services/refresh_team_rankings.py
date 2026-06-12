@@ -279,6 +279,7 @@ def derive_team_rankings(
 
     # assign third and fourth if the tournament has a finished third-place match
     third_place_matches = matches_by_stage[StageType.THIRD_PLACE]
+    semi_finals = matches_by_stage[StageType.SEMI_FINAL]
 
     if third_place_matches and all_matches_finished(third_place_matches):
         winner_id, loser_id = get_match_winner_and_loser(third_place_matches[-1])
@@ -289,9 +290,7 @@ def derive_team_rankings(
         next_rank += 2
 
     # if no third-place match exists, rank semi-final losers if those matches have finished
-    semi_finals = matches_by_stage[StageType.SEMI_FINAL]
-
-    if semi_finals and all_matches_finished(semi_finals):
+    elif semi_finals and all_matches_finished(semi_finals):
         semi_final_losers = []
 
         for match in semi_finals:
