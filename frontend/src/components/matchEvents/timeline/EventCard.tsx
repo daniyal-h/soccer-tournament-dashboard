@@ -20,8 +20,10 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event, score }: EventCardProps) => {
-  const playerName = getPlayerName(event);
-  const secondaryPlayerName = getSecondaryPlayerName(event);
+  const isSubstitution = event.event_type === 'substitution';
+
+  const playerName = isSubstitution ? getSecondaryPlayerName(event) : getPlayerName(event);
+  const secondaryPlayerName = isSubstitution ? getPlayerName(event) : getSecondaryPlayerName(event);
 
   const eventConfig = getEventConfig(event.event_type);
   const Icon = eventConfig.icon;
@@ -32,8 +34,6 @@ const EventCard = ({ event, score }: EventCardProps) => {
     event.event_type === 'goal' ||
     event.event_type === 'penalty_goal' ||
     event.event_type === 'own_goal';
-
-  const isSubstitution = event.event_type === 'substitution';
 
   const penaltyShootoutText =
     event.event_type === 'penalty_miss' ? 'Missed penalty' : 'Scored penalty';
