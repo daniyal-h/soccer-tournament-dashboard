@@ -189,9 +189,9 @@ def get_teams_ttl(
 
     if tournament_start > current_time:
         if tournament_start > current_time + timedelta(days=1):
-            return TEAMS_PRE_TOURNAMENT_SOON_TTL
+            return TEAMS_PRE_TOURNAMENT_FAR_TTL
 
-        return TEAMS_PRE_TOURNAMENT_FAR_TTL
+        return TEAMS_PRE_TOURNAMENT_SOON_TTL
 
     # ongoing tournament is done group play if even one has reached a knockout stage
     stages_reached = {team.stage_reached for team in teams}
