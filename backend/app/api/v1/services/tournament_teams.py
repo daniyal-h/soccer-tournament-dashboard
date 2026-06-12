@@ -85,3 +85,5 @@ def update_team_rankings(
 ) -> None:
     for row in data:
         tournament_teams_repo.update_team_ranking_by_id(db, tournament_id, row)
+
+    cache_service.invalidate_cache(db, f"teams:{tournament_id}")
