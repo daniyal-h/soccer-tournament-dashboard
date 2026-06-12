@@ -19,7 +19,7 @@ const StandingsSkeleton = () => {
       </div>
 
       {/* Skeleton for the group cards as a grid */}
-      <div className="grid grid-cols-1 gap-4 p-6 min-[960px]:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 p-6 min-[1200px]:grid-cols-2">
         {skeletonCards.map((cardKey) => (
           <Card key={cardKey} className="w-full shadow-sm" data-testid="standings-card-skeleton">
             <CardContent className="p-3">
