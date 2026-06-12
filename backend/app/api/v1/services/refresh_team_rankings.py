@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
+from app.api.v1.repositories import standings as standings_repo
 from app.api.v1.services import matches as matches_service
-from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.models.match import Match, StageType, StatusType
@@ -186,6 +186,7 @@ def build_standings_lookup(standings: list) -> tuple[dict[int, dict], set[int]]:
     all_team_ids = set()
 
     for standing in standings:
+        print("🚀 ~ build_standings_lookup ~ standing:", standing)
         goals_for = standing.goals_for or 0
         goals_against = standing.goals_against or 0
 
@@ -243,7 +244,7 @@ def derive_team_rankings(
     During knockouts, active teams receive stage_reached without final_rank.
     Eliminated/finalized teams receive final_rank and stage_reached.
     """
-    standings = standings_service.get_standings(db, tournament_id)
+    standings = standings_repo.get_all_standings(db, tournament_id)
     matches = matches_service.get_matches(db, tournament_id)
 
     if not standings and not matches:
