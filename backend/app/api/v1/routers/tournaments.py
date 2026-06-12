@@ -60,7 +60,7 @@ def get_teams(
 ):
     """
     Return all ranked teams in the tournament.
-    Rank by final placement with a fallback to alphabetical.
+    Teams are ranked based on the state of the tournament (either by final rank or stage reached).
     """
 
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
