@@ -16,4 +16,4 @@ class TournamentTeamResponse(BaseModel):
 class TeamRankingRefreshRow(BaseModel):
     team_id: int
     final_rank: int | None
-    stage_reached: StageType
+    stage_reached: StageType | None
