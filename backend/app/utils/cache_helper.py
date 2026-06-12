@@ -178,10 +178,13 @@ def get_teams_ttl(
     Ongoing tournaments differ in TTL based on group or knockout stage.
     """
     current_time = now or datetime.now(UTC)
-    tournament_start = datetime.combine(tournament.start_date, time.min, tzinfo=UTC)  # to datetime
+
+    # convert date to datetimes for comparisons
+    tournament_start = datetime.combine(tournament.start_date, time.min, tzinfo=UTC)
+    tournament_end = datetime.combine(tournament.end_date, time.min, tzinfo=UTC)
 
     # pre- and post-tournaments
-    if current_time > tournament.end_date and all(team.final_rank is not None for team in teams):
+    if current_time > tournament_end and all(team.final_rank is not None for team in teams):
         return TEAMS_FINISHED_TTL
 
     if tournament_start > current_time:
