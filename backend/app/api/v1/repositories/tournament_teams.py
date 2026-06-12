@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.models.team import Team
 from app.models.tournament_team import TournamentTeam
+from app.schemas.tournament_teams import TeamRankingRefreshRow
 
 
 # return teams in a tournament ordered by group and team name
@@ -36,17 +37,15 @@ def get_team_in_tournament(db: Session, tournament_id: int, team_id: int) -> Tou
     )
 
 
-def update_team_ranking_by_id(db: Session, tournament_id: int, row: TournamentTeam) -> None:
+def update_team_ranking_by_id(db: Session, tournament_id: int, row: TeamRankingRefreshRow) -> None:
     (
         db.query(TournamentTeam)
-        .where(TournamentTeam.tournament_id == tournament_id, TournamentTeam.team.id == row.team.id)
+        .where(TournamentTeam.tournament_id == tournament_id, TournamentTeam.team_id == row.team_id)
         .update(
             {
-                TournamentTeam.final_rank == row.final_rank,
-                TournamentTeam.stage_reached == row.stage_reached,
+                TournamentTeam.final_rank: row.final_rank,
+                TournamentTeam.stage_reached: row.stage_reached,
             },
             synchronize_session=False,
         )
     )
-
-    db.commit()
