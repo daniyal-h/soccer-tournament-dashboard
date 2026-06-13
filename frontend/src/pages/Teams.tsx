@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import ErrorState from '@/components/feedback/ErrorState';
 import TeamCardGrid from '@/components/tournamentTeams/TeamCardGrid';
 import TeamFilters from '@/components/tournamentTeams/TeamFilters';
+import TeamsSkeleton from '@/components/tournamentTeams/TeamsSkeleton';
 
 import { useTournament } from '@/context/TournamentContext';
 
@@ -68,6 +69,7 @@ const Teams = () => {
       <section className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
         <p className="text-muted-foreground">Loading teams...</p>
+        <TeamsSkeleton />
       </section>
     );
   }
