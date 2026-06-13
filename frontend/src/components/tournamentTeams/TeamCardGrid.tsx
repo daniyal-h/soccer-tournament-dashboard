@@ -10,7 +10,7 @@ interface TeamCardGridProps {
 const TeamCardGrid = ({ teams }: TeamCardGridProps) => {
   return (
     <div className="min-h-screen p-6">
-      <div className="grid grid-cols-1 gap-4 min-[1200px]:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 min-[900px]:grid-cols-2">
         {teams.map((tournamentTeam) => (
           <TeamCard key={tournamentTeam.team.id} tournamentTeam={tournamentTeam} />
         ))}
