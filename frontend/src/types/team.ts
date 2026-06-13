@@ -1,4 +1,4 @@
-export interface Team {
+export interface TeamSummary {
   id: number;
   name: string;
   short_name: string;

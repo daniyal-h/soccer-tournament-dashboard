@@ -1,8 +1,8 @@
-import { type Team } from './team';
+import { type TeamSummary } from './team';
 
 // a Standing includes some details of its team
 export interface Standing {
-  team: Team;
+  team: TeamSummary;
   position: number;
   matches_played: number;
   wins: number;
