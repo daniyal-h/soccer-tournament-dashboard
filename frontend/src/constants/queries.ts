@@ -45,4 +45,9 @@ export const QUERY_GC_TIMES = {
 } as const;
 
 export const RETRY_COUNT = 2;
-export const AUTO_REFETCH_TIME = 1 * MINUTE;
+
+export const AUTO_REFETCH_TIMES = {
+  matches: 60 * SECOND,
+  tournamentTeams: 5 * MINUTE,
+} as const;
+

@@ -1,6 +1,6 @@
 import { getMatch } from '@/api/matchesApi';
 
-import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+import { AUTO_REFETCH_TIMES, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 
@@ -12,7 +12,7 @@ export function useMatch(match_id: number) {
 
     refetchInterval: (query) => {
       const match = query.state.data;
-      return match?.status === 'live' ? AUTO_REFETCH_TIME : false;
+      return match?.status === 'live' ? AUTO_REFETCH_TIMES.matches : false;
     },
     errorMessages: {
       notFound: 'Match was not found.',
