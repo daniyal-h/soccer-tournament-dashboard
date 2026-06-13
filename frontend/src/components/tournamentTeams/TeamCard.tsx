@@ -43,7 +43,9 @@ const TeamCard = ({ tournamentTeam }: TeamCardProps) => {
     >
       <Card
         className={cn(
-          'relative w-full cursor-pointer overflow-hidden shadow-sm transition-all hover:brightness-90 hover:shadow-md',
+          'relative w-full cursor-pointer overflow-hidden shadow-sm transition-all',
+          'hover:bg-accent hover:shadow-md',
+          'active:scale-[0.98] active:bg-accent',
           rankStyle,
         )}
       >

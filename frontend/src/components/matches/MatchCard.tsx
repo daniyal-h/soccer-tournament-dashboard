@@ -27,7 +27,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >
-      <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md">
+      <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md active:scale-[0.98] active:bg-accent">
         <CardContent className="min-w-0 space-y-3 p-4">
           <div className="flex flex-col items-center gap-4">
             {/* match status badge */}
