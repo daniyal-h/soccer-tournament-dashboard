@@ -66,7 +66,7 @@ const Teams = () => {
   if (isLoading) {
     return (
       <section className="space-y-3">
-        <h1 className="text-3xl font-bold tracking-tight">Teams (in-progress)</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
         <p className="text-muted-foreground">Loading teams...</p>
       </section>
     );
@@ -74,7 +74,7 @@ const Teams = () => {
 
   return (
     <section className="space-y-3">
-      <h1 className="text-3xl font-bold tracking-tight">Teams (in-progress)</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
       <p className="text-muted-foreground">{description}</p>
 
       <div className="space-y-4 pt-2">
