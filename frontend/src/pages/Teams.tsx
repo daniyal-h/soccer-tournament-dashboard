@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import ErrorState from '@/components/feedback/ErrorState';
 import TeamCardGrid from '@/components/tournamentTeams/TeamCardGrid';
@@ -29,7 +29,14 @@ const Teams = () => {
   const [selectedGroup, setSelectedGroup] = useState<string>('all');
   const [selectedStage, setSelectedStage] = useState<StageFilter>('all');
   const groups = getTournamentGroups(tournamentTeams);
-  const availableStages = getTournamentStages(tournamentTeams);
+  const stages = getTournamentStages(tournamentTeams);
+
+  // default to 'all' if tournaments were switched
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelectedGroup('all');
+    setSelectedStage('all');
+  }, [selectedTournamentId]);
 
   const filteredTeams = useMemo(() => {
     return tournamentTeams.filter((tournamentTeam) => {
@@ -73,7 +80,7 @@ const Teams = () => {
       <div className="space-y-4 pt-2">
         <TeamFilters
           groups={groups}
-          stages={availableStages}
+          stages={stages}
           selectedGroup={selectedGroup}
           selectedStage={selectedStage}
           onGroupChange={setSelectedGroup}
