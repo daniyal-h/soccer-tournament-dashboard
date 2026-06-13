@@ -8,7 +8,7 @@ import {
 
 import type { MatchStage } from '@/types/match';
 
-import { MATCH_STAGE_LABELS } from '@/constants/matches';
+import { TEAM_STAGE_LABELS } from '@/constants/tournamentTeams';
 import { type StageFilter } from '@/constants/tournamentTeams';
 
 interface TeamFiltersProps {
@@ -56,7 +56,7 @@ const TeamFilters = ({
 
           {stages.map((stage) => (
             <SelectItem key={stage} value={stage}>
-              {MATCH_STAGE_LABELS[stage]}
+              {TEAM_STAGE_LABELS[stage]}
             </SelectItem>
           ))}
         </SelectContent>

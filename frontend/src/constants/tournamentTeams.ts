@@ -1,6 +1,14 @@
 import type { MatchStage } from '@/types/match';
 
+import { MATCH_STAGE_LABELS } from './matches';
+
 export type StageFilter = MatchStage | 'all';
+
+export const TEAM_STAGE_LABELS: Record<MatchStage, string> = {
+  ...MATCH_STAGE_LABELS,
+  third_place: 'Third Place Match',
+  group: 'Group Stage',
+};
 
 export const STAGE_FILTER_ORDER: MatchStage[] = [
   'final',
