@@ -63,7 +63,7 @@ def get_ranked_tournament_teams(db: Session, tournament_id: int) -> list[Tournam
     if not tournament_teams:
         raise NotFoundError(f"No teams found in tournament {tournament_id}")
 
-    # cache and return the sorted teams 
+    # cache and return the sorted teams
     sorted_teams = sorted(tournament_teams, key=get_tournament_team_display_sort_key)
     ttl = get_teams_ttl(tournament, tournament_teams)
 

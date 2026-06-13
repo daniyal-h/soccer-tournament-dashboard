@@ -334,9 +334,7 @@ def refresh_team_rankings(db: Session) -> dict:
                     summary.mark_skipped()
                     continue
 
-                tournament_teams_service.update_team_rankings(
-                    db, tournament.id, ranking_rows
-                )
+                tournament_teams_service.update_team_rankings(db, tournament.id, ranking_rows)
 
                 summary.mark_refreshed(rows_count=len(ranking_rows))
 
