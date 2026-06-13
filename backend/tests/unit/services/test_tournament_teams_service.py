@@ -135,7 +135,7 @@ def test_display_sort_key_unranked_team_uses_unranked_bucket_and_name():
 
     result = tournament_teams_service.get_tournament_team_display_sort_key(row)
 
-    assert result == (2, "Canada")
+    assert result == (2, 0, "Canada")
 
 
 def test_display_sort_orders_active_then_ranked_then_unranked_teams():

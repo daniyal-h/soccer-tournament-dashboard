@@ -11,7 +11,7 @@ from app.schemas.tournament_teams import TeamRankingRefreshRow
 from app.utils.cache_helper import get_expires_at, get_teams_ttl
 
 
-def get_tournament_team_display_sort_key(row: TournamentTeam) -> tuple:
+def get_tournament_team_display_sort_key(row: TournamentTeam) -> tuple[int, int, str]:
     # active knockout/progress teams
     if row.final_rank is None and row.stage_reached is not None:
         return (
@@ -31,6 +31,7 @@ def get_tournament_team_display_sort_key(row: TournamentTeam) -> tuple:
     # group-stage/pre-tournament/unranked teams --> sort by name
     return (
         2,
+        0,
         row.team.name,
     )
 
