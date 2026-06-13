@@ -17,13 +17,14 @@ import {
 } from '@/utils/tournamentTeams/tournamentTeamsHelper';
 
 const Teams = () => {
-  const { selectedTournament, selectedTournamentId, error: tournamentError } = useTournament();
+  const { selectedTournamentId, error: tournamentError } = useTournament();
   const { tournamentTeams, isLoading, error, refetch, canRetry } = useTournamentTeams({
     tournament_id: selectedTournamentId,
   });
 
-  const tournamentName = selectedTournament?.name;
-  const description = `View all ${tournamentTeams?.length} teams in the ${tournamentName ?? 'the selected tournament'}.`;
+  const description = isLoading
+    ? 'Loading teams and rankings...'
+    : `Explore all ${tournamentTeams.length} teams, groups, and tournament progress.`;
 
   // support filtering tournaments by group and stage
 
@@ -68,7 +69,7 @@ const Teams = () => {
     return (
       <section className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Teams</h1>
-        <p className="text-muted-foreground">Loading teams...</p>
+        <p className="text-muted-foreground">{description}</p>
         <TeamsSkeleton />
       </section>
     );
