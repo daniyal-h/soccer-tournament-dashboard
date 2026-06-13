@@ -24,7 +24,7 @@ export function useTournamentTeams({ tournament_id }: TournamentTeamOptions) {
           tournamentTeam.stage_reached !== null && tournamentTeam.final_rank === null,
       );
 
-      return hasActiveKnockoutTeams ? AUTO_REFETCH_TIMES.matches : false;
+      return hasActiveKnockoutTeams ? AUTO_REFETCH_TIMES.tournamentTeams : false;
     },
 
     errorMessages: {
