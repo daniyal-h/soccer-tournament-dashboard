@@ -1,3 +1,4 @@
+import { ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,7 +28,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >
-      <Card className="w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md active:scale-[0.98] active:bg-accent">
+      <Card className="relative w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md active:scale-[0.98] active:bg-accent">
         <CardContent className="min-w-0 space-y-3 p-4">
           <div className="flex flex-col items-center gap-4">
             {/* match status badge */}
@@ -36,7 +37,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
             {/* teams, score/time */}
             <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
               {/* team A details */}
-              <div className="flex items-center justify-end gap-2 min-w-0">
+              <div className="flex items-center justify-end gap-2 pl-8 min-w-0">
                 <span
                   className={cn(
                     winner === 'team_a' && 'font-semibold',
@@ -62,7 +63,7 @@ const MatchCard = ({ match }: MatchCardProps) => {
               </div>
 
               {/* team B details */}
-              <div className="flex items-center justify-start gap-2 min-w-0">
+              <div className="flex items-center justify-start gap-2 pr-8 min-w-0">
                 {match.team_b.logo_url && (
                   <img
                     src={match.team_b.logo_url}
@@ -88,6 +89,9 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </p>
           </div>
         </CardContent>
+
+        {/* Affordance for clickability */}
+        <ChevronRight className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
       </Card>
     </Link>
   );
