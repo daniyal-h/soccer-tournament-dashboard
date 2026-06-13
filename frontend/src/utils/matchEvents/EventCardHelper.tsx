@@ -70,9 +70,9 @@ export function addDisplayScoresToEvents(events: MatchEvent[], match: Match) {
 
     if (event.event_type === 'own_goal') {
       if (event.team.id === match.team_a.id) {
-        teamBScore++;
-      } else {
         teamAScore++;
+      } else {
+        teamBScore++;
       }
     }
 
