@@ -8,7 +8,7 @@ import { getMatch } from '@/api/matchesApi';
 
 import type { Match } from '@/types/match';
 
-import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+import { AUTO_REFETCH_TIMES, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 vi.mock('@/api/matchesApi');
 vi.mock('@/hooks/useApiQuery');
@@ -185,7 +185,7 @@ describe('useMatch', () => {
         },
       } as Parameters<typeof refetchInterval>[0]);
 
-      expect(interval).toBe(AUTO_REFETCH_TIME);
+      expect(interval).toBe(AUTO_REFETCH_TIMES.matches);
     }
   });
 
@@ -234,6 +234,6 @@ describe('useMatch', () => {
       },
     } as Parameters<typeof refetchInterval>[0]);
 
-    expect(interval).toBe(AUTO_REFETCH_TIME);
+    expect(interval).toBe(AUTO_REFETCH_TIMES.matches);
   });
 });

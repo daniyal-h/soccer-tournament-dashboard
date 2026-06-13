@@ -6,7 +6,7 @@ import { getMatchEvents } from '@/api/matchEventsApi';
 import type { MatchEvent, MatchEventsResponse } from '@/types/matchEvent';
 import type { ResponseMetadata } from '@/types/metadata';
 
-import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+import { AUTO_REFETCH_TIMES, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 import { useMatchEvents } from './useMatchEvents';
@@ -212,7 +212,7 @@ describe('useMatchEvents', () => {
 
     const queryOptions = mockedUseApiQuery.mock.calls[0][0];
 
-    expect(queryOptions.refetchInterval).toBe(AUTO_REFETCH_TIME);
+    expect(queryOptions.refetchInterval).toBe(AUTO_REFETCH_TIMES.matches);
   });
 
   it('updates query key and query function when match id changes', async () => {
