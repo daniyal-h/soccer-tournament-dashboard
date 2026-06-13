@@ -1,3 +1,18 @@
+import type { MatchStage } from '@/types/match';
+
+export type StageFilter = MatchStage | 'all';
+
+export const STAGE_FILTER_ORDER: MatchStage[] = [
+  'final',
+  'third_place',
+  'semi_final',
+  'quarter_final',
+  'round_of_16',
+  'round_of_32',
+  'group',
+  'other',
+];
+
 export const TEAM_RANK_CARD_STYLES: Record<number, string> = {
   1: 'border-yellow-500/50 bg-yellow-500/10',
   2: 'border-slate-300/50 bg-slate-300/10',
