@@ -2,7 +2,7 @@ import { getMatchEvents } from '@/api/matchEventsApi';
 
 import type { MatchEventsOptions } from '@/types/matchEvent';
 
-import { AUTO_REFETCH_TIME, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
+import { AUTO_REFETCH_TIMES, QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 
@@ -13,7 +13,7 @@ export function useMatchEvents({ match_id, isLive = false }: MatchEventsOptions)
     staleTime: QUERY_STALE_TIMES.matchEvents,
 
     // auto-refetch for live matches
-    refetchInterval: isLive ? AUTO_REFETCH_TIME : false,
+    refetchInterval: isLive ? AUTO_REFETCH_TIMES.matches : false,
 
     errorMessages: {
       notFound: 'No events were found for this match.',

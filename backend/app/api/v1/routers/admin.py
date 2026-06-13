@@ -7,6 +7,7 @@ from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
+from app.api.v1.services import refresh_team_rankings as refresh_team_rankings_service
 from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
@@ -86,6 +87,17 @@ def refresh_match_events(request: Request, db: Annotated[Session, Depends(get_db
     Return a summary of successful refreshes and failures.
     """
     return refresh_match_events_service.refresh_match_events(db)
+
+
+@router.post("/tournaments/refresh-team-rankings")
+@limiter.limit("3/minute")
+def refresh_team_rankings(request: Request, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """
+    Refresh team rankings for all live tournaments.
+    Derive it based on updated standings and matches data.
+    Return a summary of successful refreshes and failures.
+    """
+    return refresh_team_rankings_service.refresh_team_rankings(db)
 
 
 @router.put("/tournaments/{tournament_id}/matches")

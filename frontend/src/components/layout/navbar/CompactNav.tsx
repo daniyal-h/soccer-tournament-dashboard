@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Menu } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 import { type NavProps } from '@/types/navbar';
+
+import { isNavItemActive } from '@/utils/layout/navigationHelper';
 
 /**
  * A compact form of Desktop Nav menu
@@ -13,6 +15,7 @@ import { type NavProps } from '@/types/navbar';
  */
 const CompactNav = ({ navItems }: NavProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { pathname } = useLocation();
 
   return (
     <div className="flex items-center">
@@ -32,11 +35,11 @@ const CompactNav = ({ navItems }: NavProps) => {
                 key={item.to}
                 to={item.to}
                 onClick={() => setIsOpen(false)}
-                className={({ isActive }) =>
+                className={() =>
                   [
                     // Stryker disable next-line StringLiteral: base layout/style classes are visual-only
                     'rounded-md px-3 py-2 text-base font-medium transition-colors',
-                    isActive
+                    isNavItemActive(pathname, item.to)
                       ? 'bg-accent text-foreground'
                       : 'text-muted-foreground hover:bg-accent hover:text-foreground',
                   ].join(' ')

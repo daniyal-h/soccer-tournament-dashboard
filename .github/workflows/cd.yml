@@ -12,6 +12,8 @@ jobs:
     # ── Staging: auto-deploys on every push to main ────────────────────────────
 
     deploy-staging:
+        # Frontend deploys automatically through Vercel Git integration
+
         name: Deploy backend to Render (staging)
         if: github.event_name == 'push'
         runs-on: ubuntu-latest

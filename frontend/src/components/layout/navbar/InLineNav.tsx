@@ -1,8 +1,10 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import { type NavProps } from '@/types/navbar';
 
 import { cn } from '@/lib/utils';
+
+import { isNavItemActive } from '@/utils/layout/navigationHelper';
 
 interface InLineNavProps extends NavProps {
   className?: string;
@@ -10,19 +12,21 @@ interface InLineNavProps extends NavProps {
 
 /** A row of buttons for the given navigation items */
 const InLineNav = ({ navItems, className }: InLineNavProps) => {
+  const { pathname } = useLocation();
+
   return (
     <div className={cn('flex items-center', className)}>
       {navItems.map((item) => (
         <NavLink
           key={item.to}
           to={item.to}
-          className={({ isActive }) =>
+          className={() =>
             [
               // Stryker disable next-line StringLiteral: base layout/style classes are visual-only
-              'rounded-md px-2 py-2 text-sm font-medium transition-colors',
-              isActive
-                ? 'bg-accent text-accent-foreground'
-                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+              'rounded-md px-3 py-2 text-base font-medium transition-colors',
+              isNavItemActive(pathname, item.to)
+                ? 'bg-accent text-foreground'
+                : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             ].join(' ')
           }
         >

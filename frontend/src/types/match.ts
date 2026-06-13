@@ -1,4 +1,4 @@
-import { type Team } from './team';
+import { type TeamSummary } from './team';
 
 export type MatchStage =
   | 'group'
@@ -14,8 +14,8 @@ export type MatchStatus = 'scheduled' | 'live' | 'finished' | 'postponed' | 'can
 
 export interface Match {
   id: number;
-  team_a: Team;
-  team_b: Team;
+  team_a: TeamSummary;
+  team_b: TeamSummary;
   kickoff_time: string;
   stage: MatchStage;
   group: string | null;

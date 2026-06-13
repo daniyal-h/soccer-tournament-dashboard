@@ -16,6 +16,10 @@ export const queryKeys = {
 
     events: (matchId: number) => ['matches', matchId, 'events'] as const,
   },
+
+  tournamentTeams: {
+    all: (tournamentId: number) => ['tournamentTeams', tournamentId] as const,
+  },
 };
 
 const SECOND = 1000;
@@ -32,6 +36,8 @@ export const QUERY_STALE_TIMES = {
   match: 1 * MINUTE,
 
   matchEvents: 45 * SECOND,
+
+  tournamentTeams: 15 * MINUTE,
 } as const;
 
 export const QUERY_GC_TIMES = {
@@ -39,4 +45,8 @@ export const QUERY_GC_TIMES = {
 } as const;
 
 export const RETRY_COUNT = 2;
-export const AUTO_REFETCH_TIME = 1 * MINUTE;
+
+export const AUTO_REFETCH_TIMES = {
+  matches: 60 * SECOND,
+  tournamentTeams: 5 * MINUTE,
+} as const;

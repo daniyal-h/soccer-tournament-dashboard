@@ -25,6 +25,10 @@ def get_tournament(db: Session, tournament_id: int) -> Tournament:
     return tournament
 
 
+def validate_tournament_exists(db: Session, tournament_id: int) -> None:
+    get_tournament(db, tournament_id)  # invalid if error raised
+
+
 # return all tournaments which will need refreshing within the margin
 def get_refreshable_tournaments(db: Session, margin_days: int) -> list[Tournament]:
     today = date.today()

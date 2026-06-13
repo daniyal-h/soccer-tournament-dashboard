@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getMatch, getMatches } from '@/api/matchesApi';
 
 import type { Match } from '@/types/match';
-import type { Team } from '@/types/team';
+import type { TeamSummary } from '@/types/team';
 
 import { apiGet } from './client';
 import { isTeamSummary } from './teamsApi';
@@ -19,14 +19,14 @@ vi.mock('./teamsApi', () => ({
 const mockApiGet = vi.mocked(apiGet);
 const mockIsTeamSummary = vi.mocked(isTeamSummary);
 
-const validTeamA: Team = {
+const validTeamA: TeamSummary = {
   id: 1,
   name: 'Belgium',
   short_name: 'BEL',
   logo_url: 'https://media.api-sports.io/football/teams/1.png',
 };
 
-const validTeamB: Team = {
+const validTeamB: TeamSummary = {
   id: 2,
   name: 'France',
   short_name: 'FRA',
@@ -51,12 +51,12 @@ const validMatch: Match = {
 };
 
 function mockTeamGuard() {
-  mockIsTeamSummary.mockImplementation((value: unknown): value is Team => {
+  mockIsTeamSummary.mockImplementation((value: unknown): value is TeamSummary => {
     if (typeof value !== 'object' || value === null) {
       return false;
     }
 
-    const team = value as Team;
+    const team = value as TeamSummary;
 
     return (
       typeof team.id === 'number' &&
