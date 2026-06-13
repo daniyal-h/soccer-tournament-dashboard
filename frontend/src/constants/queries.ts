@@ -50,4 +50,3 @@ export const AUTO_REFETCH_TIMES = {
   matches: 60 * SECOND,
   tournamentTeams: 5 * MINUTE,
 } as const;
-

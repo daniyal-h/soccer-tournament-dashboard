@@ -13,7 +13,7 @@ interface InLineNavProps extends NavProps {
 /** A row of buttons for the given navigation items */
 const InLineNav = ({ navItems, className }: InLineNavProps) => {
   const { pathname } = useLocation();
-  
+
   return (
     <div className={cn('flex items-center', className)}>
       {navItems.map((item) => (
