@@ -199,14 +199,14 @@ describe('addDisplayScoresToEvents', () => {
     ]);
   });
 
-  it('credits own goals to the opposing team', () => {
+  it('credits own goals to the correct team', () => {
     const events = [
       makeEvent({ team: teamA, event_type: 'own_goal', minute: 15 }),
       makeEvent({ team: teamB, event_type: 'own_goal', minute: 35 }),
     ];
 
     expect(addDisplayScoresToEvents(events, baseMatch)).toEqual([
-      { event: events[0], score: '0-1' },
+      { event: events[0], score: '1-0' },
       { event: events[1], score: '1-1' },
     ]);
   });
