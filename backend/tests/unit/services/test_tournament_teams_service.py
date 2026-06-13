@@ -1,9 +1,13 @@
+from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
 
 from app.api.v1.services import tournament_teams as tournament_teams_service
+from app.constants.team_rankings import STAGE_SORT_ORDER
+from app.models.match import StageType
 from app.schemas.errors import NotFoundError
+from app.schemas.tournament_teams import TeamRankingRefreshRow
 
 
 def test_get_tournament_teams_returns_rows(mocker):
@@ -80,3 +84,327 @@ def test_get_team_group_returns_none_when_team_is_not_registered(mocker):
 
     assert result is None
     get_team.assert_called_once_with(db, 1, 101)
+
+
+def make_tournament_team_row(
+    team_name: str,
+    final_rank: int | None = None,
+    stage_reached: StageType | None = None,
+):
+    return SimpleNamespace(
+        final_rank=final_rank,
+        stage_reached=stage_reached,
+        team=SimpleNamespace(name=team_name),
+    )
+
+
+def test_display_sort_key_active_knockout_team_uses_progress_bucket_stage_and_name():
+    row = make_tournament_team_row(
+        team_name="Argentina",
+        final_rank=None,
+        stage_reached=StageType.SEMI_FINAL,
+    )
+
+    result = tournament_teams_service.get_tournament_team_display_sort_key(row)
+
+    assert result == (
+        0,
+        STAGE_SORT_ORDER[StageType.SEMI_FINAL],
+        "Argentina",
+    )
+
+
+def test_display_sort_key_final_ranked_team_uses_rank_bucket_rank_and_name():
+    row = make_tournament_team_row(
+        team_name="Brazil",
+        final_rank=2,
+        stage_reached=StageType.FINAL,
+    )
+
+    result = tournament_teams_service.get_tournament_team_display_sort_key(row)
+
+    assert result == (1, 2, "Brazil")
+
+
+def test_display_sort_key_unranked_team_uses_unranked_bucket_and_name():
+    row = make_tournament_team_row(
+        team_name="Canada",
+        final_rank=None,
+        stage_reached=None,
+    )
+
+    result = tournament_teams_service.get_tournament_team_display_sort_key(row)
+
+    assert result == (2, "Canada")
+
+
+def test_display_sort_orders_active_then_ranked_then_unranked_teams():
+    active_final = make_tournament_team_row("Argentina", stage_reached=StageType.FINAL)
+    active_qf = make_tournament_team_row("Brazil", stage_reached=StageType.QUARTER_FINAL)
+    ranked_first = make_tournament_team_row("France", final_rank=1)
+    ranked_second = make_tournament_team_row("England", final_rank=2)
+    unranked_a = make_tournament_team_row("Canada")
+    unranked_b = make_tournament_team_row("Denmark")
+
+    rows = [
+        unranked_b,
+        ranked_second,
+        active_qf,
+        unranked_a,
+        ranked_first,
+        active_final,
+    ]
+
+    result = sorted(rows, key=tournament_teams_service.get_tournament_team_display_sort_key)
+
+    assert result == [
+        active_final,
+        active_qf,
+        ranked_first,
+        ranked_second,
+        unranked_a,
+        unranked_b,
+    ]
+
+
+def test_get_ranked_tournament_teams_returns_cached_rows_without_repo_calls(mocker):
+    db = Mock()
+    cached_rows = [{"team_id": 1, "team": {"name": "Cached FC"}}]
+
+    get_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "get_cache",
+        return_value=cached_rows,
+    )
+    get_tournament = mocker.patch.object(
+        tournament_teams_service.tournaments_service,
+        "get_tournament",
+    )
+    get_teams = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_teams_in_tournament",
+    )
+    set_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "set_cache",
+    )
+
+    result = tournament_teams_service.get_ranked_tournament_teams(db, tournament_id=1)
+
+    assert result == cached_rows
+    get_cache.assert_called_once_with(db, "teams:1")
+    get_tournament.assert_not_called()
+    get_teams.assert_not_called()
+    set_cache.assert_not_called()
+
+
+def test_get_ranked_tournament_teams_raises_not_found_when_repo_returns_empty(mocker):
+    db = Mock()
+    tournament = Mock()
+
+    mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    get_tournament = mocker.patch.object(
+        tournament_teams_service.tournaments_service,
+        "get_tournament",
+        return_value=tournament,
+    )
+    get_teams = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_teams_in_tournament",
+        return_value=[],
+    )
+    set_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "set_cache",
+    )
+
+    with pytest.raises(NotFoundError, match="No teams found in tournament 1"):
+        tournament_teams_service.get_ranked_tournament_teams(db, tournament_id=1)
+
+    get_tournament.assert_called_once_with(db, 1)
+    get_teams.assert_called_once_with(db, 1)
+    set_cache.assert_not_called()
+
+
+def test_get_ranked_tournament_teams_sorts_rows_and_caches_encoded_payload(mocker):
+    db = Mock()
+    tournament = Mock()
+
+    active_final = make_tournament_team_row("Argentina", stage_reached=StageType.FINAL)
+    ranked_first = make_tournament_team_row("France", final_rank=1)
+    unranked = make_tournament_team_row("Canada")
+
+    unsorted_rows = [unranked, ranked_first, active_final]
+    sorted_rows = [active_final, ranked_first, unranked]
+    encoded_rows = [{"encoded": True}]
+    expires_at = Mock(name="expires_at")
+
+    mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    get_tournament = mocker.patch.object(
+        tournament_teams_service.tournaments_service,
+        "get_tournament",
+        return_value=tournament,
+    )
+    get_teams = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_teams_in_tournament",
+        return_value=unsorted_rows,
+    )
+    get_ttl = mocker.patch(
+        "app.api.v1.services.tournament_teams.get_teams_ttl",
+        return_value=300,
+    )
+    get_expires_at = mocker.patch(
+        "app.api.v1.services.tournament_teams.get_expires_at",
+        return_value=expires_at,
+    )
+    jsonable_encoder = mocker.patch(
+        "app.api.v1.services.tournament_teams.jsonable_encoder",
+        return_value=encoded_rows,
+    )
+    set_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "set_cache",
+    )
+
+    result = tournament_teams_service.get_ranked_tournament_teams(db, tournament_id=1)
+
+    assert result == sorted_rows
+    get_tournament.assert_called_once_with(db, 1)
+    get_teams.assert_called_once_with(db, 1)
+    get_ttl.assert_called_once_with(tournament, unsorted_rows)
+    get_expires_at.assert_called_once_with(300)
+    jsonable_encoder.assert_called_once_with(sorted_rows)
+    set_cache.assert_called_once_with(
+        db,
+        "teams:1",
+        payload=encoded_rows,
+        expires_at=expires_at,
+    )
+
+
+def test_update_team_rankings_updates_each_row_commits_and_invalidates_cache(mocker):
+    db = Mock()
+
+    rows = [
+        TeamRankingRefreshRow(
+            team_id=1,
+            final_rank=1,
+            stage_reached=StageType.FINAL,
+        ),
+        TeamRankingRefreshRow(
+            team_id=2,
+            final_rank=None,
+            stage_reached=StageType.SEMI_FINAL,
+        ),
+    ]
+
+    update_row = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "update_team_ranking_by_id",
+    )
+    invalidate_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "invalidate_cache",
+    )
+
+    tournament_teams_service.update_team_rankings(db, tournament_id=42, data=rows)
+
+    assert update_row.call_count == 2
+    update_row.assert_has_calls(
+        [
+            mocker.call(db, 42, rows[0]),
+            mocker.call(db, 42, rows[1]),
+        ]
+    )
+    db.commit.assert_called_once_with()
+    invalidate_cache.assert_called_once_with(db, "teams:42")
+
+
+def test_update_team_rankings_allows_empty_rows_but_still_commits_and_invalidates_cache(mocker):
+    db = Mock()
+
+    update_row = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "update_team_ranking_by_id",
+    )
+    invalidate_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "invalidate_cache",
+    )
+
+    tournament_teams_service.update_team_rankings(db, tournament_id=42, data=[])
+
+    update_row.assert_not_called()
+    db.commit.assert_called_once_with()
+    invalidate_cache.assert_called_once_with(db, "teams:42")
+
+
+def test_update_team_rankings_does_not_commit_or_invalidate_when_repo_update_fails(mocker):
+    db = Mock()
+    rows = [
+        TeamRankingRefreshRow(
+            team_id=1,
+            final_rank=1,
+            stage_reached=StageType.FINAL,
+        ),
+        TeamRankingRefreshRow(
+            team_id=2,
+            final_rank=2,
+            stage_reached=StageType.FINAL,
+        ),
+    ]
+
+    update_row = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "update_team_ranking_by_id",
+        side_effect=RuntimeError("db update failed"),
+    )
+    invalidate_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "invalidate_cache",
+    )
+
+    with pytest.raises(RuntimeError, match="db update failed"):
+        tournament_teams_service.update_team_rankings(db, tournament_id=42, data=rows)
+
+    update_row.assert_called_once_with(db, 42, rows[0])
+    db.commit.assert_not_called()
+    invalidate_cache.assert_not_called()
+
+
+def test_update_team_rankings_does_not_invalidate_cache_when_commit_fails(mocker):
+    db = Mock()
+    db.commit.side_effect = RuntimeError("commit failed")
+
+    rows = [
+        TeamRankingRefreshRow(
+            team_id=1,
+            final_rank=1,
+            stage_reached=StageType.FINAL,
+        ),
+    ]
+
+    update_row = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "update_team_ranking_by_id",
+    )
+    invalidate_cache = mocker.patch.object(
+        tournament_teams_service.cache_service,
+        "invalidate_cache",
+    )
+
+    with pytest.raises(RuntimeError, match="commit failed"):
+        tournament_teams_service.update_team_rankings(db, tournament_id=42, data=rows)
+
+    update_row.assert_called_once_with(db, 42, rows[0])
+    db.commit.assert_called_once_with()
+    invalidate_cache.assert_not_called()
