@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import standings as standings_service
+from app.api.v1.services import teams as teams_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
@@ -62,8 +63,13 @@ def get_teams(
 
 
 @router.get("{tournament_id}/teams/{team_id}/profile")
-async def get_team_profile(team_id: int) -> dict:
-    return {"message": "not yet implemented"}
+async def get_team_profile(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+    team_id: Annotated[int, Path(gt=0)],
+) -> dict:
+    return teams_service.get_profile(tournament_id, team_id)
 
 
 @router.get("{tournament_id}/teams/{team_id}/matches")
