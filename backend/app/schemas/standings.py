@@ -3,9 +3,7 @@ from pydantic import BaseModel, ConfigDict, computed_field
 from .teams import TeamSummary
 
 
-class StandingResponse(BaseModel):
-    team: TeamSummary  # each standings row includes the team's details
-    group: str
+class StandingsStats(BaseModel):
     position: int
     points: int
     wins: int
@@ -25,6 +23,14 @@ class StandingResponse(BaseModel):
     @property
     def matches_played(self) -> int:
         return self.wins + self.draws + self.losses
+
+
+class TeamStandingsSummary(StandingsStats):
+    group: str
+
+
+class StandingResponse(TeamStandingsSummary):
+    team: TeamSummary
 
 
 class StandingRefreshRow(BaseModel):
