@@ -22,11 +22,6 @@ def get_tournaments(db: Annotated[Session, Depends(get_db)]):
     return tournaments_service.get_tournaments(db)
 
 
-@router.get("/{tournament_id}")
-async def get_tournament_details(tournament_id: int) -> dict:
-    return {"message": "not yet implemented"}
-
-
 @router.get("/{tournament_id}/standings", response_model=dict[str, list[StandingResponse]])
 @limiter.limit("60/minute")
 def get_standings(
@@ -64,3 +59,20 @@ def get_teams(
     """
 
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
+
+
+@router.get("{tournament_id}/teams/{team_id}/profile")
+async def get_team_profile(team_id: int) -> dict:
+    return {"message": "not yet implemented"}
+
+
+@router.get("{tournament_id}/teams/{team_id}/matches")
+async def get_team_matches(
+    team_id: int, tournament_id: int | None = None, status: str | None = None, limit: int = 20
+) -> dict:
+    return {"message": "not yet implemented"}
+
+
+@router.get("{tournament_id}/teams/{team_id}/squad")
+async def get_team_squad(team_id: int, tournament_id: int) -> dict:
+    return {"message": "not yet implemented"}
