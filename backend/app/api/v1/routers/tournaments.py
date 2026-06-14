@@ -12,6 +12,7 @@ from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
+from app.schemas.teams import TeamProfileResponse
 from app.schemas.tournament_teams import TournamentTeamResponse
 from app.schemas.tournaments import TournamentResponse
 
@@ -62,27 +63,34 @@ def get_teams(
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
 
 
-@router.get("{tournament_id}/teams/{team_id}/profile")
+@router.get("{tournament_id}/teams/{team_id}/profile", response_model=TeamProfileResponse)
 @limiter.limit("60/minute")
-async def get_team_profile(
+def get_team_profile(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
     tournament_id: Annotated[int, Path(gt=0)],
     team_id: Annotated[int, Path(gt=0)],
-) -> dict:
+):
+    """
+    Return the team profile specified by their IDs.
+    Include their current standing and data on previous 5 matches.
+    """
     return teams_service.get_profile(db, tournament_id, team_id)
 
 
 @router.get("{tournament_id}/teams/{team_id}/matches")
 @limiter.limit("60/minute")
-async def get_team_matches(
+def get_team_matches(
     request: Request,
-    team_id: int, tournament_id: int | None = None, status: str | None = None, limit: int = 20
+    team_id: int,
+    tournament_id: int | None = None,
+    status: str | None = None,
+    limit: int = 20,
 ) -> dict:
     return {"message": "not yet implemented"}
 
 
 @router.get("{tournament_id}/teams/{team_id}/squad")
 @limiter.limit("60/minute")
-async def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
+def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
     return {"message": "not yet implemented"}
