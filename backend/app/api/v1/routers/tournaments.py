@@ -76,6 +76,7 @@ async def get_team_profile(
 @router.get("{tournament_id}/teams/{team_id}/matches")
 @limiter.limit("60/minute")
 async def get_team_matches(
+    request: Request,
     team_id: int, tournament_id: int | None = None, status: str | None = None, limit: int = 20
 ) -> dict:
     return {"message": "not yet implemented"}
@@ -83,5 +84,5 @@ async def get_team_matches(
 
 @router.get("{tournament_id}/teams/{team_id}/squad")
 @limiter.limit("60/minute")
-async def get_team_squad(team_id: int, tournament_id: int) -> dict:
+async def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
     return {"message": "not yet implemented"}
