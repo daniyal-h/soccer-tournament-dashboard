@@ -63,16 +63,18 @@ def get_teams(
 
 
 @router.get("{tournament_id}/teams/{team_id}/profile")
+@limiter.limit("60/minute")
 async def get_team_profile(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
     tournament_id: Annotated[int, Path(gt=0)],
     team_id: Annotated[int, Path(gt=0)],
 ) -> dict:
-    return teams_service.get_profile(tournament_id, team_id)
+    return teams_service.get_profile(db, tournament_id, team_id)
 
 
 @router.get("{tournament_id}/teams/{team_id}/matches")
+@limiter.limit("60/minute")
 async def get_team_matches(
     team_id: int, tournament_id: int | None = None, status: str | None = None, limit: int = 20
 ) -> dict:
@@ -80,5 +82,6 @@ async def get_team_matches(
 
 
 @router.get("{tournament_id}/teams/{team_id}/squad")
+@limiter.limit("60/minute")
 async def get_team_squad(team_id: int, tournament_id: int) -> dict:
     return {"message": "not yet implemented"}
