@@ -1,8 +1,8 @@
 import { type TeamSummary } from './team';
 
 // a Standing includes some details of its team
-export interface Standing {
-  team: TeamSummary;
+
+export interface StandingStats {
   position: number;
   matches_played: number;
   wins: number;
@@ -12,6 +12,9 @@ export interface Standing {
   goals_against: number;
   goal_difference: number;
   points: number;
+}
+export interface Standing extends StandingStats {
+  team: TeamSummary;
 }
 
 export interface StandingsOptions {
