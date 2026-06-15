@@ -63,7 +63,7 @@ def get_teams(
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
 
 
-@router.get("{tournament_id}/teams/{team_id}/profile", response_model=TeamProfileResponse)
+@router.get("/{tournament_id}/teams/{team_id}/profile", response_model=TeamProfileResponse)
 @limiter.limit("60/minute")
 def get_team_profile(
     request: Request,
