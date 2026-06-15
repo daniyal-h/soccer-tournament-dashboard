@@ -18,7 +18,7 @@ export function UseTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
   });
 
   return {
-    standings: query.data ?? null,
+    teamProfile: query.data ?? null,
     isLoading: query.isInitialLoading,
     isRefreshing: query.isRefreshing,
     error: query.displayError,
