@@ -7,11 +7,14 @@ import { Button } from '@/components/ui/button';
 
 import { ROUTES } from '@/constants/navigation';
 
+import { getBackLabel } from '@/utils/navigationHelper';
+
 const TeamProfile = () => {
   const location = useLocation();
 
   const navigate = useNavigate();
   const from = location.state?.from ?? ROUTES.TEAMS;
+  const backLabel = getBackLabel(from);
 
   const handleBack = () => {
     if (from && globalThis.history.length > 1) {
@@ -37,7 +40,7 @@ const TeamProfile = () => {
     <div className="flex flex-col gap-4">
       <Button variant="outline" className="w-fit cursor-pointer" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
-        Back to Teams
+        Back to {backLabel}
       </Button>
 
       <TeamProfileContent teamId={parsedTeamId} />
