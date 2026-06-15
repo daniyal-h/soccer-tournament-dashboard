@@ -25,7 +25,7 @@ const TeamStageSummary = ({ standing }: TeamStageSummaryProps) => {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="text-lg">Group Stage Summary</CardTitle>
+        <CardTitle className="text-xl font-bold">Group Stage Summary</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-6">
