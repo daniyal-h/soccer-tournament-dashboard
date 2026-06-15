@@ -9,11 +9,17 @@ import { ROUTES } from '@/constants/navigation';
 
 import { getBackLabel } from '@/utils/navigationHelper';
 
+interface TeamProfileLocationState {
+  from?: unknown;
+}
+
 const TeamProfile = () => {
   const location = useLocation();
 
+  const state = location.state as TeamProfileLocationState | null;
+
   const navigate = useNavigate();
-  const from = location.state?.from ?? ROUTES.TEAMS;
+  const from = typeof state?.from === 'string' ? state.from : ROUTES.TEAMS;
   const backLabel = getBackLabel(from);
 
   const handleBack = () => {
