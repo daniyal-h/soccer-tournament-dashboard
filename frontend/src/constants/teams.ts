@@ -1,0 +1,1 @@
+export const TOTAL_GROUP_MATCHES_COUNT = 3;

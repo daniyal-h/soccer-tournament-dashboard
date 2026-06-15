@@ -20,6 +20,11 @@ export const queryKeys = {
   tournamentTeams: {
     all: (tournamentId: number) => ['tournamentTeams', tournamentId] as const,
   },
+
+  teams: {
+    profile: (tournamentId: number, teamId: number) =>
+      ['teams', 'profile', tournamentId, teamId] as const,
+  },
 };
 
 const SECOND = 1000;
@@ -38,6 +43,8 @@ export const QUERY_STALE_TIMES = {
   matchEvents: 45 * SECOND,
 
   tournamentTeams: 15 * MINUTE,
+
+  teamProfile: 5 * MINUTE,
 } as const;
 
 export const QUERY_GC_TIMES = {

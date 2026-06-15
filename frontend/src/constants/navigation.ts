@@ -4,6 +4,13 @@ export const ROUTES = {
   BRACKET: '/bracket',
   TEAMS: '/teams',
   STATISTICS: '/stats',
+  MATCH_DETAILS: (matchId: number) => `/matches/${matchId}`,
+};
+
+export const BACK_ROUTE_LABELS: Record<string, string> = {
+  [ROUTES.TEAMS]: 'Teams',
+  [ROUTES.SCHEDULE]: 'Schedule',
+  [ROUTES.STANDINGS]: 'Standings',
 };
 
 export const PRIMARY_NAV_ITEMS = [

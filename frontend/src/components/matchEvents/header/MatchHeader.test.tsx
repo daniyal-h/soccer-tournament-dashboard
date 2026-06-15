@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MatchHeader from '@/components/matchEvents/header/MatchHeader';
@@ -68,7 +69,11 @@ function makeMetadata(overrides: Partial<ResponseMetadata> = {}): ResponseMetada
 }
 
 function renderMatchHeader(match: Match = baseMatch, metadata: ResponseMetadata = baseMetadata) {
-  return render(<MatchHeader match={match} metadata={metadata} />);
+  return render(
+    <MemoryRouter>
+      <MatchHeader match={match} metadata={metadata} />
+    </MemoryRouter>,
+  );
 }
 
 describe('MatchHeader', () => {
@@ -301,5 +306,13 @@ describe('MatchHeader', () => {
     expect(
       screen.queryByText('This message should stay hidden without a timestamp.'),
     ).not.toBeInTheDocument();
+  });
+
+  it('links team names to their team profile pages', () => {
+    renderMatchHeader();
+
+    expect(screen.getByRole('link', { name: /Canada CAN/i })).toHaveAttribute('href', '/teams/10');
+
+    expect(screen.getByRole('link', { name: /Brazil BRA/i })).toHaveAttribute('href', '/teams/20');
   });
 });

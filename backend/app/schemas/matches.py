@@ -3,8 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 from app.models.match import StageType, StatusType
-
-from .teams import TeamSummary
+from app.schemas.common import TeamSummary
 
 
 class MatchResponse(BaseModel):

@@ -2,15 +2,25 @@ import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import ErrorState from '@/components/feedback/ErrorState';
+import TeamProfileContent from '@/components/teamProfile/TeamProfileContent';
 import { Button } from '@/components/ui/button';
 
 import { ROUTES } from '@/constants/navigation';
 
+import { getBackLabel } from '@/utils/navigationHelper';
+
+interface TeamProfileLocationState {
+  from?: unknown;
+}
+
 const TeamProfile = () => {
   const location = useLocation();
 
+  const state = location.state as TeamProfileLocationState | null;
+
   const navigate = useNavigate();
-  const from = location.state?.from ?? ROUTES.TEAMS;
+  const from = typeof state?.from === 'string' ? state.from : ROUTES.TEAMS;
+  const backLabel = getBackLabel(from);
 
   const handleBack = () => {
     if (from && globalThis.history.length > 1) {
@@ -33,15 +43,14 @@ const TeamProfile = () => {
   }
 
   return (
-    <section className="space-y-3">
+    <div className="flex flex-col gap-4">
       <Button variant="outline" className="w-fit cursor-pointer" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
-        Back to Teams
+        Back to {backLabel}
       </Button>
-      <h1 className="text-3xl font-bold tracking-tight">Team: {teamId} (coming soon!)</h1>
 
-      <p className="text-muted-foreground">Profile for team: {teamId}</p>
-    </section>
+      <TeamProfileContent teamId={parsedTeamId} />
+    </div>
   );
 };
 

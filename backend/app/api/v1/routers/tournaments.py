@@ -5,12 +5,14 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import standings as standings_service
+from app.api.v1.services import teams as teams_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
+from app.schemas.teams import TeamProfileResponse
 from app.schemas.tournament_teams import TournamentTeamResponse
 from app.schemas.tournaments import TournamentResponse
 
@@ -20,11 +22,6 @@ router = APIRouter()
 @router.get("", response_model=list[TournamentResponse])
 def get_tournaments(db: Annotated[Session, Depends(get_db)]):
     return tournaments_service.get_tournaments(db)
-
-
-@router.get("/{tournament_id}")
-async def get_tournament_details(tournament_id: int) -> dict:
-    return {"message": "not yet implemented"}
 
 
 @router.get("/{tournament_id}/standings", response_model=dict[str, list[StandingResponse]])
@@ -64,3 +61,36 @@ def get_teams(
     """
 
     return tournament_teams_service.get_ranked_tournament_teams(db, tournament_id)
+
+
+@router.get("/{tournament_id}/teams/{team_id}/profile", response_model=TeamProfileResponse)
+@limiter.limit("60/minute")
+def get_team_profile(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+    team_id: Annotated[int, Path(gt=0)],
+):
+    """
+    Return the team profile specified by their IDs.
+    Include their current standing and data on previous 5 matches.
+    """
+    return teams_service.get_team_profile(db, tournament_id, team_id)
+
+
+@router.get("{tournament_id}/teams/{team_id}/matches")
+@limiter.limit("60/minute")
+def get_team_matches(
+    request: Request,
+    team_id: int,
+    tournament_id: int | None = None,
+    status: str | None = None,
+    limit: int = 20,
+) -> dict:
+    return {"message": "not yet implemented"}
+
+
+@router.get("{tournament_id}/teams/{team_id}/squad")
+@limiter.limit("60/minute")
+def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
+    return {"message": "not yet implemented"}

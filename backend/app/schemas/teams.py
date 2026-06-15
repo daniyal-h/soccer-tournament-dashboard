@@ -1,10 +1,11 @@
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.common import TeamStandingsSummary, TeamSummary
 
-class TeamSummary(BaseModel):
-    id: int
-    name: str
-    short_name: str
-    logo_url: str | None = None
+
+class TeamProfileResponse(BaseModel):
+    team: TeamSummary
+    group: str | None = None
+    standing: TeamStandingsSummary | None = None
 
     model_config = ConfigDict(from_attributes=True)

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import type { Standing } from '@/types/standing';
@@ -28,12 +29,15 @@ const groupRows: Standing[] = [
 describe('GroupGrid', () => {
   it('renders one card per group', () => {
     render(
-      <GroupGrid
-        standings={{
-          A: groupRows,
-          B: groupRows,
-        }}
-      />,
+      <MemoryRouter>
+        <GroupGrid
+          standings={{
+            A: groupRows,
+            B: groupRows,
+          }}
+        />
+        ,
+      </MemoryRouter>,
     );
 
     expect(screen.getByText('Group A')).toBeInTheDocument();

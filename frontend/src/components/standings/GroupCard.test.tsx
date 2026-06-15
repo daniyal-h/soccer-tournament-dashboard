@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import type { Standing } from '@/types/standing';
@@ -27,7 +28,11 @@ const rows: Standing[] = [
 
 describe('GroupCard', () => {
   it('renders the group title and standings table', () => {
-    render(<GroupCard group="A" rows={rows} />);
+    render(
+      <MemoryRouter>
+        <GroupCard group="A" rows={rows} />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('Group A')).toBeInTheDocument();
     expect(screen.getByText('Argentina')).toBeInTheDocument();

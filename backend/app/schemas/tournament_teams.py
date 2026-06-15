@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 from app.models.match import StageType
-from app.schemas.teams import TeamSummary
+from app.schemas.common import TeamSummary
 
 
 class TournamentTeamResponse(BaseModel):

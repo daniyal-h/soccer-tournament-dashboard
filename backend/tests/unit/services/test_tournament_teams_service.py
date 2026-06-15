@@ -291,6 +291,70 @@ def test_get_ranked_tournament_teams_sorts_rows_and_caches_encoded_payload(mocke
     )
 
 
+def test_get_tournament_team_returns_registered_team(mocker):
+    db = Mock()
+    tournament_team = Mock()
+
+    get_team = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_team_in_tournament",
+        return_value=tournament_team,
+    )
+
+    result = tournament_teams_service.get_tournament_team(
+        db,
+        tournament_id=42,
+        team_id=101,
+    )
+
+    assert result == tournament_team
+    get_team.assert_called_once_with(db, 42, 101)
+
+
+def test_get_tournament_team_raises_not_found_when_team_is_not_registered(mocker):
+    db = Mock()
+
+    get_team = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_team_in_tournament",
+        return_value=None,
+    )
+
+    with pytest.raises(
+        NotFoundError,
+        match="Team 101 not found in tournament 42",
+    ):
+        tournament_teams_service.get_tournament_team(
+            db,
+            tournament_id=42,
+            team_id=101,
+        )
+
+    get_team.assert_called_once_with(db, 42, 101)
+
+
+def test_get_tournament_team_raises_not_found_for_falsey_repo_result(mocker):
+    db = Mock()
+
+    get_team = mocker.patch.object(
+        tournament_teams_service.tournament_teams_repo,
+        "get_team_in_tournament",
+        return_value=False,
+    )
+
+    with pytest.raises(
+        NotFoundError,
+        match="Team 101 not found in tournament 42",
+    ):
+        tournament_teams_service.get_tournament_team(
+            db,
+            tournament_id=42,
+            team_id=101,
+        )
+
+    get_team.assert_called_once_with(db, 42, 101)
+
+
 def test_update_team_rankings_updates_each_row_commits_and_invalidates_cache(mocker):
     db = Mock()
 
