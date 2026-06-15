@@ -36,6 +36,15 @@ def get_tournament_team_display_sort_key(row: TournamentTeam) -> tuple[int, int,
     )
 
 
+def get_tournament_team(db: Session, tournament_id: int, team_id: int):
+    tournament_team = tournament_teams_repo.get_team_in_tournament(db, tournament_id, team_id)
+
+    if not tournament_team:
+        raise NotFoundError(f"Team {team_id} not found in tournament {tournament_id}")
+
+    return tournament_team
+
+
 def get_tournament_teams(db: Session, tournament_id: int) -> list[TournamentTeam]:
     tournament_teams = tournament_teams_repo.get_teams_in_tournament(db, tournament_id)
 
