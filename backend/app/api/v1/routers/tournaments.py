@@ -75,7 +75,7 @@ def get_team_profile(
     Return the team profile specified by their IDs.
     Include their current standing and data on previous 5 matches.
     """
-    return teams_service.get_profile(db, tournament_id, team_id)
+    return teams_service.get_team_profile(db, tournament_id, team_id)
 
 
 @router.get("{tournament_id}/teams/{team_id}/matches")
