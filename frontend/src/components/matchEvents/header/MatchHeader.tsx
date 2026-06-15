@@ -53,7 +53,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-8">
         <Link
           to={`/teams/${match.team_a.id}`}
-          state={{ from: ROUTES.MATCH_DETAILS(match.team_a.id) }}
+          state={{ from: ROUTES.MATCH_DETAILS(match.id) }}
           className="flex min-w-0 flex-col items-end gap-2"
         >
           {match.team_a.logo_url && (
@@ -82,7 +82,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
 
         <Link
           to={`/teams/${match.team_b.id}`}
-          state={{ from: ROUTES.MATCH_DETAILS(match.team_b.id) }}
+          state={{ from: ROUTES.MATCH_DETAILS(match.id) }}
           className="flex min-w-0 flex-col items-start gap-2"
         >
           {match.team_b.logo_url && (
