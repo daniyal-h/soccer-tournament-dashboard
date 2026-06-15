@@ -15,5 +15,5 @@ export interface TeamProfileOptions {
 export interface TeamProfile {
   team: TeamSummary;
   group: string;
-  standing: StandingStats;
+  standing: StandingStats | null;
 }
