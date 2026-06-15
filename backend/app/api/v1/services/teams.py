@@ -22,8 +22,8 @@ def get_team_profile(db: Session, tournament_id: int, team_id: int) -> TeamProfi
 
     # registration is the source of truth for tournament-scoped team membership
     # handles tournament and team not found error
-    tournament = tournaments_service.get_tournament(db, tournament_id) 
-    registration = tournament_teams_service.get_tournament_team(db, tournament_id, team_id) 
+    tournament = tournaments_service.get_tournament(db, tournament_id)
+    registration = tournament_teams_service.get_tournament_team(db, tournament_id, team_id)
 
     standing = standings_repo.get_standings_for_team(db, tournament_id, team_id)
 
