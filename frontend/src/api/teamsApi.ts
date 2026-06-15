@@ -27,7 +27,7 @@ function isTeamProfileResponse(value: unknown): value is TeamProfile {
 
   return (
     isTeamSummary(teamProfile.team) &&
-    typeof teamProfile.group == 'string' &&
+    typeof teamProfile.group === 'string' &&
     (isStandingStats(teamProfile.standing) || teamProfile.standing === null)
   );
 }
