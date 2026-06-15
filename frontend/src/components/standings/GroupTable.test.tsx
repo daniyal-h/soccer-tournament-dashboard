@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import type { Standing } from '@/types/standing';
@@ -59,9 +60,17 @@ const rows: Standing[] = [
   },
 ];
 
+function renderGroupTable(tableRows = rows) {
+  return render(
+    <MemoryRouter>
+      <GroupTable rows={tableRows} />
+    </MemoryRouter>,
+  );
+}
+
 describe('GroupTable', () => {
   it('renders all table headers', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     expect(screen.getByRole('columnheader', { name: '#' })).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Team' })).toBeInTheDocument();
@@ -76,7 +85,7 @@ describe('GroupTable', () => {
   });
 
   it('renders team names, short names, and logos', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     for (const row of rows) {
       expect(screen.getByText(row.team.name)).toBeInTheDocument();
@@ -88,7 +97,7 @@ describe('GroupTable', () => {
   });
 
   it('renders each team row with its position and stats', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     const argentinaRow = screen.getByText('Argentina').closest('tr');
     expect(argentinaRow).not.toBeNull();
@@ -107,7 +116,7 @@ describe('GroupTable', () => {
   });
 
   it('only renders points cells in bold', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     const argentinaRow = screen.getByText('Argentina').closest('tr');
     expect(argentinaRow).not.toBeNull();
@@ -122,20 +131,20 @@ describe('GroupTable', () => {
   it('renders a dash instead of zero position for pre-tournament rows', () => {
     const zeroStateRows = rows.map((row) => ({ ...row, position: 0 }));
 
-    render(<GroupTable rows={zeroStateRows} />);
+    renderGroupTable(zeroStateRows);
 
     expect(screen.getAllByText('-')).toHaveLength(3);
   });
 
   it('highlights positions one and two', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     expect(screen.getByText('Argentina').closest('tr')).toHaveClass('bg-accent');
     expect(screen.getByText('Brazil').closest('tr')).toHaveClass('bg-accent');
   });
 
   it('does not highlight teams outside the top two', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     expect(screen.getByText('Canada').closest('tr')).not.toHaveClass('bg-accent');
   });
@@ -143,7 +152,7 @@ describe('GroupTable', () => {
   it('does not highlight pre-tournament rows with position zero', () => {
     const zeroStateRows = rows.map((row) => ({ ...row, position: 0 }));
 
-    render(<GroupTable rows={zeroStateRows} />);
+    renderGroupTable(zeroStateRows);
 
     for (const row of zeroStateRows) {
       expect(screen.getByText(row.team.name).closest('tr')).not.toHaveClass('bg-accent');
@@ -151,14 +160,14 @@ describe('GroupTable', () => {
   });
 
   it('renders an empty body when there are no rows', () => {
-    render(<GroupTable rows={[]} />);
+    renderGroupTable([]);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.queryByText('Argentina')).not.toBeInTheDocument();
   });
 
   it('does not apply highlight styling to teams outside the top two', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     const canadaRow = screen.getByText('Canada').closest('tr');
 
@@ -167,7 +176,7 @@ describe('GroupTable', () => {
   });
 
   it('hides mobile-hidden columns on small screens', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     expect(screen.getByRole('columnheader', { name: 'MP' })).toHaveClass(
       'hidden',
@@ -176,7 +185,7 @@ describe('GroupTable', () => {
   });
 
   it('renders points cells in bold', () => {
-    render(<GroupTable rows={rows} />);
+    renderGroupTable();
 
     const argentinaRow = screen.getByText('Argentina').closest('tr');
     const cells = within(argentinaRow!).getAllByRole('cell');
