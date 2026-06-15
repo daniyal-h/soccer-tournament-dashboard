@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import {
   Table,
   TableBody,
@@ -9,6 +11,7 @@ import {
 
 import { type Standing } from '@/types/standing';
 
+import { ROUTES } from '@/constants/navigation';
 import { COLUMNS } from '@/constants/standings';
 
 import { cn } from '@/lib/utils';
@@ -22,6 +25,14 @@ interface GroupTableProps {
  * Highlight top-two for non-zero-state standings
  */
 export function GroupTable({ rows }: GroupTableProps) {
+  const navigate = useNavigate();
+
+  const openTeamProfile = (teamId: number) => {
+    navigate(`/teams/${teamId}`, {
+      state: { from: ROUTES.STANDINGS },
+    });
+  };
+
   return (
     <Table className="table-fixed text-xs sm:text-sm">
       <TableHeader>
@@ -48,7 +59,17 @@ export function GroupTable({ rows }: GroupTableProps) {
         {rows.map((row) => (
           <TableRow
             key={row.team.id}
-            className={`${row.position === 1 || row.position === 2 ? 'bg-accent' : ''}`}
+            role="link"
+            onClick={() => openTeamProfile(row.team.id)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                openTeamProfile(row.team.id);
+              }
+            }}
+            className={cn(
+              'cursor-pointer active:scale-[0.98] active:bg-accent',
+              `${row.position === 1 || row.position === 2 ? 'bg-accent' : ''}`,
+            )}
           >
             <TableCell className="text-muted-foreground">
               {row.position === 0 ? '-' : row.position}
