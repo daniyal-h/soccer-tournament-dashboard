@@ -6,7 +6,7 @@ import { QUERY_STALE_TIMES, queryKeys } from '@/constants/queries';
 
 import { useApiQuery } from './useApiQuery';
 
-export function UseTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
+export function useTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
   const query = useApiQuery({
     queryKey: queryKeys.teams.profile(tournament_id, team_id),
     queryFn: () => getTeamProfile({ tournament_id, team_id }),
