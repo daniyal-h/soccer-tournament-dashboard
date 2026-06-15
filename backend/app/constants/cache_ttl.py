@@ -45,3 +45,10 @@ TEAMS_PRE_TOURNAMENT_FAR_TTL = timedelta(days=1)
 TEAMS_GROUP_STAGE_TTL = timedelta(days=1)
 TEAMS_KNOCKOUT_TTL = timedelta(hours=1)
 TEAMS_FINISHED_TTL = timedelta(days=7)
+
+# TEAM PROFILE
+
+TEAM_PROFILE_PRE_TOURNAMENT_SOON_TTL = timedelta(hours=1)
+TEAM_PROFILE_PRE_TOURNAMENT_FAR_TTL = timedelta(days=1)
+TEAM_PROFILE_TTL = timedelta(minutes=15)
+TEAM_PROFILE_FINISHED_TTL = timedelta(days=7)
