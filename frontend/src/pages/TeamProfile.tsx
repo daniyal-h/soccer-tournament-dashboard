@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import ErrorState from '@/components/feedback/ErrorState';
+import TeamProfileContent from '@/components/teamProfile/TeamProfileContent';
 import { Button } from '@/components/ui/button';
 
 import { ROUTES } from '@/constants/navigation';
@@ -33,15 +34,14 @@ const TeamProfile = () => {
   }
 
   return (
-    <section className="space-y-3">
+    <div className="flex flex-col gap-4">
       <Button variant="outline" className="w-fit cursor-pointer" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
         Back to Teams
       </Button>
-      <h1 className="text-3xl font-bold tracking-tight">Team: {teamId} (coming soon!)</h1>
 
-      <p className="text-muted-foreground">Profile for team: {teamId}</p>
-    </section>
+      <TeamProfileContent teamId={parsedTeamId} />
+    </div>
   );
 };
 
