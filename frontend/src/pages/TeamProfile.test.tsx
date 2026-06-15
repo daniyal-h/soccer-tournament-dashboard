@@ -103,27 +103,27 @@ describe('TeamProfile', () => {
   });
 
   it('uses the route from location state as the fallback back route', async () => {
-    const from = '/standings';
+    const from = ROUTES.STANDINGS;
     mockLocationState = { from };
 
     vi.spyOn(globalThis.history, 'length', 'get').mockReturnValue(1);
 
     render(<TeamProfile />);
 
-    await userEvent.click(screen.getByRole('button', { name: /back to teams/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back to Standings' }));
 
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(from);
   });
 
   it('prefers browser history over the location state fallback route', async () => {
-    mockLocationState = { from: '/standings' };
+    mockLocationState = { from: ROUTES.SCHEDULE };
 
     vi.spyOn(globalThis.history, 'length', 'get').mockReturnValue(2);
 
     render(<TeamProfile />);
 
-    await userEvent.click(screen.getByRole('button', { name: /back to teams/i }));
+    await userEvent.click(screen.getByRole('button', { name: 'Back to Schedule' }));
 
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(-1);
@@ -136,4 +136,30 @@ describe('TeamProfile', () => {
 
     expect(screen.queryByRole('button', { name: /back to teams/i })).not.toBeInTheDocument();
   });
+
+  it.each([
+    [undefined, 'Back to Teams'],
+    [{ from: ROUTES.TEAMS }, 'Back to Teams'],
+    [{ from: ROUTES.SCHEDULE }, 'Back to Schedule'],
+    [{ from: ROUTES.STANDINGS }, 'Back to Standings'],
+    [{ from: '/matches/123' }, 'Back to Match'],
+    [{ from: '/unknown' }, 'Back to Previous Page'],
+  ])('renders dynamic back label for location state %#', (state, label) => {
+    mockLocationState = state;
+
+    render(<TeamProfile />);
+
+    expect(screen.getByRole('button', { name: label })).toBeInTheDocument();
+  });
+
+  it.each([{ from: null }, { from: 123 }, { from: true }, { from: {} }, { from: [] }])(
+    'falls back to Teams label for invalid from state %#',
+    (state) => {
+      mockLocationState = state;
+
+      render(<TeamProfile />);
+
+      expect(screen.getByRole('button', { name: 'Back to Teams' })).toBeInTheDocument();
+    },
+  );
 });
