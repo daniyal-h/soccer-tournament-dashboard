@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { Card } from '@/components/ui/card';
 
@@ -6,6 +7,7 @@ import type { Match } from '@/types/match';
 import type { ResponseMetadata } from '@/types/metadata';
 
 import { TICK_SPEED } from '@/constants/matchEvents';
+import { ROUTES } from '@/constants/navigation';
 
 import MatchStatusBadge from '../../matches/MatchStatusBadge';
 
@@ -49,7 +51,11 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
 
       {/* Main central display with team details and score */}
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-8">
-        <div className="flex min-w-0 flex-col items-end gap-2">
+        <Link
+          to={`/teams/${match.team_a.id}`}
+          state={{ from: ROUTES.MATCH_DETAILS(match.team_a.id) }}
+          className="flex min-w-0 flex-col items-end gap-2"
+        >
           {match.team_a.logo_url && (
             <img
               src={match.team_a.logo_url}
@@ -62,7 +68,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
             <p className="truncate text-lg font-bold sm:text-2xl">{match.team_a.name}</p>
             <p className="text-sm text-muted-foreground">{match.team_a.short_name}</p>
           </div>
-        </div>
+        </Link>
 
         <div className="flex flex-col items-center">
           <p className="text-3xl font-black sm:text-5xl">{getScoreText(match)}</p>
@@ -74,7 +80,11 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
           )}
         </div>
 
-        <div className="flex min-w-0 flex-col items-start gap-2">
+        <Link
+          to={`/teams/${match.team_b.id}`}
+          state={{ from: ROUTES.MATCH_DETAILS(match.team_b.id) }}
+          className="flex min-w-0 flex-col items-start gap-2"
+        >
           {match.team_b.logo_url && (
             <img
               src={match.team_b.logo_url}
@@ -87,7 +97,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
             <p className="truncate text-lg font-bold sm:text-2xl">{match.team_b.name}</p>
             <p className="text-sm text-muted-foreground">{match.team_b.short_name}</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* Footer with extra details (venue, date, time, freshness) */}
