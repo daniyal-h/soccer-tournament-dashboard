@@ -221,7 +221,7 @@ def get_team_profile_ttl(tournament: Tournament, today: date | None = None) -> t
         return TEAM_PROFILE_PRE_TOURNAMENT_FAR_TTL
 
     # ongoing or finished tournaments
-    if current_date < tournament.end_date:
+    if current_date <= tournament.end_date:
         return TEAM_PROFILE_TTL
 
     return TEAM_PROFILE_FINISHED_TTL
