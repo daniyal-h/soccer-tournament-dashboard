@@ -4,6 +4,7 @@ export const ROUTES = {
   BRACKET: '/bracket',
   TEAMS: '/teams',
   STATISTICS: '/stats',
+  MATCH_DETAILS: (matchId: number) => `/matches/${matchId}`,
 };
 
 export const PRIMARY_NAV_ITEMS = [
