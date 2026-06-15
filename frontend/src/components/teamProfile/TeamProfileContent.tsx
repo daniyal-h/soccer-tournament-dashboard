@@ -5,6 +5,7 @@ import { useTeamProfile } from '@/hooks/useTeamProfile';
 import EmptyState from '../feedback/EmptyState';
 import ErrorState from '../feedback/ErrorState';
 import TeamProfileHeader from './TeamProfileHeader';
+import TeamProfileSkeleton from './TeamProfileSkeleton';
 import TeamStageSummary from './TeamStageSummary';
 
 interface TeamProfileContentProps {
@@ -25,8 +26,10 @@ const TeamProfileContent = ({ teamId }: TeamProfileContentProps) => {
     team_id: teamId,
   });
 
+  // display loading and error states before rendering contents
+
   if (isProfileLoading) {
-    return <div>Loading profile...</div>; // TODO: swap with skeleton when ready
+    return <TeamProfileSkeleton />;
   }
 
   if (profileError) {
