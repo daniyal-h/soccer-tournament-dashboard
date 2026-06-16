@@ -17,15 +17,16 @@ import { getMatchMetaDisplay, getWinnerSide } from '@/utils/matches/matchCardHel
 interface MatchCardProps {
   match: Match;
   variant?: 'default' | 'nested';
+  from?: string;
 }
 
-const MatchCard = ({ match, variant = 'default' }: MatchCardProps) => {
+const MatchCard = ({ match, variant = 'default', from = ROUTES.SCHEDULE }: MatchCardProps) => {
   const winner = getWinnerSide(match);
 
   return (
     <Link
       to={`/matches/${match.id}`}
-      state={{ from: ROUTES.SCHEDULE }}
+      state={{ from: from }}
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >
