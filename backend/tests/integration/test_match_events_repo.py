@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
 from app.api.v1.repositories import match_events as match_events_repo
-from app.models.match import Match, StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match, StageType
 from app.models.match_event import EventType, MatchEvent
 from app.models.team import Team, TeamType
 from app.models.tournament import Tournament

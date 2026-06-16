@@ -1,6 +1,7 @@
 from .base import Base, TimestampMixin
 from .cache_entry import CacheEntry
-from .match import Match, StatusType
+from .enums import StatusType
+from .match import Match
 from .match_event import EventType, MatchEvent
 from .player_stat import PlayerStat
 from .players import Player

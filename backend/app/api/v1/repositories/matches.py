@@ -3,7 +3,8 @@ from datetime import datetime, timedelta
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.models.match import Match, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match
 
 
 def get_match_by_id(db: Session, match_id: int) -> Match | None:

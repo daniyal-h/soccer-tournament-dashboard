@@ -2,7 +2,8 @@ from datetime import date
 
 import pytest
 
-from app.models.match import Match, StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match, StageType
 from app.models.standing import Standing
 from app.models.team import Team
 from app.models.tournament import Tournament

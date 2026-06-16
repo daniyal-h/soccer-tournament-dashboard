@@ -31,7 +31,8 @@ from app.constants.cache_ttl import (
     TEAMS_PRE_TOURNAMENT_SOON_TTL,
 )
 from app.constants.team_rankings import KNOCKOUT_STAGES
-from app.models.match import Match, StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match, StageType
 from app.models.match_event import MatchEvent
 from app.models.tournament import Tournament
 from app.models.tournament_team import TournamentTeam

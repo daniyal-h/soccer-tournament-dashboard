@@ -4,7 +4,8 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services import matches as matches_service
-from app.models.match import Match, StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match, StageType
 from app.schemas.errors import NotFoundError
 from app.schemas.matches import MatchRefreshRow
 from app.utils.cache_helper import MATCHES_LIVE_TTL

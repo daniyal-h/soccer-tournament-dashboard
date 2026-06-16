@@ -3,7 +3,8 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
-from app.models.match import Match, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match
 from app.models.refresh_job import JobName, JobStatus
 from app.schemas.metadata import ResponseMetadata
 

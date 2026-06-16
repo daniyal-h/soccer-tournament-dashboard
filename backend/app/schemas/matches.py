@@ -2,7 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from app.models.match import StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import StageType
 from app.schemas.common import TeamSummary
 
 

@@ -5,16 +5,10 @@ from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.enums import StatusType
+
 from .base import Base, TimestampMixin
 from .team import Team
-
-
-class StatusType(str, enum.Enum):
-    SCHEDULED = "scheduled"
-    LIVE = "live"
-    FINISHED = "finished"
-    POSTPONED = "postponed"
-    CANCELLED = "cancelled"
 
 
 class StageType(str, enum.Enum):

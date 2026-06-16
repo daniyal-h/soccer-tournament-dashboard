@@ -10,7 +10,8 @@ from app.constants.cache_ttl import (
     MATCH_EVENTS_LIVE_KNOCKOUT_TTL,
     MATCH_EVENTS_SOON_SCHEDULED_TTL,
 )
-from app.models.match import StageType, StatusType
+from app.models.enums import StatusType
+from app.models.match import StageType
 
 
 def test_get_match_events_ttl_returns_group_live_ttl():
