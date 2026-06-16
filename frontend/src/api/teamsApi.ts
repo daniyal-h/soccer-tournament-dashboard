@@ -34,7 +34,13 @@ function isTeamProfileResponse(value: unknown): value is TeamProfile {
 }
 
 function isTeamMatchesResponse(value: unknown): value is TeamMatches {
-  return isMatchesResponse(value);
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const response = value as TeamMatches;
+
+  return isMatchesResponse(response.matches);
 }
 
 export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
