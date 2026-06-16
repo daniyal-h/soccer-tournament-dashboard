@@ -10,7 +10,7 @@ export function useTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
   const query = useApiQuery({
     queryKey: queryKeys.teams.profile(tournament_id, team_id),
     queryFn: () => getTeamProfile({ tournament_id, team_id }),
-    staleTime: QUERY_STALE_TIMES.teamProfile,
+    staleTime: QUERY_STALE_TIMES.teams,
     errorMessages: {
       notFound: 'Team was not found.',
       generic: 'Failed to load team profile.',
