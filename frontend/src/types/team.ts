@@ -8,6 +8,10 @@ export interface TeamSummary {
   logo_url: string | null;
 }
 
+export interface TeamPageProps {
+  teamId: number;
+}
+
 export interface TournamentTeamOptions {
   tournament_id: number;
   team_id: number;
