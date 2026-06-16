@@ -16,7 +16,7 @@ from app.constants.external_apis import (
     API_EVENT_TYPE_VAR,
     API_FOOTBALL_EVENTS_ENDPOINT,
 )
-from app.models.match_event import EventType
+from app.models.enums import EventType
 from app.models.refresh_job import JobName
 from app.schemas.match_events import MatchEventRefreshRow
 from app.utils.refresh_summary import RefreshSummary

@@ -1,22 +1,10 @@
-import enum
-
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.enums import EventType
+
 from .base import Base, TimestampMixin
-
-
-class EventType(str, enum.Enum):
-    GOAL = "goal"
-    OWN_GOAL = "own_goal"
-    PENALTY_GOAL = "penalty_goal"
-    PENALTY_MISS = "penalty_miss"
-    YELLOW_CARD = "yellow_card"
-    RED_CARD = "red_card"
-    SUBSTITUTION = "substitution"
-    VAR = "var"
-    OTHER = "other"
 
 
 class MatchEvent(TimestampMixin, Base):

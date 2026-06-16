@@ -18,3 +18,15 @@ class StageType(str, enum.Enum):
     THIRD_PLACE = "third_place"
     FINAL = "final"
     OTHER = "other"
+
+
+class EventType(str, enum.Enum):
+    GOAL = "goal"
+    OWN_GOAL = "own_goal"
+    PENALTY_GOAL = "penalty_goal"
+    PENALTY_MISS = "penalty_miss"
+    YELLOW_CARD = "yellow_card"
+    RED_CARD = "red_card"
+    SUBSTITUTION = "substitution"
+    VAR = "var"
+    OTHER = "other"
