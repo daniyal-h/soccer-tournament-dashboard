@@ -1,4 +1,4 @@
-import type { TeamMatches, TeamProfile, TeamProfileOptions, TeamSummary } from '@/types/team';
+import type { TeamMatches, TeamProfile, TeamSummary, TournamentTeamOptions } from '@/types/team';
 
 import { apiGet } from './client';
 import { isMatchesResponse } from './matchesApi';
@@ -37,7 +37,7 @@ function isTeamMatchesResponse(value: unknown): value is TeamMatches {
   return isMatchesResponse(value);
 }
 
-export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
+export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/profile`;
 
   const data = await apiGet<TeamProfile>(path);
@@ -49,7 +49,7 @@ export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOpti
   return data;
 }
 
-export async function getTeamMatches({ tournament_id, team_id }: TeamProfileOptions) {
+export async function getTeamMatches({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/matches`;
 
   const data = await apiGet<TeamMatches>(path);
