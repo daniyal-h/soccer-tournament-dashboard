@@ -16,9 +16,10 @@ import { getMatchMetaDisplay, getWinnerSide } from '@/utils/matches/matchCardHel
 
 interface MatchCardProps {
   match: Match;
+  variant?: 'default' | 'nested';
 }
 
-const MatchCard = ({ match }: MatchCardProps) => {
+const MatchCard = ({ match, variant = 'default' }: MatchCardProps) => {
   const winner = getWinnerSide(match);
 
   return (
@@ -28,7 +29,14 @@ const MatchCard = ({ match }: MatchCardProps) => {
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >
-      <Card className="relative w-full cursor-pointer shadow-sm transition-all hover:bg-accent hover:shadow-md active:scale-[0.98] active:bg-accent">
+      <Card
+        className={cn(
+          'relative w-full cursor-pointer shadow-sm transition-all active:scale-[0.98]',
+          variant === 'default' && 'hover:bg-accent hover:shadow-md active:bg-accent',
+          variant === 'nested' &&
+            'bg-background/70 shadow-none hover:bg-background hover:shadow-sm active:bg-background',
+        )}
+      >
         <CardContent className="min-w-0 space-y-3 p-4">
           <div className="flex flex-col items-center gap-4">
             {/* match status badge */}
@@ -89,7 +97,6 @@ const MatchCard = ({ match }: MatchCardProps) => {
             </p>
           </div>
         </CardContent>
-
         {/* Affordance for clickability */}
         <ChevronRight className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
       </Card>
