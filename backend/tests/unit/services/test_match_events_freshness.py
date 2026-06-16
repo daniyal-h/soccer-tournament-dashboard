@@ -5,8 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services.freshness import match_events as match_events_freshness
-from app.models.enums import StatusType
-from app.models.refresh_job import JobName, JobStatus
+from app.models.enums import JobName, JobStatus, StatusType
 
 NOW = datetime(2026, 6, 7, 12, 0, tzinfo=UTC)
 

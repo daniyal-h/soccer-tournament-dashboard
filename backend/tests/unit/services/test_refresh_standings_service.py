@@ -5,6 +5,7 @@ import pytest
 
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.constants.external_apis import API_FOOTBALL_STANDINGS_ENDPOINT
+from app.models.enums import JobName
 from app.models.tournament import Tournament
 
 
@@ -304,7 +305,7 @@ def test_refresh_standings_marks_job_failed_and_reraises_when_command_fails(mock
     with pytest.raises(RuntimeError, match="tournament lookup failed"):
         refresh_standings_service.refresh_standings(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_standings_service.JobName.STANDINGS_REFRESH)
+    create_job.assert_called_once_with(db, JobName.STANDINGS_REFRESH)
     complete_job.assert_called_once_with(db, 456, success=False)
     get_standings.assert_not_called()
     update_standings.assert_not_called()
@@ -367,7 +368,7 @@ def test_refresh_standings_updates_each_tournament_and_returns_success_summary(m
 
     create_job.assert_called_once_with(
         db,
-        refresh_standings_service.JobName.STANDINGS_REFRESH,
+        JobName.STANDINGS_REFRESH,
     )
     complete_job.assert_called_once_with(db, 123, success=True)
 

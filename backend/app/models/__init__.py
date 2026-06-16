@@ -1,11 +1,11 @@
 from .base import Base, TimestampMixin
 from .cache_entry import CacheEntry
-from .enums import EventType, StatusType
+from .enums import EventType, JobStatus, StatusType
 from .match import Match
 from .match_event import MatchEvent
 from .player_stat import PlayerStat
 from .players import Player
-from .refresh_job import JobStatus, RefreshJob
+from .refresh_job import RefreshJob
 from .standing import Standing
 from .team import Team, TeamType
 from .team_player import PositionType, TeamPlayer

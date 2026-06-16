@@ -4,8 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
-from app.models.enums import EventType
-from app.models.refresh_job import JobName
+from app.models.enums import EventType, JobName
 
 
 @pytest.fixture

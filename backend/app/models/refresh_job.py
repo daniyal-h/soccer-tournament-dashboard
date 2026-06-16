@@ -1,25 +1,12 @@
-import enum
 from datetime import datetime
 
 from sqlalchemy import DateTime, Index, Integer
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.models.enums import JobName, JobStatus
+
 from .base import Base
-
-
-class JobName(str, enum.Enum):
-    STANDINGS_REFRESH = "standings_refresh"
-    MATCHES_REFRESH = "matches_refresh"
-    MATCH_EVENTS_REFRESH = "match_events_refresh"
-    TEAM_RANKINGS_REFRESH = "team_rankings_refresh"
-    PLAYER_STATS_REFRESH = "player_stats_refresh"
-
-
-class JobStatus(str, enum.Enum):
-    RUNNING = "running"
-    SUCCESS = "success"
-    FAILED = "failed"
 
 
 class RefreshJob(Base):

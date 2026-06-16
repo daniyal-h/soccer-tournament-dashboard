@@ -5,6 +5,7 @@ import pytest
 
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.constants.external_apis import API_FOOTBALL_FIXTURES_ENDPOINT
+from app.models.enums import JobName
 from app.models.tournament import Tournament
 
 
@@ -341,7 +342,7 @@ def test_refresh_matches_updates_each_tournament_and_returns_success_summary(moc
 
     result = refresh_matches_service.refresh_matches(db, margin_days=7)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 123, success=True)
     get_refreshable_tournaments.assert_called_once_with(db, 7)
     assert fetch_matches.call_args_list == [
@@ -383,7 +384,7 @@ def test_refresh_matches_skips_tournament_when_api_returns_no_rows(mocker):
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 123, success=True)
     update_matches.assert_not_called()
 
@@ -453,7 +454,7 @@ def test_refresh_matches_records_fetch_failure_and_continues_with_next_tournamen
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 123, success=False)
     assert fetch_matches.call_args_list == [
         mocker.call(failing_tournament),
@@ -500,7 +501,7 @@ def test_refresh_matches_records_update_failure_and_does_not_mark_refreshed(mock
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 123, success=False)
     update_matches.assert_called_once_with(db, 1, rows)
 
@@ -539,7 +540,7 @@ def test_refresh_matches_returns_empty_summary_when_no_tournaments_are_refreshab
 
     result = refresh_matches_service.refresh_matches(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 123, success=True)
     fetch_matches.assert_not_called()
     update_matches.assert_not_called()
@@ -573,7 +574,7 @@ def test_refresh_matches_marks_job_failed_and_reraises_when_command_fails(mocker
     with pytest.raises(RuntimeError, match="tournament lookup failed"):
         refresh_matches_service.refresh_matches(db, margin_days=1)
 
-    create_job.assert_called_once_with(db, refresh_matches_service.JobName.MATCHES_REFRESH)
+    create_job.assert_called_once_with(db, JobName.MATCHES_REFRESH)
     complete_job.assert_called_once_with(db, 456, success=False)
     fetch_matches.assert_not_called()
     update_matches.assert_not_called()

@@ -2,7 +2,8 @@ from datetime import UTC, datetime
 
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.constants.jobs import JobName
-from app.models.refresh_job import JobStatus, RefreshJob
+from app.models.enums import JobStatus
+from app.models.refresh_job import RefreshJob
 
 
 def test_create_job_inserts_running_row(db_session):
