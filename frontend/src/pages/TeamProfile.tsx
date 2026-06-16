@@ -5,18 +5,16 @@ import ErrorState from '@/components/feedback/ErrorState';
 import TeamProfileContent from '@/components/teamProfile/TeamProfileContent';
 import { Button } from '@/components/ui/button';
 
+import type { LocationState } from '@/types/navbar';
+
 import { ROUTES } from '@/constants/navigation';
 
 import { getBackLabel } from '@/utils/navigationHelper';
 
-interface TeamProfileLocationState {
-  from?: unknown;
-}
-
 const TeamProfile = () => {
   const location = useLocation();
 
-  const state = location.state as TeamProfileLocationState | null;
+  const state = location.state as LocationState | null;
 
   const navigate = useNavigate();
   const from = typeof state?.from === 'string' ? state.from : ROUTES.TEAMS;

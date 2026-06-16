@@ -8,3 +8,7 @@ export interface NavProps {
 }
 
 export type Theme = 'light' | 'dark';
+
+export interface LocationState {
+  from?: unknown;
+}
