@@ -1,4 +1,8 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, computed_field
+
+from app.models.enums import StageType, StatusType
 
 
 class TeamSummary(BaseModel):
@@ -34,3 +38,22 @@ class StandingsStats(BaseModel):
 
 class TeamStandingsSummary(StandingsStats):
     group: str
+
+
+class MatchSummary(BaseModel):
+    id: int
+    team_a: TeamSummary
+    team_b: TeamSummary
+    kickoff_time: datetime
+    stage: StageType
+    group: str | None = None
+    status: StatusType
+    venue: str | None = None
+    city: str | None = None
+    elapsed: int | None = None
+    team_a_score: int | None = None
+    team_b_score: int | None = None
+    team_a_penalties: int | None = None
+    team_b_penalties: int | None = None
+
+    model_config = ConfigDict(from_attributes=True)

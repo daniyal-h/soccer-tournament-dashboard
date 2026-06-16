@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.schemas.common import TeamStandingsSummary, TeamSummary
+from app.schemas.common import MatchSummary, TeamStandingsSummary, TeamSummary
 
 
 class TeamProfileResponse(BaseModel):
@@ -9,3 +9,7 @@ class TeamProfileResponse(BaseModel):
     standing: TeamStandingsSummary | None = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class TeamMatchesResponse(BaseModel):
+    data: list[MatchSummary]
