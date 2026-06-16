@@ -2,8 +2,8 @@ from datetime import UTC, date, datetime, timedelta
 
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.constants.external_apis import API_FOOTBALL_EVENTS_ENDPOINT
-from app.models.enums import StatusType
-from app.models.match import Match, StageType
+from app.models.enums import StageType, StatusType
+from app.models.match import Match
 from app.models.match_event import EventType, MatchEvent
 from app.models.players import Player
 from app.models.refresh_job import JobStatus, RefreshJob

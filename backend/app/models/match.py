@@ -1,25 +1,13 @@
-import enum
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, Integer, String
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.enums import StatusType
+from app.models.enums import StageType, StatusType
 
 from .base import Base, TimestampMixin
 from .team import Team
-
-
-class StageType(str, enum.Enum):
-    GROUP = "group"
-    ROUND_OF_32 = "round_of_32"
-    ROUND_OF_16 = "round_of_16"
-    QUARTER_FINAL = "quarter_final"
-    SEMI_FINAL = "semi_final"
-    THIRD_PLACE = "third_place"
-    FINAL = "final"
-    OTHER = "other"
 
 
 class Match(TimestampMixin, Base):

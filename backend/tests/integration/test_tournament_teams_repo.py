@@ -3,7 +3,7 @@ from datetime import date
 import pytest
 
 from app.api.v1.repositories import tournament_teams as tournament_teams_repo
-from app.models.match import StageType
+from app.models.enums import StageType
 from app.models.team import Team
 from app.models.tournament import Tournament
 from app.models.tournament_team import TournamentTeam

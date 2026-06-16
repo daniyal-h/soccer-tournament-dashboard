@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from app.models.match import StageType
+from app.models.enums import StageType
 from app.schemas.common import TeamSummary
 
 

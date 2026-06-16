@@ -3,8 +3,8 @@ from datetime import date, datetime, timezone
 import pytest
 
 from app.api.v1.repositories import matches as matches_repo
-from app.models.enums import StatusType
-from app.models.match import Match, StageType
+from app.models.enums import StageType, StatusType
+from app.models.match import Match
 from app.models.team import Team, TeamType
 from app.models.tournament import Tournament
 

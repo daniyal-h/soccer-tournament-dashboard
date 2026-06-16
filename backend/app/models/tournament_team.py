@@ -2,7 +2,7 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, Index, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.match import StageType
+from app.models.enums import StageType
 from app.models.team import Team
 
 from .base import Base

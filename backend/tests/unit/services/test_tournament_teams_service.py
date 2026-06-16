@@ -5,7 +5,7 @@ import pytest
 
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.constants.team_rankings import STAGE_SORT_ORDER
-from app.models.match import StageType
+from app.models.enums import StageType
 from app.schemas.errors import NotFoundError
 from app.schemas.tournament_teams import TeamRankingRefreshRow
 
