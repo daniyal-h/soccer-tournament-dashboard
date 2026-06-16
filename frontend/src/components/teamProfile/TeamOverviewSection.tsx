@@ -18,6 +18,7 @@ const TeamOverviewSection = ({ teamId }: TeamPageProps) => {
     team_id: teamId,
   });
 
+  // handle loading and error states
   if (isLoading) {
     return <TeamProfileSkeleton />;
   }
@@ -36,6 +37,7 @@ const TeamOverviewSection = ({ teamId }: TeamPageProps) => {
     return <ErrorState title="Profile Unavailable" description="Team profile not found." />;
   }
 
+  // return the header and standings if available
   return (
     <>
       <TeamProfileHeader teamProfile={teamProfile} />
