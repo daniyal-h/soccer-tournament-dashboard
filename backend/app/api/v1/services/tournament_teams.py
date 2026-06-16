@@ -45,6 +45,15 @@ def get_tournament_team(db: Session, tournament_id: int, team_id: int):
     return tournament_team
 
 
+# raises error for team not found in tournament
+def validate_team_in_tournament(
+    db: Session,
+    tournament_id: int,
+    team_id: int,
+) -> None:
+    get_tournament_team(db, tournament_id, team_id)
+
+
 def get_tournament_teams(db: Session, tournament_id: int) -> list[TournamentTeam]:
     tournament_teams = tournament_teams_repo.get_teams_in_tournament(db, tournament_id)
 
