@@ -78,7 +78,7 @@ def get_team_profile(
     return teams_service.get_team_profile(db, tournament_id, team_id)
 
 
-@router.get("{tournament_id}/teams/{team_id}/matches", response_model=TeamMatchesResponse)
+@router.get("/{tournament_id}/teams/{team_id}/matches", response_model=TeamMatchesResponse)
 @limiter.limit("60/minute")
 def get_team_matches(
     request: Request,
@@ -93,7 +93,7 @@ def get_team_matches(
     return teams_service.get_team_matches(db, tournament_id, team_id)
 
 
-@router.get("{tournament_id}/teams/{team_id}/squad")
+@router.get("/{tournament_id}/teams/{team_id}/squad")
 @limiter.limit("60/minute")
 def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
     return {"message": "not yet implemented"}
