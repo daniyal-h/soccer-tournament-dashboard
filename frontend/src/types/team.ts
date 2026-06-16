@@ -1,3 +1,4 @@
+import type { Match } from './match';
 import type { StandingStats } from './standing';
 
 export interface TeamSummary {
@@ -16,4 +17,8 @@ export interface TeamProfile {
   team: TeamSummary;
   group: string;
   standing: StandingStats | null;
+}
+
+export interface TeamMatches {
+  matches: Match[];
 }

@@ -28,7 +28,7 @@ function isMatch(value: unknown): value is Match {
   );
 }
 
-function isMatchesResponse(value: unknown): value is Match[] {
+export function isMatchesResponse(value: unknown): value is Match[] {
   return Array.isArray(value) && value.every(isMatch);
 }
 

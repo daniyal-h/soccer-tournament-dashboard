@@ -1,6 +1,7 @@
-import type { TeamProfile, TeamProfileOptions, TeamSummary } from '@/types/team';
+import type { TeamMatches, TeamProfile, TeamProfileOptions, TeamSummary } from '@/types/team';
 
 import { apiGet } from './client';
+import { isMatchesResponse } from './matchesApi';
 import { isStandingStats } from './standingsApi';
 
 export function isTeamSummary(value: unknown): value is TeamSummary {
@@ -32,6 +33,10 @@ function isTeamProfileResponse(value: unknown): value is TeamProfile {
   );
 }
 
+function isTeamMatchesResponse(value: unknown): value is TeamMatches {
+  return isMatchesResponse(value);
+}
+
 export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/profile`;
 
@@ -39,6 +44,18 @@ export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOpti
 
   if (!isTeamProfileResponse(data)) {
     throw new Error('Invalid team profile response');
+  }
+
+  return data;
+}
+
+export async function getTeamMatches({ tournament_id, team_id }: TeamProfileOptions) {
+  const path = `/tournaments/${tournament_id}/teams/${team_id}/matches`;
+
+  const data = await apiGet<TeamMatches>(path);
+
+  if (!isTeamMatchesResponse(data)) {
+    throw new Error('Invalid team matches response');
   }
 
   return data;
