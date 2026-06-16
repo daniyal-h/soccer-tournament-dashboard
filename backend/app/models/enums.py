@@ -44,3 +44,10 @@ class JobStatus(str, enum.Enum):
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
+
+
+class PositionType(str, enum.Enum):
+    GK = "GK"
+    DEF = "DEF"
+    MID = "MID"
+    FWD = "FWD"
