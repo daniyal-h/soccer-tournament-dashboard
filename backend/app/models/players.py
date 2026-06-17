@@ -18,11 +18,11 @@ class Player(TimestampMixin, Base):
     first_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
-    date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
+    date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
 
     photo_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    nationality: Mapped[str] = mapped_column(String(100), nullable=True)
+    nationality: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     height: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
