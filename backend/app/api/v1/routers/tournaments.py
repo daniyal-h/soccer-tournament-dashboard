@@ -95,5 +95,14 @@ def get_team_matches(
 
 @router.get("/{tournament_id}/teams/{team_id}/squad")
 @limiter.limit("60/minute")
-def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
-    return {"message": "not yet implemented"}
+def get_team_squad(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+    team_id: Annotated[int, Path(gt=0)],
+):
+    """
+    Return all the players as a squad in the specified team and tournament.
+    """
+
+    return teams_service.get_team_squad(db, tournament_id, team_id)
