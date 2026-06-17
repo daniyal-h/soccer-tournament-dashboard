@@ -33,7 +33,6 @@ export interface TeamMatches {
 
 export type MatchFormResult = 'W' | 'D' | 'L';
 
-
 export interface TeamMatchStageGroup extends TeamMatches {
   stage: MatchStage;
   label: string;
