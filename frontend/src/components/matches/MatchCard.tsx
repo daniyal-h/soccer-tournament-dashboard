@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 import MatchCenter from './MatchCenter';
 import MatchStatusBadge from './MatchStatusBadge';
+import ResponsiveTeamName from './ResponsiveTeamName';
 
 import { getMatchMetaDisplay, getWinnerSide } from '@/utils/matches/matchCardHelper';
 
@@ -47,15 +48,14 @@ const MatchCard = ({ match, variant = 'default', from = ROUTES.SCHEDULE }: Match
             <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center">
               {/* team A details */}
               <div className="flex items-center justify-end gap-2 pl-8 min-w-0">
-                <span
+                <ResponsiveTeamName
+                  name={match.team_a.name}
+                  shortName={match.team_a.short_name}
                   className={cn(
                     winner === 'team_a' && 'font-semibold',
                     winner && winner !== 'team_a' && 'text-muted-foreground',
-                    'truncate',
                   )}
-                >
-                  {match.team_a.name}
-                </span>
+                />
 
                 {match.team_a.logo_url && (
                   <img
@@ -80,15 +80,14 @@ const MatchCard = ({ match, variant = 'default', from = ROUTES.SCHEDULE }: Match
                     className="h-6 w-6 shrink-0 object-contain"
                   />
                 )}
-                <span
+                <ResponsiveTeamName
+                  name={match.team_b.name}
+                  shortName={match.team_b.short_name}
                   className={cn(
                     winner === 'team_b' && 'font-semibold',
                     winner && winner !== 'team_b' && 'text-muted-foreground',
-                    'truncate',
                   )}
-                >
-                  {match.team_b.name}
-                </span>
+                />
               </div>
             </div>
 
