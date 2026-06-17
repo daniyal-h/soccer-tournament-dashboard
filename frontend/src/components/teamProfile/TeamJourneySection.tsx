@@ -11,6 +11,7 @@ import ErrorState from '../feedback/ErrorState';
 import { Accordion } from '../ui/accordion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import RecentForm from './teamJourney/RecentForm';
+import TeamJourneySkeleton from './teamJourney/TeamJourneySkeleton';
 import TeamMatchStageAccordion from './teamJourney/TeamMatchStageAccordion';
 
 import { getRecentForm } from '@/utils/teams/teamMatchesHelper';
@@ -27,7 +28,7 @@ const TeamJourneySection = ({ teamId }: TeamPageProps) => {
   // handle loading, error and empty states
 
   if (isLoading) {
-    return <div>Loading...</div>; // TODO: add skeleton
+    return <TeamJourneySkeleton />;
   }
 
   if (error) {
@@ -40,12 +41,12 @@ const TeamJourneySection = ({ teamId }: TeamPageProps) => {
     );
   }
 
-  // get the recent form data
-  const recentForm = getRecentForm(lastFiveMatches, teamId);
-
   if (emptyState) {
     return <EmptyState title="Matches Unavailable" description={emptyState} />;
   }
+
+  // get the recent form data
+  const recentForm = getRecentForm(lastFiveMatches, teamId);
 
   return (
     <Card className="shadow-sm">
@@ -56,7 +57,7 @@ const TeamJourneySection = ({ teamId }: TeamPageProps) => {
 
       <CardContent className="space-y-6">
         <RecentForm form={recentForm} />
-        
+
         <Separator />
 
         <Accordion type="multiple">
