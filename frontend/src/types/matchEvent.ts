@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 
 import type { ResponseMetadata } from './metadata';
-import type { Player } from './player';
+import type { PlayerSummary } from './player';
 import type { TeamSummary } from './team';
 
 export type EventType =
@@ -17,8 +17,8 @@ export type EventType =
 
 export interface MatchEvent {
   team: TeamSummary;
-  player: Player | null;
-  secondary_player: Player | null;
+  player: PlayerSummary | null;
+  secondary_player: PlayerSummary | null;
   player_name: string | null;
   secondary_player_name: string | null;
   player_external_id: number | null;

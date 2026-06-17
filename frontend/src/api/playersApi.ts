@@ -1,11 +1,11 @@
-import type { Player } from '@/types/player';
+import type { PlayerSummary } from '@/types/player';
 
-export function isPlayerSummary(value: unknown): value is Player {
+export function isPlayerSummary(value: unknown): value is PlayerSummary {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
-  const player = value as Player;
+  const player = value as PlayerSummary;
 
   return (
     typeof player.id === 'number' &&
