@@ -50,6 +50,7 @@ def test_refresh_match_events_endpoint_fetches_and_persists_rows(
 
     player = Player(
         external_api_id=1001,
+        display_name="J. David",
         first_name="Jonathan",
         last_name="David",
         date_of_birth=date(2000, 1, 14),
@@ -60,6 +61,7 @@ def test_refresh_match_events_endpoint_fetches_and_persists_rows(
 
     assist_player = Player(
         external_api_id=1002,
+        display_name="A. Davies",
         first_name="Alphonso",
         last_name="Davies",
         date_of_birth=date(2000, 11, 2),
