@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiGet } from './client';
-import { getTeamProfile, isTeamSummary } from './teamsApi';
+import { getTeamMatches, getTeamProfile, isTeamSummary } from './teamsApi';
 
 vi.mock('./client', () => ({
   apiGet: vi.fn(),
@@ -41,6 +41,36 @@ const validTeamProfile = {
   team: validTeamSummary,
   group: 'B',
   standing: validStandingStats,
+};
+
+const validMatch = {
+  id: 100,
+  team_a: validTeamSummary,
+  team_b: {
+    id: 2,
+    name: 'Brazil',
+    short_name: 'BRA',
+    logo_url: 'https://example.com/brazil.png',
+  },
+  kickoff_time: '2026-06-12T20:00:00Z',
+  stage: 'group',
+  group: 'B',
+  status: 'scheduled',
+  venue: 'BC Place',
+  city: 'Vancouver',
+  elapsed: null,
+  team_a_score: null,
+  team_b_score: null,
+  team_a_penalties: null,
+  team_b_penalties: null,
+};
+
+const validTeamMatchesApiResponse = {
+  data: [validMatch],
+};
+
+const validTeamMatches = {
+  matches: [validMatch],
 };
 
 describe('isTeam', () => {
@@ -314,6 +344,196 @@ describe('getTeamProfile', () => {
 
     await expect(
       getTeamProfile({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Network failed');
+  });
+});
+
+describe('getTeamMatches', () => {
+  beforeEach(() => {
+    mockedApiGet.mockReset();
+  });
+
+  it('fetches team matches using the tournament and team ids', async () => {
+    mockedApiGet.mockResolvedValueOnce(validTeamMatchesApiResponse);
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual(validTeamMatches);
+
+    expect(mockedApiGet).toHaveBeenCalledTimes(1);
+    expect(mockedApiGet).toHaveBeenCalledWith('/tournaments/12/teams/34/matches');
+  });
+
+  it('unwraps the api data envelope into matches', async () => {
+    const secondMatch = {
+      ...validMatch,
+      id: 101,
+      team_a_score: 2,
+      team_b_score: 1,
+      status: 'finished',
+    };
+
+    mockedApiGet.mockResolvedValueOnce({
+      data: [validMatch, secondMatch],
+    });
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual({
+      matches: [validMatch, secondMatch],
+    });
+  });
+
+  it('allows an empty matches list', async () => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [],
+    });
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual({
+      matches: [],
+    });
+  });
+
+  it.each([null, undefined, 'matches', 1, true, []])(
+    'rejects non-team-matches response %#',
+    async (response) => {
+      mockedApiGet.mockResolvedValueOnce(response);
+
+      await expect(
+        getTeamMatches({
+          tournament_id: 12,
+          team_id: 34,
+        }),
+      ).rejects.toThrow('Invalid team matches response');
+    },
+  );
+
+  it('rejects response with missing data property', async () => {
+    mockedApiGet.mockResolvedValueOnce({});
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team matches response');
+  });
+
+  it.each([null, undefined, {}, 'not-array', 123, true])(
+    'rejects response with invalid data %#',
+    async (data) => {
+      mockedApiGet.mockResolvedValueOnce({
+        data,
+      });
+
+      await expect(
+        getTeamMatches({
+          tournament_id: 12,
+          team_id: 34,
+        }),
+      ).rejects.toThrow('Invalid team matches response');
+    },
+  );
+
+  it('rejects response when one match is invalid', async () => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [
+        validMatch,
+        {
+          ...validMatch,
+          id: '101',
+        },
+      ],
+    });
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team matches response');
+  });
+
+  it.each([
+    ['id', '100'],
+    ['team_a', null],
+    ['team_b', undefined],
+    ['kickoff_time', null],
+    ['stage', null],
+    ['status', 123],
+    ['group', 123],
+    ['venue', 123],
+    ['city', 123],
+    ['elapsed', '90'],
+    ['team_a_score', '1'],
+    ['team_b_score', '0'],
+    ['team_a_penalties', '5'],
+    ['team_b_penalties', '4'],
+  ])('rejects match with invalid %s', async (key, value) => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [
+        {
+          ...validMatch,
+          [key]: value,
+        },
+      ],
+    });
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team matches response');
+  });
+
+  it.each([
+    'id',
+    'team_a',
+    'team_b',
+    'kickoff_time',
+    'stage',
+    'status',
+    'group',
+    'venue',
+    'city',
+    'elapsed',
+    'team_a_score',
+    'team_b_score',
+    'team_a_penalties',
+    'team_b_penalties',
+  ] as const)('rejects match with missing %s', async (key) => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [omitKey(validMatch, key)],
+    });
+
+    await expect(
+      getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team matches response');
+  });
+
+  it('does not swallow api errors', async () => {
+    mockedApiGet.mockRejectedValueOnce(new Error('Network failed'));
+
+    await expect(
+      getTeamMatches({
         tournament_id: 12,
         team_id: 34,
       }),
