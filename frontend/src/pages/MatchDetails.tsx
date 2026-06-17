@@ -18,7 +18,7 @@ const MatchDetails = () => {
   const state = location.state as LocationState | null;
 
   const navigate = useNavigate();
-  const from = typeof state?.from === 'string' ? state.from : ROUTES.TEAMS;
+  const from = typeof state?.from === 'string' ? state.from : ROUTES.SCHEDULE;
   const backLabel = getBackLabel(from);
 
   useEffect(() => {

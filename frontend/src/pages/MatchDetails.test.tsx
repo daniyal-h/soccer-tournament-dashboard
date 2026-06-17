@@ -75,7 +75,7 @@ describe('MatchDetails', () => {
   it('navigates back to the route stored in location state when provided', () => {
     renderMatchDetails([{ pathname: '/matches/12', state: { from: '/custom-return' } }]);
 
-    fireEvent.click(screen.getByRole('button', { name: /back to schedule/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Previous Page' }));
 
     expect(screen.getByTestId('location-pathname')).toHaveTextContent('/custom-return');
   });
@@ -101,7 +101,7 @@ describe('MatchDetails', () => {
       { pathname: '/matches/12', state: { from: '/custom-return' } },
     ]);
 
-    fireEvent.click(screen.getByRole('button', { name: /back to schedule/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Previous Page' }));
 
     expect(screen.getByTestId('location-pathname')).toHaveTextContent('/custom-return');
   });
@@ -114,7 +114,7 @@ describe('MatchDetails', () => {
 
     renderMatchDetails([{ pathname: '/matches/12', state: { from: '/custom-return' } }]);
 
-    fireEvent.click(screen.getByRole('button', { name: /back to schedule/i }));
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Previous Page' }));
 
     expect(screen.getByTestId('location-pathname')).toHaveTextContent('/custom-return');
   });
