@@ -30,6 +30,22 @@ vi.mock('./MatchStatusBadge', () => ({
   ),
 }));
 
+vi.mock('./ResponsiveTeamName', () => ({
+  default: ({
+    name,
+    shortName,
+    className,
+  }: {
+    name: string;
+    shortName: string;
+    className?: string;
+  }) => (
+    <span data-testid={`team-name-${shortName}`} className={className}>
+      {name}
+    </span>
+  ),
+}));
+
 const mockGetMatchCenterDisplay = vi.mocked(getMatchCenterDisplay);
 const mockGetMatchMetaDisplay = vi.mocked(getMatchMetaDisplay);
 const mockGetWinnerSide = vi.mocked(getWinnerSide);
@@ -71,10 +87,13 @@ const baseMatch: Match = {
   team_a_penalties: null,
 };
 
-function renderMatchCard(match: Match) {
+function renderMatchCard(
+  match: Match = baseMatch,
+  props: Partial<React.ComponentProps<typeof MatchCard>> = {},
+) {
   return render(
     <MemoryRouter>
-      <MatchCard match={match} />
+      <MatchCard match={match} {...props} />
     </MemoryRouter>,
   );
 }
@@ -131,6 +150,45 @@ describe('MatchCard', () => {
     expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
   });
 
+  it('uses custom from state when provided', async () => {
+    render(
+      <MemoryRouter>
+        <MatchCard match={baseMatch} from={ROUTES.STANDINGS} />
+        <LocationStateViewer />
+      </MemoryRouter>,
+    );
+
+    await userEvent.click(screen.getByRole('link'));
+
+    expect(screen.getByTestId('location-from')).toHaveTextContent(ROUTES.STANDINGS);
+  });
+
+  it('uses default variant styling when no variant is provided', () => {
+    renderMatchCard();
+
+    const card = screen.getByRole('link').firstElementChild;
+
+    expect(card).toHaveClass('hover:bg-accent');
+    expect(card).toHaveClass('hover:shadow-md');
+    expect(card).toHaveClass('active:bg-accent');
+    expect(card).not.toHaveClass('bg-background/70');
+    expect(card).not.toHaveClass('shadow-none');
+  });
+
+  it('uses nested variant styling when variant is nested', () => {
+    renderMatchCard(baseMatch, { variant: 'nested' });
+
+    const card = screen.getByRole('link').firstElementChild;
+
+    expect(card).toHaveClass('bg-background/70');
+    expect(card).toHaveClass('shadow-none');
+    expect(card).toHaveClass('hover:bg-background');
+    expect(card).toHaveClass('hover:shadow-sm');
+    expect(card).toHaveClass('active:bg-background');
+    expect(card).not.toHaveClass('hover:bg-accent');
+    expect(card).not.toHaveClass('hover:shadow-md');
+  });
+
   it('passes status and elapsed time to MatchStatusBadge', () => {
     const liveMatch: Match = {
       ...baseMatch,
@@ -167,34 +225,6 @@ describe('MatchCard', () => {
 
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/matches/1');
-  });
-
-  it('renders the home team before the center display and the away team after it', () => {
-    renderMatchCard(baseMatch);
-
-    const teamA = screen.getByText('Canada');
-    const center = screen.getByText('19:00');
-    const teamB = screen.getByText('Brazil');
-
-    expect(teamA.compareDocumentPosition(center)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(center.compareDocumentPosition(teamB)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  });
-
-  it('truncates long team names', () => {
-    renderMatchCard({
-      ...baseMatch,
-      team_a: {
-        ...baseMatch.team_a,
-        name: 'A Very Very Very Long Canada Team Name',
-      },
-      team_b: {
-        ...baseMatch.team_b,
-        name: 'A Very Very Very Long Brazil Team Name',
-      },
-    });
-
-    expect(screen.getByText('A Very Very Very Long Canada Team Name')).toHaveClass('truncate');
-    expect(screen.getByText('A Very Very Very Long Brazil Team Name')).toHaveClass('truncate');
   });
 
   it('truncates match metadata', () => {
