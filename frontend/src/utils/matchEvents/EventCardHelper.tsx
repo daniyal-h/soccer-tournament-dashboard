@@ -18,7 +18,7 @@ export function getPlayerName(event: MatchEvent) {
     return event.player_name;
   }
 
-  return `${event.player?.first_name ?? ''} ${event.player?.last_name ?? ''}`.trim();
+  return event.player?.display_name.trim();
 }
 
 export function getSecondaryPlayerName(event: MatchEvent) {
