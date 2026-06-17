@@ -55,6 +55,20 @@ $seedFiles = @(
     "database/scripts/seeds/static/africa-cup-of-nations-2025/04-matches.sql",
     "database/scripts/seeds/static/club-world-cup-2025/04-matches.sql",
 
+    # players
+    "database/scripts/seeds/static/world-cup-2022/05-players.sql",
+    "database/scripts/seeds/static/euro-2024/05-players.sql",
+    "database/scripts/seeds/static/copa-america-2024/05-players.sql",
+    "database/scripts/seeds/static/africa-cup-of-nations-2025/05-players.sql",
+    "database/scripts/seeds/static/club-world-cup-2025/05-players.sql",
+
+    # team players
+    "database/scripts/seeds/static/world-cup-2022/06-team-players.sql",
+    "database/scripts/seeds/static/euro-2024/06-team-players.sql",
+    "database/scripts/seeds/static/copa-america-2024/06-team-players.sql",
+    "database/scripts/seeds/static/africa-cup-of-nations-2025/06-team-players.sql",
+    "database/scripts/seeds/static/club-world-cup-2025/06-team-players.sql",
+
     # match events
     "database/scripts/seeds/static/world-cup-2022/07-match-events.sql",
     "database/scripts/seeds/static/euro-2024/07-match-events.sql",
@@ -73,6 +87,8 @@ $seedFiles = @(
     # intentionally excluding:
     # world-cup-2026/03-standings.sql
     # world-cup-2026/04-matches.sql
+    # world-cup-2026/05-players.sql
+    # world-cup-2026/06-team-players.sql
     # world-cup-2026/07-matches-events.sql
     # world-cup-2026/08-tournament-teams-ranking.sql
 )
