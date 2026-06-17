@@ -109,16 +109,13 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
 
             external_player_id = player.get("id")
 
-            if external_player_id is None:
-                continue
-
             if external_player_id not in players_seen:
                 players_seen.add(external_player_id)
 
-                first_name = player.get("firstname") or ""
-                last_name = (
-                    player.get("lastname") or player.get("name") or "Unknown Player"
-                )
+                display_name = player.get("name") or "Unknown Player"
+
+                first_name = player.get("firstname")
+                last_name = player.get("lastname")
 
                 birth = player.get("birth") or {}
                 birth_date = birth.get("date")
@@ -127,8 +124,9 @@ for _, tournament_api_id, season, _ in SUPPORTED_TOURNAMENTS:
 
                 players_sql.append(
                     f"({external_player_id}, "
-                    f"'{escape_sql(first_name)}', "
-                    f"'{escape_sql(last_name)}', "
+                    f"{nullable_string(display_name)}, "
+                    f"{nullable_string(first_name)}, "
+                    f"{nullable_string(last_name)}, "
                     f"{nullable_date(birth_date)}, "
                     f"{nullable_string(player.get('photo'))}, "
                     f"{nullable_string(player.get('nationality'))}, "
@@ -197,6 +195,7 @@ with open(PLAYERS_OUTPUT, "w", encoding="utf-8") as f:
         f.write(
             "INSERT INTO players (\n"
             "    external_api_id,\n"
+            "    display_name,\n"
             "    first_name,\n"
             "    last_name,\n"
             "    date_of_birth,\n"
@@ -212,8 +211,9 @@ with open(PLAYERS_OUTPUT, "w", encoding="utf-8") as f:
         f.write(
             "\nON CONFLICT (external_api_id)\n"
             "DO UPDATE SET\n"
-            "    first_name = EXCLUDED.first_name,\n"
-            "    last_name = EXCLUDED.last_name,\n"
+            "    display_name = EXCLUDED.display_name,\n"
+            "    first_name = COALESCE(EXCLUDED.first_name, players.first_name),\n"
+            "    last_name = COALESCE(EXCLUDED.last_name, players.last_name),\n"
             "    date_of_birth = COALESCE(EXCLUDED.date_of_birth, players.date_of_birth),\n"
             "    photo_url = COALESCE(EXCLUDED.photo_url, players.photo_url),\n"
             "    nationality = COALESCE(EXCLUDED.nationality, players.nationality),\n"
