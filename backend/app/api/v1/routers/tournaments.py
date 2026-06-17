@@ -12,7 +12,7 @@ from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
-from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse
+from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse, TeamSquadResponse
 from app.schemas.tournament_teams import TournamentTeamResponse
 from app.schemas.tournaments import TournamentResponse
 
@@ -93,7 +93,7 @@ def get_team_matches(
     return teams_service.get_team_matches(db, tournament_id, team_id)
 
 
-@router.get("/{tournament_id}/teams/{team_id}/squad")
+@router.get("/{tournament_id}/teams/{team_id}/squad", response_model=TeamSquadResponse)
 @limiter.limit("60/minute")
 def get_team_squad(
     request: Request,
