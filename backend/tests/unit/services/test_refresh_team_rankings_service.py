@@ -10,7 +10,7 @@ from app.api.v1.services.refresh_team_rankings import (
     get_knockout_match_context,
     get_match_winner_and_loser,
 )
-from app.models.match import StageType, StatusType
+from app.models.enums import StageType, StatusType
 from app.models.standing import Standing
 from app.models.team import Team
 

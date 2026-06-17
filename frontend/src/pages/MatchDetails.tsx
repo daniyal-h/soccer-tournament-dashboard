@@ -6,12 +6,20 @@ import ErrorState from '@/components/feedback/ErrorState';
 import MatchDetailsContent from '@/components/matchEvents/MatchDetailsContent';
 import { Button } from '@/components/ui/button';
 
+import type { LocationState } from '@/types/navbar';
+
 import { ROUTES } from '@/constants/navigation';
+
+import { getBackLabel } from '@/utils/navigationHelper';
 
 const MatchDetails = () => {
   const location = useLocation();
+
+  const state = location.state as LocationState | null;
+
   const navigate = useNavigate();
-  const from = location.state?.from ?? ROUTES.SCHEDULE;
+  const from = typeof state?.from === 'string' ? state.from : ROUTES.SCHEDULE;
+  const backLabel = getBackLabel(from);
 
   useEffect(() => {
     // Always scroll to top when this page mounts or the match changes
@@ -45,7 +53,7 @@ const MatchDetails = () => {
     <div className="flex flex-col gap-4">
       <Button variant="outline" className="w-fit cursor-pointer" onClick={handleBack}>
         <ArrowLeft className="h-4 w-4" />
-        Back to Schedule
+        Back to {backLabel}
       </Button>
 
       <MatchDetailsContent matchId={parsedMatchId} />

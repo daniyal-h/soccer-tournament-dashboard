@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 
 from app.api.v1.services import match_events as match_events_service
-from app.models.match_event import EventType
+from app.models.enums import EventType
 
 
 def make_match(match_id=42):

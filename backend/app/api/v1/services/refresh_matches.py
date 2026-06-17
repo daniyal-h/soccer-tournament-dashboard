@@ -15,7 +15,7 @@ from app.constants.external_apis import (
     POSTPONED_STATUS_SHORT_CODES,
     SCHEDULED_STATUS_SHORT_CODES,
 )
-from app.models.refresh_job import JobName
+from app.models.enums import JobName
 from app.schemas.matches import MatchRefreshRow
 from app.utils.refresh_summary import RefreshSummary
 

@@ -5,7 +5,7 @@ from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.services import standings as standings_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.constants.external_apis import API_FOOTBALL_STANDINGS_ENDPOINT
-from app.models.refresh_job import JobName
+from app.models.enums import JobName
 from app.models.tournament import Tournament
 from app.schemas.standings import StandingRefreshRow
 from app.utils.refresh_summary import RefreshSummary

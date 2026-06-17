@@ -159,10 +159,10 @@ GET /api/v1/tournaments/{tournament_id}/standings
 GET /api/v1/tournaments/{tournament_id}/matches
 GET /api/v1/matches/{match_id}
 GET /api/v1/matches/{match_id}/events
+GET /api/v1/tournaments/{tournament_id}teams/{team_id}
+GET /api/v1/tournaments/{tournament_id}/teams/{team_id}/squad
+GET /api/v1/tournaments/{tournament_id}teams/{team_id}/matches
 GET /api/v1/tournaments/{tournament_id}/player-stats
-GET /api/v1/teams/{team_id}
-GET /api/v1/teams/{team_id}/roster?tournament_id={tournament_id}
-GET /api/v1/teams/{team_id}/matches?tournament_id={tournament_id}
 GET /api/v1/search
 ```
 
@@ -280,14 +280,6 @@ Rules:
 - Live data uses shorter TTLs than scheduled or completed data
 - Refresh jobs invalidate affected cache entries after writing new data
 
-Current cache behaviour:
-
-```txt
-Standings: live 5 minutes, pre-tournament/future data longer, completed data longer
-Matches: live 1 minute, upcoming soon 5 minutes, future 12 hours, completed 1 day
-Match events: live 1 minute, upcoming soon 5 minutes, future 12 hours, completed 1 day
-```
-
 ---
 
 ## Background Refresh Jobs
@@ -317,6 +309,8 @@ Available refresh endpoints:
 ```txt
 POST /api/v1/admin/tournaments/refresh-standings
 POST /api/v1/admin/tournaments/refresh-matches
+POST /api/v1/admin/tournaments/refresh-match-events
+POST /api/v1/admin/tournaments/refresh-team-rankings
 ```
 
 Refresh services:
@@ -325,6 +319,8 @@ Refresh services:
 app/api/v1/services/
   refresh_standings.py
   refresh_matches.py
+  refresh_match_events.py
+  refresh_team_rankings.py
 
 app/api/v1/clients/
   football_api.py
@@ -443,7 +439,17 @@ request_id
 
 ---
 
-## Testing
+## 
+
+Tests cover:
+
+- Service business rules
+- Repository/database queries
+- API response transformations
+- Cache hit and miss behavior
+- Refresh job processing
+- Error handling
+- Security middleware
 
 Run all tests:
 

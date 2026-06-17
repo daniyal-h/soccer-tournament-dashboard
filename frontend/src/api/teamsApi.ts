@@ -1,6 +1,12 @@
-import type { TeamProfile, TeamProfileOptions, TeamSummary } from '@/types/team';
+import type {
+  TeamMatchesApiResponse,
+  TeamProfile,
+  TeamSummary,
+  TournamentTeamOptions,
+} from '@/types/team';
 
 import { apiGet } from './client';
+import { isMatchesResponse } from './matchesApi';
 import { isStandingStats } from './standingsApi';
 
 export function isTeamSummary(value: unknown): value is TeamSummary {
@@ -32,7 +38,17 @@ function isTeamProfileResponse(value: unknown): value is TeamProfile {
   );
 }
 
-export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOptions) {
+function isTeamMatchesResponse(value: unknown): value is TeamMatchesApiResponse {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const response = value as TeamMatchesApiResponse;
+
+  return isMatchesResponse(response.data);
+}
+
+export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/profile`;
 
   const data = await apiGet<TeamProfile>(path);
@@ -42,4 +58,18 @@ export async function getTeamProfile({ tournament_id, team_id }: TeamProfileOpti
   }
 
   return data;
+}
+
+export async function getTeamMatches({ tournament_id, team_id }: TournamentTeamOptions) {
+  const path = `/tournaments/${tournament_id}/teams/${team_id}/matches`;
+
+  const response = await apiGet<TeamMatchesApiResponse>(path);
+
+  if (!isTeamMatchesResponse(response)) {
+    throw new Error('Invalid team matches response');
+  }
+
+  return {
+    matches: response.data,
+  };
 }

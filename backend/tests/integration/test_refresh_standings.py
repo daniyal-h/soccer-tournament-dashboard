@@ -2,7 +2,8 @@ from datetime import date, timedelta
 
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.constants.external_apis import API_FOOTBALL_STANDINGS_ENDPOINT
-from app.models.refresh_job import JobStatus, RefreshJob
+from app.models.enums import JobStatus
+from app.models.refresh_job import RefreshJob
 from app.models.standing import Standing
 from app.models.team import Team, TeamType
 from app.models.tournament import Tournament

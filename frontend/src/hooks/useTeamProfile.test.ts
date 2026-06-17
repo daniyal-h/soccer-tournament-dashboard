@@ -86,7 +86,7 @@ describe('useTeamProfile', () => {
 
     expect(mockedUseApiQuery).toHaveBeenCalledTimes(1);
     expect(options.queryKey).toEqual(queryKeys.teams.profile(12, 34));
-    expect(options.staleTime).toBe(QUERY_STALE_TIMES.teamProfile);
+    expect(options.staleTime).toBe(QUERY_STALE_TIMES.teams);
   });
 
   it('configures team profile specific error messages', () => {

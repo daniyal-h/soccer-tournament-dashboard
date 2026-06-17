@@ -3,7 +3,8 @@ from datetime import UTC, datetime
 from sqlalchemy.orm import Session
 
 from app.constants.jobs import JobName
-from app.models.refresh_job import JobStatus, RefreshJob
+from app.models.enums import JobStatus
+from app.models.refresh_job import RefreshJob
 
 
 # create a RUNNING job and return its ID

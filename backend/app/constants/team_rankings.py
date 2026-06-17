@@ -1,4 +1,4 @@
-from app.models.match import StageType
+from app.models.enums import StageType
 
 KNOCKOUT_STAGES = {
     StageType.ROUND_OF_32,

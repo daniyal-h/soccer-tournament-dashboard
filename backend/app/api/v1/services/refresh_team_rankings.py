@@ -6,8 +6,8 @@ from app.api.v1.repositories import standings as standings_repo
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.constants.team_rankings import KNOCKOUT_STAGES, STAGE_SORT_ORDER
-from app.models.match import Match, StageType, StatusType
-from app.models.refresh_job import JobName
+from app.models.enums import JobName, StageType, StatusType
+from app.models.match import Match
 from app.schemas.tournament_teams import TeamRankingRefreshRow
 from app.utils.refresh_summary import RefreshSummary
 

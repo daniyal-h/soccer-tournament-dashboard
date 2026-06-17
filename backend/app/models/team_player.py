@@ -1,17 +1,10 @@
-import enum
-
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.models.enums import PositionType
+
 from .base import Base
-
-
-class PositionType(str, enum.Enum):
-    GK = "GK"
-    DEF = "DEF"
-    MID = "MID"
-    FWD = "FWD"
 
 
 class TeamPlayer(Base):

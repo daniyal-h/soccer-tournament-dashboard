@@ -1,9 +1,11 @@
 from datetime import datetime, timedelta
 
+from sqlalchemy import or_
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from app.models.match import Match, StatusType
+from app.models.enums import StatusType
+from app.models.match import Match
 
 
 def get_match_by_id(db: Session, match_id: int) -> Match | None:
@@ -14,6 +16,25 @@ def get_matches_by_tournament(db: Session, tournament_id: int) -> list[Match]:
     return (
         db.query(Match)
         .where(Match.tournament_id == tournament_id)
+        .order_by(Match.kickoff_time.asc())
+        .all()
+    )
+
+
+def get_team_matches_by_tournament(
+    db: Session,
+    tournament_id: int,
+    team_id: int,
+) -> list[Match]:
+    return (
+        db.query(Match)
+        .where(
+            Match.tournament_id == tournament_id,
+            or_(
+                Match.team_a_id == team_id,
+                Match.team_b_id == team_id,
+            ),
+        )
         .order_by(Match.kickoff_time.asc())
         .all()
     )

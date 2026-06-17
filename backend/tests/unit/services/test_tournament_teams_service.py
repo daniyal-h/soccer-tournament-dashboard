@@ -5,7 +5,7 @@ import pytest
 
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.constants.team_rankings import STAGE_SORT_ORDER
-from app.models.match import StageType
+from app.models.enums import StageType
 from app.schemas.errors import NotFoundError
 from app.schemas.tournament_teams import TeamRankingRefreshRow
 
@@ -472,3 +472,62 @@ def test_update_team_rankings_does_not_invalidate_cache_when_commit_fails(mocker
     update_row.assert_called_once_with(db, 42, rows[0])
     db.commit.assert_called_once_with()
     invalidate_cache.assert_not_called()
+
+
+def test_validate_team_in_tournament_returns_none_when_team_exists(mocker):
+    db = Mock()
+    tournament_team = Mock()
+
+    get_tournament_team = mocker.patch.object(
+        tournament_teams_service,
+        "get_tournament_team",
+        return_value=tournament_team,
+    )
+
+    result = tournament_teams_service.validate_team_in_tournament(
+        db,
+        tournament_id=1,
+        team_id=32,
+    )
+
+    assert result is None
+    get_tournament_team.assert_called_once_with(db, 1, 32)
+
+
+def test_validate_team_in_tournament_raises_not_found_when_team_missing(mocker):
+    db = Mock()
+
+    get_tournament_team = mocker.patch.object(
+        tournament_teams_service,
+        "get_tournament_team",
+        side_effect=NotFoundError("Team 32 not found in tournament 1"),
+    )
+
+    with pytest.raises(NotFoundError, match="Team 32 not found in tournament 1"):
+        tournament_teams_service.validate_team_in_tournament(
+            db,
+            tournament_id=1,
+            team_id=32,
+        )
+
+    get_tournament_team.assert_called_once_with(db, 1, 32)
+
+
+def test_validate_team_in_tournament_does_not_return_tournament_team_row(mocker):
+    db = Mock()
+    tournament_team = Mock()
+
+    mocker.patch.object(
+        tournament_teams_service,
+        "get_tournament_team",
+        return_value=tournament_team,
+    )
+
+    result = tournament_teams_service.validate_team_in_tournament(
+        db,
+        tournament_id=1,
+        team_id=32,
+    )
+
+    assert result is None
+    assert result is not tournament_team

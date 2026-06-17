@@ -8,7 +8,8 @@ from app.api.v1.services import cache as cache_service
 from app.api.v1.services import teams as teams_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
-from app.models.match import Match, StageType
+from app.models.enums import StageType
+from app.models.match import Match
 from app.schemas.errors import NotFoundError
 from app.schemas.matches import MatchRefreshRow
 from app.utils.cache_helper import get_expires_at, get_matches_ttl
