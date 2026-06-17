@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, computed_field
 
@@ -55,5 +55,18 @@ class MatchSummary(BaseModel):
     team_b_score: int | None = None
     team_a_penalties: int | None = None
     team_b_penalties: int | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PlayerSummary(BaseModel):
+    id: int
+    display_name: str
+    first_name: str | None = None
+    last_name: str | None = None
+    photo_url: str | None = None
+    nationality: str | None = None
+    date_of_birth: date | None = None
+    height: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
