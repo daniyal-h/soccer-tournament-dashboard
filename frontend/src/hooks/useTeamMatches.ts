@@ -25,8 +25,8 @@ export function useTeamMatches({ tournament_id, team_id }: TournamentTeamOptions
   const groupedMatches = groupMatchesByStage(matches);
   const lastFiveMatches = matches.filter((match) => match.status === 'finished').slice(-5);
 
-  const emptyState = 
-      !query.isInitialLoading && !query.displayError && matches.length === 0
+  const emptyState =
+    !query.isInitialLoading && !query.displayError && matches.length === 0
       ? 'The schedule will appear once tournament data is available.'
       : null;
 
