@@ -2,6 +2,7 @@ import type { TeamPageProps } from '@/types/team';
 
 import TeamJourneySection from './TeamJourneySection';
 import TeamOverviewSection from './TeamOverviewSection';
+import TeamSquadSection from './TeamSquadSection';
 
 const TeamProfileContent = ({ teamId }: TeamPageProps) => {
   return (
@@ -9,6 +10,8 @@ const TeamProfileContent = ({ teamId }: TeamPageProps) => {
       <TeamOverviewSection teamId={teamId} />
 
       <TeamJourneySection teamId={teamId} />
+
+      <TeamSquadSection teamId={teamId} />
     </div>
   );
 };
