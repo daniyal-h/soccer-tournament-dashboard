@@ -1,8 +1,8 @@
 import type { PositionType } from '@/types/player';
 import type {
   TeamMatchesApiResponse,
+  TeamMember,
   TeamProfile,
-  TeamSquad,
   TeamSquadApiResponse,
   TeamSummary,
   TournamentTeamOptions,
@@ -54,12 +54,12 @@ function isTeamMatchesResponse(value: unknown): value is TeamMatchesApiResponse 
   return isMatchesResponse(response.data);
 }
 
-export function isSquadMember(value: unknown): value is TeamSquad {
+export function isSquadMember(value: unknown): value is TeamMember {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
-  const squad = value as TeamSquad;
+  const squad = value as TeamMember;
 
   return (
     isPlayerSummary(squad.player) &&

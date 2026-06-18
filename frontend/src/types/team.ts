@@ -32,18 +32,18 @@ export interface TeamMatches {
   matches: Match[];
 }
 
-export interface TeamSquad {
+export interface TeamMember {
   player: PlayerSummary;
   squad_number: number | null;
   position: PositionType | null;
 }
 
 export interface TeamSquadApiResponse {
-  data: TeamSquad[];
+  data: TeamMember[];
 }
 
 export interface TeamSquad {
-  squad: TeamSquad[];
+  squad: TeamMember[];
 }
 
 export type MatchFormResult = 'W' | 'D' | 'L';
