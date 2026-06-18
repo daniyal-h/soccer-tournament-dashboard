@@ -1,12 +1,7 @@
-import { useState } from 'react';
-import { Calendar, ChevronDown, Flag, Ruler } from 'lucide-react';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 
 import type { TeamMember } from '@/types/team';
-
-import { cn } from '@/lib/utils';
 
 import { getAge, getInitials } from '@/utils/teams/teamSquadHelper';
 
@@ -15,79 +10,44 @@ interface SquadMemberCardProps {
 }
 
 const SquadMemberCard = ({ member }: SquadMemberCardProps) => {
-  const [expanded, setExpanded] = useState(false);
-
   const playerSummary = member.player;
   const fullName = [playerSummary.first_name, playerSummary.last_name].filter(Boolean).join(' ');
 
-  const hasDetails =
-    fullName || playerSummary.nationality || playerSummary.height || playerSummary.date_of_birth;
-
   return (
-    <Card className="bg-background/70 shadow-none hover:bg-background hover:shadow-sm active:bg-background">
-      <button
-        type="button"
-        onClick={() => setExpanded((current) => !current)}
-        className="w-full p-4 text-left cursor-pointer"
-        aria-expanded={expanded}
-      >
-        <div className="flex items-center gap-4">
-          <Avatar className="size-14">
-            <AvatarImage
-              src={playerSummary.photo_url ?? undefined}
-              alt={playerSummary.display_name}
-            />
-            <AvatarFallback>{getInitials(playerSummary.display_name)}</AvatarFallback>
-          </Avatar>
+    <Card className="bg-background/70 shadow-none">
+      <div className="flex items-center gap-4 p-4">
+        <Avatar className="size-14 shrink-0">
+          <AvatarImage
+            src={playerSummary.photo_url ?? undefined}
+            alt={playerSummary.display_name}
+          />
+          <AvatarFallback>{getInitials(playerSummary.display_name)}</AvatarFallback>
+        </Avatar>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              {member.squad_number && (
-                <span className="text-sm text-muted-foreground">#{member.squad_number}</span>
-              )}
-
-              <p className="truncate font-semibold">{playerSummary.display_name}</p>
-            </div>
-
-            {member.position && <p className="text-sm text-muted-foreground">{member.position}</p>}
+        {/* Left: name + position */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            {member.squad_number && (
+              <span className="shrink-0 text-sm text-muted-foreground">#{member.squad_number}</span>
+            )}
+            <p className="truncate font-semibold">{playerSummary.display_name}</p>
           </div>
-
-          {hasDetails && (
-            <ChevronDown
-              className={cn('size-4 shrink-0 transition-transform', expanded && 'rotate-180')}
-            />
+          {member.position && <p className="text-sm text-muted-foreground">{member.position}</p>}
+          {fullName && fullName !== playerSummary.display_name && (
+            <p className="truncate text-xs text-muted-foreground">{fullName}</p>
           )}
         </div>
 
-        {expanded && hasDetails && (
-          <div className="mt-4 space-y-2 border-t pt-3 text-sm text-muted-foreground">
-            {fullName && fullName !== playerSummary.display_name && <p>{fullName}</p>}
-
-            {playerSummary.nationality && (
-              <div className="flex items-center gap-2">
-                <Flag className="size-4" />
-                {playerSummary.nationality}
-              </div>
-            )}
-
-            {playerSummary.height && (
-              <div className="flex items-center gap-2">
-                <Ruler className="size-4" />
-                {playerSummary.height} cm
-              </div>
-            )}
-
-            {playerSummary.date_of_birth && (
-              <div className="flex items-center gap-2">
-                <Calendar className="size-4" />
-                {getAge(playerSummary.date_of_birth)} years old
-              </div>
-            )}
-          </div>
-        )}
-      </button>
+        {/* Right: details */}
+        <div className="max-[380px]:hidden shrink-0 space-y-1 text-right text-xs text-muted-foreground">
+          {playerSummary.nationality && (
+            <p className="max-w-20 truncate">{playerSummary.nationality}</p>
+          )}
+          {playerSummary.height && <p>{playerSummary.height} cm</p>}
+          {playerSummary.date_of_birth && <p>{getAge(playerSummary.date_of_birth)} yrs</p>}
+        </div>
+      </div>
     </Card>
   );
 };
-
 export default SquadMemberCard;
