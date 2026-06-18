@@ -8,3 +8,5 @@ export interface PlayerSummary {
   date_of_birth: string | null;
   height: number | null;
 }
+
+export type PositionType = 'GK' | 'DEF' | 'MID' | 'FWD';
