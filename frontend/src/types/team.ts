@@ -55,5 +55,4 @@ export interface TeamMatchStageGroup extends TeamMatches {
 
 export interface TeamSquadPositionGroup extends TeamSquad {
   position: PositionType | 'UNKNOWN';
-  label: string;
 }
