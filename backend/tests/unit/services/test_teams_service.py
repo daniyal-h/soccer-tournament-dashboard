@@ -6,7 +6,7 @@ import pytest
 
 from app.api.v1.services import teams as teams_service
 from app.schemas.errors import NotFoundError
-from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse
+from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse, TeamSquadResponse
 
 
 def test_get_team_id_returns_id_when_found(mocker):
@@ -668,4 +668,289 @@ def test_get_team_matches_does_not_fetch_matches_when_team_validation_fails(mock
 
     validate_team.assert_called_once_with(db, 1, 32)
     get_matches.assert_not_called()
+    set_cache.assert_not_called()
+
+
+def make_player(player_id=10):
+    return SimpleNamespace(
+        id=player_id,
+        display_name="Alphonso Davies",
+        first_name="Alphonso",
+        last_name="Davies",
+        photo_url="https://example.com/davies.png",
+        nationality="Canada",
+        date_of_birth="2000-11-02",
+        height=183,
+    )
+
+
+def make_squad_player(player_id=10, squad_number=19, position="DEF"):
+    return SimpleNamespace(
+        player=make_player(player_id=player_id),
+        squad_number=squad_number,
+        position=position,
+    )
+
+
+def test_get_team_squad_returns_cached_response_without_repo_calls(mocker):
+    db = Mock()
+    cached = {
+        "data": [
+            {
+                "player": {
+                    "id": 10,
+                    "display_name": "Alphonso Davies",
+                    "first_name": "Alphonso",
+                    "last_name": "Davies",
+                    "photo_url": "https://example.com/davies.png",
+                    "nationality": "Canada",
+                    "date_of_birth": "2000-11-02",
+                    "height": 183,
+                },
+                "squad_number": 19,
+                "position": "DEF",
+            }
+        ]
+    }
+
+    get_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "get_cache",
+        return_value=cached,
+    )
+    get_tournament = mocker.patch.object(
+        teams_service.tournaments_service,
+        "get_tournament",
+    )
+    validate_team = mocker.patch.object(
+        teams_service.tournament_teams_service,
+        "validate_team_in_tournament",
+    )
+    get_squad = mocker.patch.object(
+        teams_service.team_players_repo,
+        "get_team_squad_by_tournament",
+    )
+    set_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "set_cache",
+    )
+
+    result = teams_service.get_team_squad(db, tournament_id=1, team_id=32)
+
+    assert isinstance(result, TeamSquadResponse)
+    assert len(result.data) == 1
+    assert result.data[0].player.id == 10
+    assert result.data[0].player.display_name == "Alphonso Davies"
+    assert result.data[0].player.first_name == "Alphonso"
+    assert result.data[0].player.last_name == "Davies"
+    assert result.data[0].player.nationality == "Canada"
+    assert result.data[0].player.date_of_birth.isoformat() == "2000-11-02"
+    assert result.data[0].player.height == 183
+    assert result.data[0].squad_number == 19
+    assert result.data[0].position == "DEF"
+
+    get_cache.assert_called_once_with(db, "team_squad:1:32")
+    get_tournament.assert_not_called()
+    validate_team.assert_not_called()
+    get_squad.assert_not_called()
+    set_cache.assert_not_called()
+
+
+def test_get_team_squad_fetches_squad_then_caches_response(mocker):
+    db = Mock()
+    tournament = Mock()
+    squad = [
+        make_squad_player(player_id=10, squad_number=19, position="DEF"),
+        make_squad_player(player_id=11, squad_number=None, position="MID"),
+    ]
+    ttl = timedelta(minutes=5)
+    expires_at = Mock(name="expires_at")
+    encoded_payload = {"encoded": True}
+
+    mocker.patch.object(
+        teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    get_tournament = mocker.patch.object(
+        teams_service.tournaments_service,
+        "get_tournament",
+        return_value=tournament,
+    )
+    validate_team = mocker.patch.object(
+        teams_service.tournament_teams_service,
+        "validate_team_in_tournament",
+    )
+    get_squad = mocker.patch.object(
+        teams_service.team_players_repo,
+        "get_team_squad_by_tournament",
+        return_value=squad,
+    )
+    get_ttl = mocker.patch(
+        "app.api.v1.services.teams.get_team_profile_ttl",
+        return_value=ttl,
+    )
+    get_expires_at = mocker.patch(
+        "app.api.v1.services.teams.get_expires_at",
+        return_value=expires_at,
+    )
+    jsonable_encoder = mocker.patch(
+        "app.api.v1.services.teams.jsonable_encoder",
+        return_value=encoded_payload,
+    )
+    set_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "set_cache",
+    )
+
+    result = teams_service.get_team_squad(db, tournament_id=1, team_id=32)
+
+    assert isinstance(result, TeamSquadResponse)
+    assert len(result.data) == 2
+    assert result.data[0].player.id == 10
+    assert result.data[0].squad_number == 19
+    assert result.data[0].position == "DEF"
+    assert result.data[1].player.id == 11
+    assert result.data[1].squad_number is None
+    assert result.data[1].position == "MID"
+
+    get_tournament.assert_called_once_with(db, 1)
+    validate_team.assert_called_once_with(db, 1, 32)
+    get_squad.assert_called_once_with(db, 1, 32)
+    get_ttl.assert_called_once_with(tournament)
+    get_expires_at.assert_called_once_with(ttl)
+    jsonable_encoder.assert_called_once_with(result)
+    set_cache.assert_called_once_with(
+        db,
+        "team_squad:1:32",
+        payload=encoded_payload,
+        expires_at=expires_at,
+    )
+
+
+def test_get_team_squad_caches_empty_list_for_valid_team_with_no_squad(mocker):
+    db = Mock()
+    tournament = Mock()
+    ttl = timedelta(minutes=5)
+    expires_at = Mock(name="expires_at")
+    encoded_payload = {"data": []}
+
+    mocker.patch.object(
+        teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    mocker.patch.object(
+        teams_service.tournaments_service,
+        "get_tournament",
+        return_value=tournament,
+    )
+    validate_team = mocker.patch.object(
+        teams_service.tournament_teams_service,
+        "validate_team_in_tournament",
+    )
+    get_squad = mocker.patch.object(
+        teams_service.team_players_repo,
+        "get_team_squad_by_tournament",
+        return_value=[],
+    )
+    mocker.patch(
+        "app.api.v1.services.teams.get_team_profile_ttl",
+        return_value=ttl,
+    )
+    mocker.patch(
+        "app.api.v1.services.teams.get_expires_at",
+        return_value=expires_at,
+    )
+    mocker.patch(
+        "app.api.v1.services.teams.jsonable_encoder",
+        return_value=encoded_payload,
+    )
+    set_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "set_cache",
+    )
+
+    result = teams_service.get_team_squad(db, tournament_id=1, team_id=32)
+
+    assert isinstance(result, TeamSquadResponse)
+    assert result.data == []
+
+    validate_team.assert_called_once_with(db, 1, 32)
+    get_squad.assert_called_once_with(db, 1, 32)
+    set_cache.assert_called_once_with(
+        db,
+        "team_squad:1:32",
+        payload=encoded_payload,
+        expires_at=expires_at,
+    )
+
+
+def test_get_team_squad_does_not_validate_team_when_tournament_lookup_fails(mocker):
+    db = Mock()
+
+    mocker.patch.object(
+        teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    get_tournament = mocker.patch.object(
+        teams_service.tournaments_service,
+        "get_tournament",
+        side_effect=NotFoundError("Tournament 1 not found"),
+    )
+    validate_team = mocker.patch.object(
+        teams_service.tournament_teams_service,
+        "validate_team_in_tournament",
+    )
+    get_squad = mocker.patch.object(
+        teams_service.team_players_repo,
+        "get_team_squad_by_tournament",
+    )
+    set_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "set_cache",
+    )
+
+    with pytest.raises(NotFoundError, match="Tournament 1 not found"):
+        teams_service.get_team_squad(db, tournament_id=1, team_id=32)
+
+    get_tournament.assert_called_once_with(db, 1)
+    validate_team.assert_not_called()
+    get_squad.assert_not_called()
+    set_cache.assert_not_called()
+
+
+def test_get_team_squad_does_not_fetch_squad_when_team_validation_fails(mocker):
+    db = Mock()
+
+    mocker.patch.object(
+        teams_service.cache_service,
+        "get_cache",
+        return_value=None,
+    )
+    mocker.patch.object(
+        teams_service.tournaments_service,
+        "get_tournament",
+        return_value=Mock(),
+    )
+    validate_team = mocker.patch.object(
+        teams_service.tournament_teams_service,
+        "validate_team_in_tournament",
+        side_effect=NotFoundError("Team 32 not found in tournament 1"),
+    )
+    get_squad = mocker.patch.object(
+        teams_service.team_players_repo,
+        "get_team_squad_by_tournament",
+    )
+    set_cache = mocker.patch.object(
+        teams_service.cache_service,
+        "set_cache",
+    )
+
+    with pytest.raises(NotFoundError, match="Team 32 not found in tournament 1"):
+        teams_service.get_team_squad(db, tournament_id=1, team_id=32)
+
+    validate_team.assert_called_once_with(db, 1, 32)
+    get_squad.assert_not_called()
     set_cache.assert_not_called()

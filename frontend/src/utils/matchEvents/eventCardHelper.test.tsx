@@ -31,19 +31,25 @@ const teamB = {
 const player = {
   id: 10,
   external_api_id: 100,
+  display_name: 'A. Davies',
   first_name: 'Alphonso',
   last_name: 'Davies',
   photo_url: null,
   nationality: 'Canada',
+  date_of_birth: null,
+  height: null,
 };
 
 const secondaryPlayer = {
   id: 11,
   external_api_id: 101,
+  display_name: 'J. David',
   first_name: 'Jonathan',
   last_name: 'David',
   photo_url: null,
   nationality: 'Canada',
+  date_of_birth: null,
+  height: null,
 };
 
 const baseMatch: Match = {
@@ -105,26 +111,11 @@ describe('getPlayerName', () => {
   });
 
   it('falls back to nested player first and last name', () => {
-    expect(getPlayerName(makeEvent({ player_name: null }))).toBe('Alphonso Davies');
+    expect(getPlayerName(makeEvent({ player_name: null }))).toBe('A. Davies');
   });
 
-  it('trims missing nested player name parts', () => {
-    expect(
-      getPlayerName(
-        makeEvent({
-          player_name: null,
-          player: {
-            ...player,
-            first_name: '',
-            last_name: 'Davies',
-          },
-        }),
-      ),
-    ).toBe('Davies');
-  });
-
-  it('returns an empty string when no player name is available', () => {
-    expect(getPlayerName(makeEvent({ player_name: null, player: null }))).toBe('');
+  it('returns undefined string when no player name is available', () => {
+    expect(getPlayerName(makeEvent({ player_name: null, player: null }))).toBe(undefined);
   });
 });
 
@@ -136,24 +127,7 @@ describe('getSecondaryPlayerName', () => {
   });
 
   it('falls back to nested secondary player first and last name', () => {
-    expect(getSecondaryPlayerName(makeEvent({ secondary_player_name: null }))).toBe(
-      'Jonathan David',
-    );
-  });
-
-  it('trims missing nested secondary player name parts', () => {
-    expect(
-      getSecondaryPlayerName(
-        makeEvent({
-          secondary_player_name: null,
-          secondary_player: {
-            ...secondaryPlayer,
-            first_name: 'Jonathan',
-            last_name: '',
-          },
-        }),
-      ),
-    ).toBe('Jonathan');
+    expect(getSecondaryPlayerName(makeEvent({ secondary_player_name: null }))).toBe('J. David');
   });
 
   it('returns an empty string when no secondary player name is available', () => {
@@ -164,7 +138,7 @@ describe('getSecondaryPlayerName', () => {
           secondary_player: null,
         }),
       ),
-    ).toBe('');
+    ).toBe(undefined);
   });
 });
 

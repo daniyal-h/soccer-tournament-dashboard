@@ -1,9 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 
 from app.models.enums import EventType
-from app.schemas.common import TeamSummary
+from app.schemas.common import PlayerSummary, TeamSummary
 from app.schemas.metadata import ResponseMetadata
-from app.schemas.players import PlayerSummary
 
 
 class MatchEventItemResponse(BaseModel):

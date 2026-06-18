@@ -12,7 +12,7 @@ from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchResponse
 from app.schemas.standings import StandingResponse
-from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse
+from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse, TeamSquadResponse
 from app.schemas.tournament_teams import TournamentTeamResponse
 from app.schemas.tournaments import TournamentResponse
 
@@ -93,7 +93,16 @@ def get_team_matches(
     return teams_service.get_team_matches(db, tournament_id, team_id)
 
 
-@router.get("/{tournament_id}/teams/{team_id}/squad")
+@router.get("/{tournament_id}/teams/{team_id}/squad", response_model=TeamSquadResponse)
 @limiter.limit("60/minute")
-def get_team_squad(request: Request, team_id: int, tournament_id: int) -> dict:
-    return {"message": "not yet implemented"}
+def get_team_squad(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+    team_id: Annotated[int, Path(gt=0)],
+):
+    """
+    Return all the players as a squad in the specified team and tournament.
+    """
+
+    return teams_service.get_team_squad(db, tournament_id, team_id)

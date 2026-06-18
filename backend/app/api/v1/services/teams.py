@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.repositories import matches as matches_repo
 from app.api.v1.repositories import standings as standings_repo
+from app.api.v1.repositories import team_players as team_players_repo
 from app.api.v1.repositories import teams as teams_repo
 from app.api.v1.services import cache as cache_service
 from app.api.v1.services import tournament_teams as tournament_teams_service
 from app.api.v1.services import tournaments as tournaments_service
 from app.schemas.common import TeamStandingsSummary
 from app.schemas.errors import NotFoundError
-from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse
+from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse, TeamSquadResponse
 from app.utils.cache_helper import get_expires_at, get_team_profile_ttl
 
 
@@ -35,7 +36,6 @@ def get_team_profile(db: Session, tournament_id: int, team_id: int) -> TeamProfi
         standing=TeamStandingsSummary.model_validate(standing) if standing else None,
     )
 
-    # cache and return data
     ttl = get_team_profile_ttl(tournament)
 
     cache_service.set_cache(
@@ -56,11 +56,11 @@ def get_team_matches(db: Session, tournament_id: int, team_id: int) -> TeamMatch
     # handles tournament and team not found error
     tournament = tournaments_service.get_tournament(db, tournament_id)
     tournament_teams_service.validate_team_in_tournament(db, tournament_id, team_id)
+
     matches = matches_repo.get_team_matches_by_tournament(db, tournament_id, team_id)
 
     team_matches = TeamMatchesResponse(data=matches)
 
-    # cache and return data
     ttl = get_team_profile_ttl(tournament)
 
     cache_service.set_cache(
@@ -68,6 +68,31 @@ def get_team_matches(db: Session, tournament_id: int, team_id: int) -> TeamMatch
     )
 
     return team_matches
+
+
+def get_team_squad(db: Session, tournament_id: int, team_id: int) -> TeamSquadResponse:
+    cache_key = f"team_squad:{tournament_id}:{team_id}"
+    cached = cache_service.get_cache(db, cache_key)
+
+    if cached is not None:
+        # cache stores serialized response-shaped data
+        return TeamSquadResponse.model_validate(cached)
+
+    # handles tournament and team not found error
+    tournament = tournaments_service.get_tournament(db, tournament_id)
+    tournament_teams_service.validate_team_in_tournament(db, tournament_id, team_id)
+
+    squad = team_players_repo.get_team_squad_by_tournament(db, tournament_id, team_id)
+
+    team_squad = TeamSquadResponse(data=squad)
+
+    ttl = get_team_profile_ttl(tournament)
+
+    cache_service.set_cache(
+        db, cache_key, payload=jsonable_encoder(team_squad), expires_at=get_expires_at(ttl)
+    )
+
+    return team_squad
 
 
 def get_team_id_from_external_id(db: Session, external_api_id: int) -> int:
