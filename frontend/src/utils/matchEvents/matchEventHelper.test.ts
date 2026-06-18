@@ -34,19 +34,25 @@ const teamB = {
 const player = {
   id: 10,
   external_api_id: 100,
+  display_name: 'A. Davies',
   first_name: 'Alphonso',
   last_name: 'Davies',
   photo_url: null,
   nationality: 'Canada',
+  height: null,
+  date_of_birth: null,
 };
 
 const secondaryPlayer = {
   id: 11,
   external_api_id: 101,
+  display_name: 'J. David',
   first_name: 'Jonathan',
   last_name: 'David',
   photo_url: null,
   nationality: 'Canada',
+  height: null,
+  date_of_birth: null,
 };
 
 const baseMatch: Match = {
