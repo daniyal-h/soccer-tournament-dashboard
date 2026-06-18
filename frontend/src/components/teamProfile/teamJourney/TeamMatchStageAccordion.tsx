@@ -12,7 +12,7 @@ interface TeamMatchStageAccordionProps {
 const TeamMatchStageAccordion = ({ group }: TeamMatchStageAccordionProps) => {
   return (
     <AccordionItem value={group.stage}>
-      <AccordionTrigger className="py-2">
+      <AccordionTrigger className="py-2 cursor-pointer">
         <span className="text-lg font-medium text-muted-foreground">{group.label}</span>
       </AccordionTrigger>
 

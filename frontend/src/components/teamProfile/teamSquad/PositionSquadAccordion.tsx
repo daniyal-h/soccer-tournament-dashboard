@@ -13,7 +13,7 @@ interface PositionSquadAccordionProps {
 const PositionSquadAccordion = ({ group }: PositionSquadAccordionProps) => {
   return (
     <AccordionItem value={group.position}>
-      <AccordionTrigger className="py-2">
+      <AccordionTrigger className="py-2 cursor-pointer">
         <span className="text-lg font-medium text-muted-foreground">
           {POSITION_LABELS[group.position]}
         </span>
