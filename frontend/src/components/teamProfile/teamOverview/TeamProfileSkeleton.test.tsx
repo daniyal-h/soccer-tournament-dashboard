@@ -13,7 +13,7 @@ describe('TeamProfileSkeleton', () => {
   it('renders all loading placeholders', () => {
     render(<TeamProfileSkeleton />);
 
-    expect(screen.getAllByTestId('skeleton')).toHaveLength(12);
+    expect(screen.getAllByTestId('skeleton')).toHaveLength(11);
   });
 
   it('renders header placeholders', () => {
@@ -32,14 +32,14 @@ describe('TeamProfileSkeleton', () => {
 
     const skeletons = screen.getAllByTestId('skeleton');
 
-    expect(skeletons[4]).toHaveClass('w-48');
+     expect(screen.getByText('Group Stage Summary')).toBeInTheDocument();
 
+    expect(skeletons[4]).toHaveClass('h-23');
     expect(skeletons[5]).toHaveClass('h-23');
     expect(skeletons[6]).toHaveClass('h-23');
-    expect(skeletons[7]).toHaveClass('h-23');
 
+    expect(skeletons[7]).toHaveClass('h-16');
     expect(skeletons[8]).toHaveClass('h-16');
-    expect(skeletons[9]).toHaveClass('h-16');
   });
 
   it('uses responsive sizing for the logo and title placeholders', () => {
