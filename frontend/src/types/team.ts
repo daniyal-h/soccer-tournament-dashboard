@@ -47,7 +47,7 @@ export interface TeamSquad {
 }
 
 export type MatchFormResult = 'W' | 'D' | 'L';
-export type TeamPositionType = PositionType | "UNKNOWN";
+export type TeamPositionType = PositionType | 'UNKNOWN';
 
 export interface TeamMatchStageGroup extends TeamMatches {
   stage: MatchStage;

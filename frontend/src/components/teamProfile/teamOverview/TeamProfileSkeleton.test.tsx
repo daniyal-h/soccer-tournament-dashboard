@@ -32,7 +32,7 @@ describe('TeamProfileSkeleton', () => {
 
     const skeletons = screen.getAllByTestId('skeleton');
 
-     expect(screen.getByText('Group Stage Summary')).toBeInTheDocument();
+    expect(screen.getByText('Group Stage Summary')).toBeInTheDocument();
 
     expect(skeletons[4]).toHaveClass('h-23');
     expect(skeletons[5]).toHaveClass('h-23');

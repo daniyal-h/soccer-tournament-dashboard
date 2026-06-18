@@ -13,7 +13,6 @@ describe('TeamJourneySkeleton', () => {
   it('renders the journey header skeletons', () => {
     render(<TeamJourneySkeleton />);
 
-
     expect(screen.getByText('Tournament Journey')).toBeInTheDocument();
     expect(screen.getByText('Loading recent form and all matches...')).toBeInTheDocument();
 
