@@ -33,7 +33,7 @@ export interface TeamMatches {
 }
 
 export interface TeamSquad {
-  playerSummary: PlayerSummary;
+  player: PlayerSummary;
   squad_number: number | null;
   position: PositionType | null;
 }
