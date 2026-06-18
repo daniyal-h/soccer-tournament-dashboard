@@ -7,3 +7,5 @@ export const FORM_LABELS: Record<MatchFormResult, string> = {
   D: 'Draw',
   L: 'Loss',
 };
+
+export const VALID_POSITIONS = ['GK', 'DEF', 'MID', 'FWD'];
