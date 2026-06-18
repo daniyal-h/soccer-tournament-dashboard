@@ -1,7 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiGet } from './client';
-import { getTeamMatches, getTeamProfile, isTeamSummary } from './teamsApi';
+import {
+  getTeamMatches,
+  getTeamProfile,
+  getTeamSquad,
+  isSquadMember,
+  isTeamSquadResponse,
+  isTeamSummary,
+} from './teamsApi';
 
 vi.mock('./client', () => ({
   apiGet: vi.fn(),
@@ -71,6 +78,31 @@ const validTeamMatchesApiResponse = {
 
 const validTeamMatches = {
   matches: [validMatch],
+};
+
+const validPlayerSummary = {
+  id: 10,
+  display_name: 'A. Davies',
+  first_name: 'Alphonso',
+  last_name: 'Davies',
+  photo_url: 'https://example.com/davies.png',
+  nationality: 'Canada',
+  date_of_birth: '2000-11-02',
+  height: 183,
+};
+
+const validSquadMember = {
+  player: validPlayerSummary,
+  squad_number: 19,
+  position: 'DEF',
+};
+
+const validTeamSquadApiResponse = {
+  data: [validSquadMember],
+};
+
+const validTeamSquad = {
+  squad: [validSquadMember],
 };
 
 describe('isTeam', () => {
@@ -534,6 +566,339 @@ describe('getTeamMatches', () => {
 
     await expect(
       getTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Network failed');
+  });
+});
+
+describe('isSquadMember', () => {
+  it('returns true for a valid squad member', () => {
+    expect(isSquadMember(validSquadMember)).toBe(true);
+  });
+
+  it('allows nullable registration fields', () => {
+    expect(
+      isSquadMember({
+        ...validSquadMember,
+        squad_number: null,
+        position: null,
+      }),
+    ).toBe(true);
+  });
+
+  it('allows nullable player detail fields', () => {
+    expect(
+      isSquadMember({
+        ...validSquadMember,
+        player: {
+          ...validPlayerSummary,
+          first_name: null,
+          last_name: null,
+          photo_url: null,
+          nationality: null,
+          date_of_birth: null,
+          height: null,
+        },
+      }),
+    ).toBe(true);
+  });
+
+  it.each([null, undefined, 'member', 1, true, []])(
+    'rejects non-squad-member value %#',
+    (value) => {
+      expect(isSquadMember(value)).toBe(false);
+    },
+  );
+
+  it('rejects invalid player summary', () => {
+    expect(
+      isSquadMember({
+        ...validSquadMember,
+        player: {
+          ...validPlayerSummary,
+          display_name: undefined,
+        },
+      }),
+    ).toBe(false);
+  });
+
+  it('rejects missing player summary', () => {
+    expect(isSquadMember(omitKey(validSquadMember, 'player'))).toBe(false);
+  });
+
+  it.each([
+    ['squad_number', '19'],
+    ['squad_number', undefined],
+    ['position', 'GOALKEEPER'],
+    ['position', 'CB'],
+    ['position', undefined],
+  ])('rejects invalid %s', (key, value) => {
+    expect(
+      isSquadMember({
+        ...validSquadMember,
+        [key]: value,
+      }),
+    ).toBe(false);
+  });
+
+  it.each(['squad_number', 'position'] as const)('rejects missing %s', (key) => {
+    expect(isSquadMember(omitKey(validSquadMember, key))).toBe(false);
+  });
+
+  it.each(['GK', 'DEF', 'MID', 'FWD'])('accepts valid position %s', (position) => {
+    expect(
+      isSquadMember({
+        ...validSquadMember,
+        position,
+      }),
+    ).toBe(true);
+  });
+});
+
+describe('isTeamSquadResponse', () => {
+  it('returns true for a valid team squad response', () => {
+    expect(isTeamSquadResponse(validTeamSquadApiResponse)).toBe(true);
+  });
+
+  it('allows an empty squad data list', () => {
+    expect(isTeamSquadResponse({ data: [] })).toBe(true);
+  });
+
+  it.each([null, undefined, 'squad', 1, true, []])(
+    'rejects non-team-squad response %#',
+    (response) => {
+      expect(isTeamSquadResponse(response)).toBe(false);
+    },
+  );
+
+  it('rejects response with missing data property', () => {
+    expect(isTeamSquadResponse({})).toBe(false);
+  });
+
+  it.each([null, undefined, {}, 'not-array', 123, true])(
+    'rejects response with invalid data %#',
+    (data) => {
+      expect(isTeamSquadResponse({ data })).toBe(false);
+    },
+  );
+
+  it('rejects response when one squad member is invalid', () => {
+    expect(
+      isTeamSquadResponse({
+        data: [
+          validSquadMember,
+          {
+            ...validSquadMember,
+            position: 'INVALID',
+          },
+        ],
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('getTeamSquad', () => {
+  beforeEach(() => {
+    mockedApiGet.mockReset();
+  });
+
+  it('fetches team squad using the tournament and team ids', async () => {
+    mockedApiGet.mockResolvedValueOnce(validTeamSquadApiResponse);
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual(validTeamSquad);
+
+    expect(mockedApiGet).toHaveBeenCalledTimes(1);
+    expect(mockedApiGet).toHaveBeenCalledWith('/tournaments/12/teams/34/squad');
+  });
+
+  it('unwraps the api data envelope into squad', async () => {
+    const secondMember = {
+      ...validSquadMember,
+      player: {
+        ...validPlayerSummary,
+        id: 11,
+        display_name: 'J. David',
+        first_name: 'Jonathan',
+        last_name: 'David',
+      },
+      squad_number: 20,
+      position: 'FWD',
+    };
+
+    mockedApiGet.mockResolvedValueOnce({
+      data: [validSquadMember, secondMember],
+    });
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual({
+      squad: [validSquadMember, secondMember],
+    });
+  });
+
+  it('allows an empty squad list', async () => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [],
+    });
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).resolves.toEqual({
+      squad: [],
+    });
+  });
+
+  it.each([null, undefined, 'squad', 1, true, []])(
+    'rejects non-team-squad response %#',
+    async (response) => {
+      mockedApiGet.mockResolvedValueOnce(response);
+
+      await expect(
+        getTeamSquad({
+          tournament_id: 12,
+          team_id: 34,
+        }),
+      ).rejects.toThrow('Invalid team squad response');
+    },
+  );
+
+  it('rejects response with missing data property', async () => {
+    mockedApiGet.mockResolvedValueOnce({});
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team squad response');
+  });
+
+  it.each([null, undefined, {}, 'not-array', 123, true])(
+    'rejects response with invalid data %#',
+    async (data) => {
+      mockedApiGet.mockResolvedValueOnce({
+        data,
+      });
+
+      await expect(
+        getTeamSquad({
+          tournament_id: 12,
+          team_id: 34,
+        }),
+      ).rejects.toThrow('Invalid team squad response');
+    },
+  );
+
+  it('rejects response when one squad member is invalid', async () => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [
+        validSquadMember,
+        {
+          ...validSquadMember,
+          position: 'INVALID',
+        },
+      ],
+    });
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team squad response');
+  });
+
+  it.each([
+    ['player', null],
+    ['player', undefined],
+    ['squad_number', '19'],
+    ['squad_number', undefined],
+    ['position', 'GOALKEEPER'],
+    ['position', undefined],
+  ])('rejects squad member with invalid %s', async (key, value) => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [
+        {
+          ...validSquadMember,
+          [key]: value,
+        },
+      ],
+    });
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team squad response');
+  });
+
+  it.each(['player', 'squad_number', 'position'] as const)(
+    'rejects squad member with missing %s',
+    async (key) => {
+      mockedApiGet.mockResolvedValueOnce({
+        data: [omitKey(validSquadMember, key)],
+      });
+
+      await expect(
+        getTeamSquad({
+          tournament_id: 12,
+          team_id: 34,
+        }),
+      ).rejects.toThrow('Invalid team squad response');
+    },
+  );
+
+  it.each([
+    ['id', '10'],
+    ['display_name', undefined],
+    ['display_name', null],
+    ['first_name', undefined],
+    ['last_name', undefined],
+    ['photo_url', undefined],
+    ['nationality', undefined],
+    ['date_of_birth', undefined],
+    ['height', '183'],
+    ['height', undefined],
+  ])('rejects squad member with invalid player %s', async (key, value) => {
+    mockedApiGet.mockResolvedValueOnce({
+      data: [
+        {
+          ...validSquadMember,
+          player: {
+            ...validPlayerSummary,
+            [key]: value,
+          },
+        },
+      ],
+    });
+
+    await expect(
+      getTeamSquad({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    ).rejects.toThrow('Invalid team squad response');
+  });
+
+  it('does not swallow api errors', async () => {
+    mockedApiGet.mockRejectedValueOnce(new Error('Network failed'));
+
+    await expect(
+      getTeamSquad({
         tournament_id: 12,
         team_id: 34,
       }),
