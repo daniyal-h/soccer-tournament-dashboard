@@ -15,6 +15,6 @@ export function isPlayerSummary(value: unknown): value is PlayerSummary {
     (typeof player.photo_url === 'string' || player.photo_url === null) &&
     (typeof player.nationality === 'string' || player.nationality === null) &&
     (typeof player.date_of_birth === 'string' || player.date_of_birth === null) &&
-    (typeof player.height === 'string' || player.height === null)
+    (typeof player.height === 'number' || player.height === null)
   );
 }
