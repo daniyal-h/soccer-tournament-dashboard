@@ -8,7 +8,7 @@ import { useApiQuery } from './useApiQuery';
 
 import { groupSquadByPosition } from '@/utils/teams/teamSquadHelper';
 
-export function useTeamSquads({ tournament_id, team_id }: TournamentTeamOptions) {
+export function useTeamSquad({ tournament_id, team_id }: TournamentTeamOptions) {
   const query = useApiQuery({
     queryKey: queryKeys.teams.squad(tournament_id, team_id),
     queryFn: () => getTeamSquad({ tournament_id, team_id }),
