@@ -1,12 +1,18 @@
+import type { PositionType } from '@/types/player';
 import type {
   TeamMatchesApiResponse,
   TeamProfile,
+  TeamSquad,
+  TeamSquadsApiResponse,
   TeamSummary,
   TournamentTeamOptions,
 } from '@/types/team';
 
+import { VALID_POSITIONS } from '@/constants/teams';
+
 import { apiGet } from './client';
 import { isMatchesResponse } from './matchesApi';
+import { isPlayerSummary } from './playersApi';
 import { isStandingStats } from './standingsApi';
 
 export function isTeamSummary(value: unknown): value is TeamSummary {
@@ -48,6 +54,30 @@ function isTeamMatchesResponse(value: unknown): value is TeamMatchesApiResponse 
   return isMatchesResponse(response.data);
 }
 
+export function isTeamSquad(value: unknown): value is TeamSquad {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const squad = value as TeamSquad;
+
+  return (
+    isPlayerSummary(squad.player) &&
+    (typeof squad.squad_number === 'number' || squad.squad_number === null) &&
+    (VALID_POSITIONS.includes(squad.position as PositionType) || squad.position === null)
+  );
+}
+
+export function isTeamSquadsResponse(value: unknown): value is TeamSquadsApiResponse {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const response = value as TeamSquadsApiResponse;
+
+  return Array.isArray(response.data) && response.data.every(isTeamSquad);
+}
+
 export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/profile`;
 
@@ -71,5 +101,19 @@ export async function getTeamMatches({ tournament_id, team_id }: TournamentTeamO
 
   return {
     matches: response.data,
+  };
+}
+
+export async function getTeamSquad({ tournament_id, team_id }: TournamentTeamOptions) {
+  const path = `/tournaments/${tournament_id}/teams/${team_id}/squad`;
+
+  const response = await apiGet<TeamSquadsApiResponse>(path);
+
+  if (!isTeamSquadsResponse(response)) {
+    throw new Error('Invalid team squad response');
+  }
+
+  return {
+    squads: response.data,
   };
 }
