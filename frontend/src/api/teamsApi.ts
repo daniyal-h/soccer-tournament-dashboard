@@ -1,12 +1,18 @@
+import type { PositionType } from '@/types/player';
 import type {
   TeamMatchesApiResponse,
+  TeamMember,
   TeamProfile,
+  TeamSquadApiResponse,
   TeamSummary,
   TournamentTeamOptions,
 } from '@/types/team';
 
+import { VALID_POSITIONS } from '@/constants/teams';
+
 import { apiGet } from './client';
 import { isMatchesResponse } from './matchesApi';
+import { isPlayerSummary } from './playersApi';
 import { isStandingStats } from './standingsApi';
 
 export function isTeamSummary(value: unknown): value is TeamSummary {
@@ -48,6 +54,30 @@ function isTeamMatchesResponse(value: unknown): value is TeamMatchesApiResponse 
   return isMatchesResponse(response.data);
 }
 
+export function isSquadMember(value: unknown): value is TeamMember {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const squad = value as TeamMember;
+
+  return (
+    isPlayerSummary(squad.player) &&
+    (typeof squad.squad_number === 'number' || squad.squad_number === null) &&
+    (VALID_POSITIONS.includes(squad.position as PositionType) || squad.position === null)
+  );
+}
+
+export function isTeamSquadResponse(value: unknown): value is TeamSquadApiResponse {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const response = value as TeamSquadApiResponse;
+
+  return Array.isArray(response.data) && response.data.every(isSquadMember);
+}
+
 export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/profile`;
 
@@ -71,5 +101,19 @@ export async function getTeamMatches({ tournament_id, team_id }: TournamentTeamO
 
   return {
     matches: response.data,
+  };
+}
+
+export async function getTeamSquad({ tournament_id, team_id }: TournamentTeamOptions) {
+  const path = `/tournaments/${tournament_id}/teams/${team_id}/squad`;
+
+  const response = await apiGet<TeamSquadApiResponse>(path);
+
+  if (!isTeamSquadResponse(response)) {
+    throw new Error('Invalid team squad response');
+  }
+
+  return {
+    squad: response.data,
   };
 }

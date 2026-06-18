@@ -1,4 +1,5 @@
 import type { Match, MatchStage } from './match';
+import type { PlayerSummary, PositionType } from './player';
 import type { StandingStats } from './standing';
 
 export interface TeamSummary {
@@ -31,9 +32,28 @@ export interface TeamMatches {
   matches: Match[];
 }
 
+export interface TeamMember {
+  player: PlayerSummary;
+  squad_number: number | null;
+  position: PositionType | null;
+}
+
+export interface TeamSquadApiResponse {
+  data: TeamMember[];
+}
+
+export interface TeamSquad {
+  squad: TeamMember[];
+}
+
 export type MatchFormResult = 'W' | 'D' | 'L';
+export type TeamPositionType = PositionType | 'UNKNOWN';
 
 export interface TeamMatchStageGroup extends TeamMatches {
   stage: MatchStage;
   label: string;
+}
+
+export interface TeamSquadPositionGroup extends TeamSquad {
+  position: TeamPositionType;
 }

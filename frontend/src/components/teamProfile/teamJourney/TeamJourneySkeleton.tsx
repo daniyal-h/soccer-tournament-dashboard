@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -6,8 +6,8 @@ const TeamJourneySkeleton = () => {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <Skeleton className="h-7 w-52" />
-        <Skeleton className="h-5 w-72 max-w-full" />
+        <CardTitle className="text-xl font-bold">Tournament Journey</CardTitle>
+        <CardDescription>Loading recent form and all matches...</CardDescription>
       </CardHeader>
 
       <CardContent className="space-y-6">

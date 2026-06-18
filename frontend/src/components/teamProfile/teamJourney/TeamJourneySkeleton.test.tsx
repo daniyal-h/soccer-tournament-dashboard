@@ -13,10 +13,12 @@ describe('TeamJourneySkeleton', () => {
   it('renders the journey header skeletons', () => {
     render(<TeamJourneySkeleton />);
 
+    expect(screen.getByText('Tournament Journey')).toBeInTheDocument();
+    expect(screen.getByText('Loading recent form and all matches...')).toBeInTheDocument();
+
     const skeletons = screen.getAllByTestId('skeleton');
 
-    expect(skeletons[0]).toHaveClass('h-7', 'w-52');
-    expect(skeletons[1]).toHaveClass('h-5', 'w-72');
+    expect(skeletons[0]).toHaveClass('h-5', 'w-36');
   });
 
   it('renders five recent form placeholders', () => {

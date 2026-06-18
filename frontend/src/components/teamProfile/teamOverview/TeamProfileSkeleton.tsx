@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const TeamProfileSkeleton = () => {
@@ -19,7 +19,7 @@ const TeamProfileSkeleton = () => {
 
       <Card className="shadow-sm">
         <CardHeader>
-          <Skeleton className="h-7 w-48" />
+          <CardTitle className="text-xl font-bold">Group Stage Summary</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-6">

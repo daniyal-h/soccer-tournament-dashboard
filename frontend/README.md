@@ -84,10 +84,9 @@ src/
   config/       frontend config and feature flags
   constants/    app-wide constants including query keys and cache timings
   context/      React context providers
-  hooks/        custom React hooks
+  hooks/        frontend business logic
   lib/          tailwind cn function
   pages/        route-level page components
-  services/     frontend business logic
   styles/       global styles
   types/        shared TypeScript types
   utils/        helper functions

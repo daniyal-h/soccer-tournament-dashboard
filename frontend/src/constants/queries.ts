@@ -27,6 +27,9 @@ export const queryKeys = {
 
     matches: (tournamentId: number, teamId: number) =>
       ['teams', 'matches', tournamentId, teamId] as const,
+
+    squad: (tournamentId: number, teamId: number) =>
+      ['teams', 'squad', tournamentId, teamId] as const,
   },
 };
 
