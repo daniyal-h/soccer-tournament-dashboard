@@ -1,6 +1,7 @@
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.models.players import Player
 
 from app.models.enums import PositionType
 
@@ -24,3 +25,5 @@ class TeamPlayer(Base):
         ),
         nullable=True,
     )
+
+    player: Mapped[Player] = relationship("Player", lazy="joined")
