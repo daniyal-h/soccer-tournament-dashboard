@@ -10,6 +10,7 @@ import type { TeamPageProps } from '@/types/team';
 import EmptyState from '../feedback/EmptyState';
 import ErrorState from '../feedback/ErrorState';
 import PositionSquadAccordion from './teamSquad/PositionSquadAccordion';
+import TeamSquadSkeleton from './teamSquad/TeamSquadSkeleton';
 
 const TeamSquadSection = ({ teamId }: TeamPageProps) => {
   const { selectedTournamentId, error: tournamentError } = useTournament();
@@ -20,7 +21,7 @@ const TeamSquadSection = ({ teamId }: TeamPageProps) => {
   });
 
   if (isLoading) {
-    return <div>Loading...</div>; // TODO: replace with skeleton
+    return <TeamSquadSkeleton />;
   }
 
   if (error) {
