@@ -17,19 +17,25 @@ const team = {
 const player = {
   id: 10,
   external_api_id: 100,
+  display_name: 'A. Davies',
   first_name: 'Alphonso',
   last_name: 'Davies',
   photo_url: null,
   nationality: 'Canada',
+  date_of_birth: null,
+  height: null,
 };
 
 const secondaryPlayer = {
   id: 11,
   external_api_id: 101,
+  display_name: 'J. David',
   first_name: 'Jonathan',
   last_name: 'David',
   photo_url: null,
   nationality: 'Canada',
+  date_of_birth: null,
+  height: null,
 };
 
 const baseEvent: MatchEvent = {
@@ -73,9 +79,9 @@ describe('EventCard', () => {
     render(<EventCard event={baseEvent} score="1-0" />);
 
     expect(screen.getByText('GOAL!')).toBeInTheDocument();
-    expect(screen.getByText('Alphonso Davies')).toBeInTheDocument();
+    expect(screen.getByText('A. Davies')).toBeInTheDocument();
     expect(screen.getByText("12'")).toBeInTheDocument();
-    expect(screen.getByText('Assisted by Jonathan David')).toBeInTheDocument();
+    expect(screen.getByText('Assisted by J. David')).toBeInTheDocument();
     expect(screen.getByText('1-0')).toBeInTheDocument();
   });
 
@@ -92,7 +98,7 @@ describe('EventCard', () => {
 
     expect(screen.getByText('Displayed Player')).toBeInTheDocument();
     expect(screen.getByText('Assisted by Displayed Assistant')).toBeInTheDocument();
-    expect(screen.queryByText('Alphonso Davies')).not.toBeInTheDocument();
+    expect(screen.queryByText('A. Davies')).not.toBeInTheDocument();
   });
 
   it('renders stoppage-time minute when extra_minute is present', () => {
@@ -106,16 +112,16 @@ describe('EventCard', () => {
       <EventCard
         event={makeEvent({
           event_type: 'substitution',
-          player_name: 'Cyle Larin',
-          secondary_player_name: 'Jonathan David',
+          player_name: 'C. Larin',
+          secondary_player_name: 'J. David',
         })}
         score="1-0"
       />,
     );
 
     expect(screen.getByText('SUB')).toBeInTheDocument();
-    expect(screen.getByText('Jonathan David')).toBeInTheDocument();
-    expect(screen.getByText('Replaced Cyle Larin')).toBeInTheDocument();
+    expect(screen.getByText('J. David')).toBeInTheDocument();
+    expect(screen.getByText('Replaced C. Larin')).toBeInTheDocument();
     expect(screen.queryByText('1-0')).not.toBeInTheDocument();
   });
 
@@ -139,13 +145,13 @@ describe('EventCard', () => {
       <EventCard
         event={makeEvent({
           event_type: 'yellow_card',
-          secondary_player_name: 'Jonathan David',
+          secondary_player_name: 'J. David',
         })}
         score="0-0"
       />,
     );
 
-    expect(screen.queryByText('Replaced Jonathan David')).not.toBeInTheDocument();
+    expect(screen.queryByText('Replaced J. David')).not.toBeInTheDocument();
   });
 
   it('renders detail and comments for non-shootout events', () => {
@@ -179,7 +185,7 @@ describe('EventCard', () => {
 
     expect(screen.getByText('PENALTY SCORED!')).toBeInTheDocument();
     expect(screen.getByText('2-1')).toBeInTheDocument();
-    expect(screen.getByText('Assisted by Jonathan David')).toBeInTheDocument();
+    expect(screen.getByText('Assisted by J. David')).toBeInTheDocument();
   });
 
   it('renders penalty shootout scored penalty state', () => {
