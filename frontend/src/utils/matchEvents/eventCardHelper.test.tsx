@@ -127,9 +127,7 @@ describe('getSecondaryPlayerName', () => {
   });
 
   it('falls back to nested secondary player first and last name', () => {
-    expect(getSecondaryPlayerName(makeEvent({ secondary_player_name: null }))).toBe(
-      'J. David',
-    );
+    expect(getSecondaryPlayerName(makeEvent({ secondary_player_name: null }))).toBe('J. David');
   });
 
   it('returns an empty string when no secondary player name is available', () => {

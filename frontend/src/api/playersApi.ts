@@ -1,4 +1,4 @@
-import type { PlayerSummary } from "@/types/player";
+import type { PlayerSummary } from '@/types/player';
 
 export function isPlayerSummary(value: unknown): value is PlayerSummary {
   if (typeof value !== 'object' || value === null) {
