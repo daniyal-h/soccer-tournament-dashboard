@@ -38,12 +38,12 @@ export interface TeamSquad {
   position: PositionType | null;
 }
 
-export interface TeamSquadsApiResponse {
+export interface TeamSquadApiResponse {
   data: TeamSquad[];
 }
 
-export interface TeamSquads {
-  squads: TeamSquad[];
+export interface TeamSquad {
+  squad: TeamSquad[];
 }
 
 export type MatchFormResult = 'W' | 'D' | 'L';

@@ -3,7 +3,7 @@ import type {
   TeamMatchesApiResponse,
   TeamProfile,
   TeamSquad,
-  TeamSquadsApiResponse,
+  TeamSquadApiResponse,
   TeamSummary,
   TournamentTeamOptions,
 } from '@/types/team';
@@ -54,7 +54,7 @@ function isTeamMatchesResponse(value: unknown): value is TeamMatchesApiResponse 
   return isMatchesResponse(response.data);
 }
 
-export function isTeamSquad(value: unknown): value is TeamSquad {
+export function isSquadMember(value: unknown): value is TeamSquad {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
@@ -68,14 +68,14 @@ export function isTeamSquad(value: unknown): value is TeamSquad {
   );
 }
 
-export function isTeamSquadsResponse(value: unknown): value is TeamSquadsApiResponse {
+export function isTeamSquadResponse(value: unknown): value is TeamSquadApiResponse {
   if (typeof value !== 'object' || value === null) {
     return false;
   }
 
-  const response = value as TeamSquadsApiResponse;
+  const response = value as TeamSquadApiResponse;
 
-  return Array.isArray(response.data) && response.data.every(isTeamSquad);
+  return Array.isArray(response.data) && response.data.every(isSquadMember);
 }
 
 export async function getTeamProfile({ tournament_id, team_id }: TournamentTeamOptions) {
@@ -107,13 +107,13 @@ export async function getTeamMatches({ tournament_id, team_id }: TournamentTeamO
 export async function getTeamSquad({ tournament_id, team_id }: TournamentTeamOptions) {
   const path = `/tournaments/${tournament_id}/teams/${team_id}/squad`;
 
-  const response = await apiGet<TeamSquadsApiResponse>(path);
+  const response = await apiGet<TeamSquadApiResponse>(path);
 
-  if (!isTeamSquadsResponse(response)) {
+  if (!isTeamSquadResponse(response)) {
     throw new Error('Invalid team squad response');
   }
 
   return {
-    squads: response.data,
+    squad: response.data,
   };
 }
