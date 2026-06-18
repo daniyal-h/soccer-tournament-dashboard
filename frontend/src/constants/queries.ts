@@ -29,7 +29,7 @@ export const queryKeys = {
       ['teams', 'matches', tournamentId, teamId] as const,
 
     squad: (tournamentId: number, teamId: number) =>
-      ['teams', 'squads', tournamentId, teamId] as const,
+      ['teams', 'squad', tournamentId, teamId] as const,
   },
 };
 
