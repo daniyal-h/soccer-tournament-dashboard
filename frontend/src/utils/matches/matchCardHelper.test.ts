@@ -1,8 +1,9 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { Match } from '@/types/match';
+import type { Match, MatchGroup } from '@/types/match';
 
 import {
+  findNextUpcomingDayKey,
   getMatchCenterDisplay,
   getMatchMetaDisplay,
   getWinnerSide,
@@ -48,6 +49,11 @@ const createMatch = (overrides: Partial<Match> = {}): Match => ({
   team_a_penalties: null,
   team_b_penalties: null,
   ...overrides,
+});
+
+const createGroup = (day: string, kickoffTimes: string[]): MatchGroup => ({
+  day,
+  matches: kickoffTimes.map((kickoff_time, index) => createMatch({ id: index + 1, kickoff_time })),
 });
 
 const baseMatch: Match = {
@@ -305,6 +311,109 @@ describe('matchCardHelper', () => {
       groupMatchesByDay(matches);
 
       expect(matches).toEqual([lateMatch, earlyMatch]);
+    });
+  });
+
+  describe('findNextUpcomingDayKey', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('returns null when there are no groups', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00Z'));
+
+      expect(findNextUpcomingDayKey([])).toBeNull();
+    });
+
+    it('returns the day of the only group when its match is today', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00'));
+
+      const groups = [createGroup('Jun 15', ['2026-06-15T19:00:00'])];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 15');
+    });
+
+    it('returns the first group whose match is in the future when today has no matches', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00'));
+
+      const groups = [
+        createGroup('Jun 11', ['2026-06-11T19:00:00']),
+        createGroup('Jun 20', ['2026-06-20T19:00:00']),
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 20');
+    });
+
+    it('skips past groups and returns the next chronological group, not just the last one', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00'));
+
+      const groups = [
+        createGroup('Jun 11', ['2026-06-11T19:00:00']),
+        createGroup('Jun 16', ['2026-06-16T19:00:00']),
+        createGroup('Jun 20', ['2026-06-20T19:00:00']),
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 16');
+    });
+
+    it('returns null when every group is entirely in the past', () => {
+      vi.setSystemTime(new Date('2026-06-25T12:00:00'));
+
+      const groups = [
+        createGroup('Jun 11', ['2026-06-11T19:00:00']),
+        createGroup('Jun 20', ['2026-06-20T19:00:00']),
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBeNull();
+    });
+
+    it('treats a match at exactly the start of today as upcoming (inclusive lower boundary)', () => {
+      // start of day for 2026-06-15 local time
+      vi.setSystemTime(new Date('2026-06-15T08:00:00'));
+
+      const groups = [
+        createGroup('Jun 14', ['2026-06-14T20:00:00']),
+        createGroup('Jun 15', ['2026-06-15T00:00:00']), // exactly midnight, start of today
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 15');
+    });
+
+    it('treats a match one millisecond before the start of today as in the past', () => {
+      vi.setSystemTime(new Date('2026-06-15T08:00:00'));
+
+      const groups = [
+        createGroup('Jun 14', ['2026-06-14T23:59:59.999']),
+        createGroup('Jun 20', ['2026-06-20T19:00:00']),
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 20');
+    });
+
+    it('uses only the first match in a group to decide if that group is upcoming', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00'));
+
+      // first match in the group is in the past; function should judge the
+      // group as past based on matches[0], even though a later match in the
+      // same group is in the future
+      const groups = [
+        createGroup('Jun 15', ['2026-06-15T08:00:00']),
+        createGroup('Jun 20', ['2026-06-20T08:00:00', '2026-06-20T22:00:00']),
+      ];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Jun 15');
+    });
+
+    it('returns the same day key format as provided on the group, unmodified', () => {
+      vi.setSystemTime(new Date('2026-06-15T12:00:00'));
+
+      const groups = [createGroup('Some Custom Label', ['2026-06-20T19:00:00'])];
+
+      expect(findNextUpcomingDayKey(groups)).toBe('Some Custom Label');
     });
   });
 });
