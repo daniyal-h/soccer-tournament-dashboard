@@ -33,7 +33,7 @@ const MatchSchedule = ({ groupedMatches }: MatchScheduleProps) => {
     if (!isLive) return;
 
     scrollTargetRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
