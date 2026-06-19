@@ -117,3 +117,118 @@ def test_invalidate_cache_entry_deletes_entry(db_session):
 def test_invalidate_cache_entry_does_nothing_when_not_found(db_session):
     # should not raise
     cache_repo.invalidate_cache_entry(db_session, "nonexistent:key")
+
+
+def test_invalidate_cache_prefix_deletes_all_matching_nested_entries(db_session):
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=5)
+
+    db_session.add_all(
+        [
+            CacheEntry(
+                cache_key="team_squad:1:10",
+                payload=json.dumps({"team": 10}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+            CacheEntry(
+                cache_key="team_squad:1:11",
+                payload=json.dumps({"team": 11}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+            CacheEntry(
+                cache_key="standings:1",
+                payload=json.dumps({"A": []}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+        ]
+    )
+    db_session.commit()
+
+    cache_repo.invalidate_cache_prefix(db_session, "team_squad:1:")
+
+    remaining_keys = {
+        row.cache_key for row in db_session.query(CacheEntry).order_by(CacheEntry.cache_key).all()
+    }
+
+    assert remaining_keys == {"standings:1"}
+
+
+def test_invalidate_cache_prefix_keeps_similar_tournament_ids_when_delimiter_used(
+    db_session,
+):
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=5)
+
+    db_session.add_all(
+        [
+            CacheEntry(
+                cache_key="team_squad:1:10",
+                payload=json.dumps({"team": 10}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+            CacheEntry(
+                cache_key="team_squad:10:10",
+                payload=json.dumps({"team": 10}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+            CacheEntry(
+                cache_key="team_squad:100:10",
+                payload=json.dumps({"team": 10}),
+                last_updated=now,
+                expires_at=expires_at,
+            ),
+        ]
+    )
+    db_session.commit()
+
+    cache_repo.invalidate_cache_prefix(db_session, "team_squad:1:")
+
+    remaining_keys = {
+        row.cache_key for row in db_session.query(CacheEntry).order_by(CacheEntry.cache_key).all()
+    }
+
+    assert remaining_keys == {"team_squad:10:10", "team_squad:100:10"}
+
+
+def test_invalidate_cache_prefix_does_nothing_when_no_entries_match(db_session):
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=5)
+
+    db_session.add(
+        CacheEntry(
+            cache_key="standings:1",
+            payload=json.dumps({"A": []}),
+            last_updated=now,
+            expires_at=expires_at,
+        )
+    )
+    db_session.commit()
+
+    cache_repo.invalidate_cache_prefix(db_session, "team_squad:1:")
+
+    result = db_session.query(CacheEntry).where(CacheEntry.cache_key == "standings:1").one()
+
+    assert result.payload == json.dumps({"A": []})
+
+
+def test_invalidate_cache_prefix_commits_delete(db_session):
+    now = datetime.now(UTC)
+    expires_at = now + timedelta(minutes=5)
+
+    cache_repo.set_cache_entry(
+        db_session,
+        "team_squad:1:10",
+        json.dumps({"team": 10}),
+        expires_at,
+    )
+
+    cache_repo.invalidate_cache_prefix(db_session, "team_squad:1:")
+
+    result = cache_repo.get_cache_entry(db_session, "team_squad:1:10")
+
+    assert result is None
