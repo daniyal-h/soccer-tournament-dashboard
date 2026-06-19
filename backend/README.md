@@ -311,6 +311,7 @@ POST /api/v1/admin/tournaments/refresh-standings
 POST /api/v1/admin/tournaments/refresh-matches
 POST /api/v1/admin/tournaments/refresh-match-events
 POST /api/v1/admin/tournaments/refresh-team-rankings
+POST /api/v1/admin/tournaments/refresh-player-data
 ```
 
 Refresh services:
@@ -321,12 +322,13 @@ app/api/v1/services/
   refresh_matches.py
   refresh_match_events.py
   refresh_team_rankings.py
+  refresh_player_data.py
 
 app/api/v1/clients/
   football_api.py
 ```
 
-The refresh process:
+The refresh process (general):
 
 1. Finds refreshable tournaments based on tournament dates
 2. Fetches updated data from API-Football
