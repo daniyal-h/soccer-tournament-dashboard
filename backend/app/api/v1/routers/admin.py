@@ -6,9 +6,14 @@ from sqlalchemy.orm import Session
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
+from app.api.v1.services import refresh_player_data as refresh_player_data_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.api.v1.services import refresh_team_rankings as refresh_team_rankings_service
-from app.constants.external_apis import MATCHES_MARGIN_DAYS, STANDINGS_MARGIN_DAYS
+from app.constants.external_apis import (
+    MATCHES_MARGIN_DAYS,
+    PLAYER_DATA_MARGIN_DAYS,
+    STANDINGS_MARGIN_DAYS,
+)
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.schemas.matches import MatchRefreshRow
@@ -98,6 +103,21 @@ def refresh_team_rankings(request: Request, db: Annotated[Session, Depends(get_d
     Return a summary of successful refreshes and failures.
     """
     return refresh_team_rankings_service.refresh_team_rankings(db)
+
+
+@router.post("/tournaments/refresh-player-data")
+@limiter.limit("3/minute")
+def refresh_player_data(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    margin_days: Annotated[int, Query(ge=0, le=30)] = PLAYER_DATA_MARGIN_DAYS,
+) -> dict:
+    """
+    Refresh player data for all teams in live tournaments.
+    The refresh includes squads and statistics.
+    Return a summary of successful refreshes and failures.
+    """
+    return refresh_player_data_service.refresh_player_data(db, margin_days)
 
 
 @router.put("/tournaments/{tournament_id}/matches")
