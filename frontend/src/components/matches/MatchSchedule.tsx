@@ -32,13 +32,7 @@ const MatchSchedule = ({ groupedMatches }: MatchScheduleProps) => {
     const isLive = now >= start && now <= end;
     if (!isLive) return;
 
-    const id = requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        scrollTargetRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
-      });
-    });
-
-    return () => cancelAnimationFrame(id);
+    scrollTargetRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
   }, []);
 
   return (
