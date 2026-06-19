@@ -1,8 +1,7 @@
 from datetime import UTC, datetime
 
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
-from app.constants.jobs import JobName
-from app.models.enums import JobStatus
+from app.models.enums import JobName, JobStatus
 from app.models.refresh_job import RefreshJob
 
 
