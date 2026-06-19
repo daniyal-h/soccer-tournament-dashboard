@@ -1,7 +1,9 @@
-from datetime import date, timedelta
+import json
+from datetime import UTC, date, datetime, timedelta
 
 from app.api.v1.services.refresh_player_data import refresh_player_data
 from app.constants.external_apis import API_FOOTBALL_PLAYERS_ENDPOINT
+from app.models.cache_entry import CacheEntry
 from app.models.enums import JobName, JobStatus
 from app.models.players import Player
 from app.models.refresh_job import RefreshJob
@@ -80,7 +82,7 @@ def make_player_response(
     }
 
 
-def test_refresh_player_data_inserts_players_team_players_and_success_job(
+def test_refresh_player_data_inserts_players_team_players_invalidates_cache_and_success_job(
     db_session,
     mocker,
 ):
@@ -101,6 +103,32 @@ def test_refresh_player_data_inserts_players_team_players_and_success_job(
     )
 
     db_session.add_all([tournament, team])
+    db_session.commit()
+
+    now = datetime.now(UTC)
+
+    db_session.add_all(
+        [
+            CacheEntry(
+                cache_key=f"team_squad:{tournament.id}:{team.id}",
+                payload=json.dumps([]),
+                last_updated=now,
+                expires_at=now + timedelta(hours=1),
+            ),
+            CacheEntry(
+                cache_key=f"team_squad:{tournament.id + 100}:999",
+                payload=json.dumps([]),
+                last_updated=now,
+                expires_at=now + timedelta(hours=1),
+            ),
+            CacheEntry(
+                cache_key=f"standings:{tournament.id}",
+                payload=json.dumps([]),
+                last_updated=now,
+                expires_at=now + timedelta(hours=1),
+            ),
+        ]
+    )
     db_session.commit()
 
     football_get = mocker.patch(
@@ -152,6 +180,7 @@ def test_refresh_player_data_inserts_players_team_players_and_success_job(
     job = (
         db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.PLAYER_DATA_REFRESH).one()
     )
+    remaining_cache_keys = {row.cache_key for row in db_session.query(CacheEntry).all()}
 
     assert football_get.call_args_list == [
         mocker.call(
@@ -163,6 +192,11 @@ def test_refresh_player_data_inserts_players_team_players_and_success_job(
             {"league": 100, "season": "2026", "page": 2},
         ),
     ]
+
+    assert remaining_cache_keys == {
+        f"team_squad:{tournament.id + 100}:999",
+        f"standings:{tournament.id}",
+    }
 
     assert [(player.external_api_id, player.display_name) for player in players] == [
         (300, "Jonathan David"),

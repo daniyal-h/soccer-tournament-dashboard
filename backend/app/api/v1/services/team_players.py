@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
+from app.api.v1.repositories import cache as cache_repo
 from app.api.v1.repositories import players as players_repo
 from app.api.v1.repositories import team_players as team_players_repo
-from app.api.v1.services import cache as cache_service
 from app.api.v1.services import players as players_service
 from app.api.v1.services import teams as teams_service
 from app.models.players import Player
@@ -55,4 +55,4 @@ def update_team_players(
 
     team_players_repo.upsert_team_players(db, team_player_rows)
 
-    cache_service.invalidate_cache(db, f"team_squad:{tournament_id}")
+    cache_repo.invalidate_cache_prefix(db, f"team_squad:{tournament_id}:")

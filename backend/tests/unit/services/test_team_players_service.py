@@ -76,7 +76,7 @@ def test_update_team_players_upserts_players_team_players_and_invalidates_cache(
         "app.api.v1.services.team_players.team_players_repo.upsert_team_players"
     )
     invalidate_cache = mocker.patch(
-        "app.api.v1.services.team_players.cache_service.invalidate_cache"
+        "app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix"
     )
 
     sut.update_team_players(db, tournament_id=55, rows=rows)
@@ -130,7 +130,7 @@ def test_update_team_players_upserts_players_team_players_and_invalidates_cache(
         (55, 2001, 1001, 23, "GK"),
     ]
 
-    invalidate_cache.assert_called_once_with(db, "team_squad:55")
+    invalidate_cache.assert_called_once_with(db, "team_squad:55:")
 
 
 def test_update_team_players_preserves_nullable_registration_fields(mocker):
@@ -158,7 +158,7 @@ def test_update_team_players_preserves_nullable_registration_fields(mocker):
     upsert_team_players = mocker.patch(
         "app.api.v1.services.team_players.team_players_repo.upsert_team_players"
     )
-    mocker.patch("app.api.v1.services.team_players.cache_service.invalidate_cache")
+    mocker.patch("app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix")
 
     sut.update_team_players(db, tournament_id=55, rows=rows)
 
@@ -185,7 +185,7 @@ def test_update_team_players_handles_empty_rows_without_lookup_but_still_invalid
         "app.api.v1.services.team_players.team_players_repo.upsert_team_players"
     )
     invalidate_cache = mocker.patch(
-        "app.api.v1.services.team_players.cache_service.invalidate_cache"
+        "app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix"
     )
 
     sut.update_team_players(db, tournament_id=55, rows=[])
@@ -194,7 +194,7 @@ def test_update_team_players_handles_empty_rows_without_lookup_but_still_invalid
     get_player_id.assert_not_called()
     get_team_id.assert_not_called()
     upsert_team_players.assert_called_once_with(db, [])
-    invalidate_cache.assert_called_once_with(db, "team_squad:55")
+    invalidate_cache.assert_called_once_with(db, "team_squad:55:")
 
 
 def test_update_team_players_does_not_upsert_team_players_if_player_lookup_fails(mocker):
@@ -213,7 +213,7 @@ def test_update_team_players_does_not_upsert_team_players_if_player_lookup_fails
         "app.api.v1.services.team_players.team_players_repo.upsert_team_players"
     )
     invalidate_cache = mocker.patch(
-        "app.api.v1.services.team_players.cache_service.invalidate_cache"
+        "app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix"
     )
 
     with pytest.raises(LookupError, match="player not found"):
@@ -241,7 +241,7 @@ def test_update_team_players_does_not_upsert_team_players_if_team_lookup_fails(m
         "app.api.v1.services.team_players.team_players_repo.upsert_team_players"
     )
     invalidate_cache = mocker.patch(
-        "app.api.v1.services.team_players.cache_service.invalidate_cache"
+        "app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix"
     )
 
     with pytest.raises(LookupError, match="team not found"):
@@ -269,7 +269,7 @@ def test_update_team_players_does_not_invalidate_cache_if_team_player_upsert_fai
         side_effect=RuntimeError("upsert failed"),
     )
     invalidate_cache = mocker.patch(
-        "app.api.v1.services.team_players.cache_service.invalidate_cache"
+        "app.api.v1.services.team_players.cache_repo.invalidate_cache_prefix"
     )
 
     with pytest.raises(RuntimeError, match="upsert failed"):

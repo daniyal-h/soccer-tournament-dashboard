@@ -38,3 +38,11 @@ def set_cache_entry(db: Session, key: str, payload: str, expires_at: datetime) -
 def invalidate_cache_entry(db: Session, key: str) -> None:
     db.query(CacheEntry).where(CacheEntry.cache_key == key).delete()
     db.commit()
+
+
+# a recursive invalidation for things like team_squad:{tournament_id}:{team_id}
+def invalidate_cache_prefix(db: Session, prefix: str) -> None:
+    db.query(CacheEntry).where(CacheEntry.cache_key.like(f"{prefix}%")).delete(
+        synchronize_session=False
+    )
+    db.commit()
