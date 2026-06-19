@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Menu } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 
@@ -17,6 +17,12 @@ const CompactNav = ({ navItems }: NavProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
 
+  // close the sheet whenever the route actually changes
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsOpen(false);
+  }, [pathname]);
+
   return (
     <div className="flex items-center">
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -26,7 +32,14 @@ const CompactNav = ({ navItems }: NavProps) => {
           </Button>
         </SheetTrigger>
 
-        <SheetContent side="left" className="w-64 p-6">
+        <SheetContent
+          side="left"
+          className="w-64 p-6"
+          onCloseAutoFocus={(e) => {
+            e.preventDefault();
+            document.getElementById('main-heading')?.focus();
+          }}
+        >
           <SheetTitle className="mb-6 text-lg">Navigation</SheetTitle>
 
           <div className="flex flex-col gap-5">
@@ -34,7 +47,6 @@ const CompactNav = ({ navItems }: NavProps) => {
               <NavLink
                 key={item.to}
                 to={item.to}
-                onClick={() => setIsOpen(false)}
                 className={() =>
                   [
                     // Stryker disable next-line StringLiteral: base layout/style classes are visual-only

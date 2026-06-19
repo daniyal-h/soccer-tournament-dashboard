@@ -26,7 +26,22 @@ export function groupMatchesByDay(matches: Match[]): MatchGroup[] {
   }));
 }
 
-//** Return the local day on the match in the form MMM DD */
+export function findNextUpcomingDayKey(groups: MatchGroup[]): string | null {
+  const todayStart = startOfToday();
+
+  // groups are already chronological, first group whose matches are today-or-later is the one we want
+  const next = groups.find((g) => new Date(g.matches[0].kickoff_time).getTime() >= todayStart);
+
+  return next?.day ?? null;
+}
+
+function startOfToday(): number {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.getTime();
+}
+
+/** Return the local day on the match in the form MMM DD */
 function getMatchDay(match: Match): string {
   const { kickoff_time } = match;
   const utcDate = new Date(kickoff_time);
