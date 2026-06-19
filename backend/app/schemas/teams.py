@@ -1,3 +1,5 @@
+from datetime import date
+
 from pydantic import BaseModel, ConfigDict
 
 from app.models.enums import PositionType
@@ -26,3 +28,19 @@ class TeamSquadPlayer(BaseModel):
 
 class TeamSquadResponse(BaseModel):
     data: list[TeamSquadPlayer]
+
+
+class TeamPlayerRefreshRow(BaseModel):
+    external_player_id: int
+    external_team_id: int
+
+    display_name: str
+    first_name: str | None = None
+    last_name: str | None = None
+    date_of_birth: date | None = None
+    photo_url: str | None = None
+    nationality: str | None = None
+    height: int | None = None
+
+    squad_number: int | None = None
+    position: PositionType | None = None
