@@ -1,6 +1,6 @@
 from datetime import date
 
-from app.api.v1.repositories.team_players import get_team_squad_by_tournament
+from app.api.v1.repositories.team_players import get_team_squad_by_tournament, upsert_team_players
 from app.models.players import Player
 from app.models.team import Team, TeamType
 from app.models.team_player import PositionType, TeamPlayer
@@ -257,3 +257,293 @@ def test_get_team_squad_by_tournament_returns_empty_list_for_missing_squad(db_se
     squad = get_team_squad_by_tournament(db_session, tournament_id=999, team_id=999)
 
     assert squad == []
+
+
+def test_upsert_team_players_inserts_rows(db_session):
+    tournament = Tournament(
+        external_api_id=10,
+        name="World Cup",
+        season="2026",
+        logo_url=None,
+        start_date=date(2026, 6, 11),
+        end_date=date(2026, 7, 19),
+    )
+    team = Team(
+        external_api_id=20,
+        name="Canada",
+        short_name="CAN",
+        type=TeamType.NATIONAL,
+        logo_url=None,
+        country="Canada",
+    )
+    player = make_player(400, "Inserted Player")
+
+    db_session.add_all([tournament, team, player])
+    db_session.commit()
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=9,
+                position=PositionType.FWD,
+            )
+        ],
+    )
+
+    squad = get_team_squad_by_tournament(db_session, tournament.id, team.id)
+
+    assert len(squad) == 1
+    assert squad[0].tournament_id == tournament.id
+    assert squad[0].team_id == team.id
+    assert squad[0].player_id == player.id
+    assert squad[0].squad_number == 9
+    assert squad[0].position == PositionType.FWD
+
+
+def test_upsert_team_players_updates_existing_registration_attributes(db_session):
+    tournament = Tournament(
+        external_api_id=11,
+        name="World Cup",
+        season="2026",
+        logo_url=None,
+        start_date=date(2026, 6, 11),
+        end_date=date(2026, 7, 19),
+    )
+    team = Team(
+        external_api_id=21,
+        name="Senegal",
+        short_name="SEN",
+        type=TeamType.NATIONAL,
+        logo_url=None,
+        country="Senegal",
+    )
+    player = make_player(401, "Updated Player")
+
+    db_session.add_all([tournament, team, player])
+    db_session.commit()
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=22,
+                position=PositionType.DEF,
+            )
+        ],
+    )
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=10,
+                position=PositionType.MID,
+            )
+        ],
+    )
+
+    squad = get_team_squad_by_tournament(db_session, tournament.id, team.id)
+
+    assert len(squad) == 1
+    assert squad[0].squad_number == 10
+    assert squad[0].position == PositionType.MID
+
+
+def test_upsert_team_players_updates_existing_registration_to_null_values(db_session):
+    tournament = Tournament(
+        external_api_id=12,
+        name="World Cup",
+        season="2026",
+        logo_url=None,
+        start_date=date(2026, 6, 11),
+        end_date=date(2026, 7, 19),
+    )
+    team = Team(
+        external_api_id=22,
+        name="Argentina",
+        short_name="ARG",
+        type=TeamType.NATIONAL,
+        logo_url=None,
+        country="Argentina",
+    )
+    player = make_player(402, "Nullable Player")
+
+    db_session.add_all([tournament, team, player])
+    db_session.commit()
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=7,
+                position=PositionType.FWD,
+            )
+        ],
+    )
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=None,
+                position=None,
+            )
+        ],
+    )
+
+    squad = get_team_squad_by_tournament(db_session, tournament.id, team.id)
+
+    assert len(squad) == 1
+    assert squad[0].squad_number is None
+    assert squad[0].position is None
+
+
+def test_upsert_team_players_treats_same_player_in_different_tournaments_as_distinct(
+    db_session,
+):
+    tournament = Tournament(
+        external_api_id=13,
+        name="World Cup",
+        season="2026",
+        logo_url=None,
+        start_date=date(2026, 6, 11),
+        end_date=date(2026, 7, 19),
+    )
+    other_tournament = Tournament(
+        external_api_id=14,
+        name="Euro",
+        season="2024",
+        logo_url=None,
+        start_date=date(2024, 6, 14),
+        end_date=date(2024, 7, 14),
+    )
+    team = Team(
+        external_api_id=23,
+        name="France",
+        short_name="FRA",
+        type=TeamType.NATIONAL,
+        logo_url=None,
+        country="France",
+    )
+    player = make_player(403, "Same Player")
+
+    db_session.add_all([tournament, other_tournament, team, player])
+    db_session.commit()
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=10,
+                position=PositionType.FWD,
+            ),
+            TeamPlayer(
+                tournament_id=other_tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=8,
+                position=PositionType.MID,
+            ),
+        ],
+    )
+
+    first_squad = get_team_squad_by_tournament(db_session, tournament.id, team.id)
+    second_squad = get_team_squad_by_tournament(db_session, other_tournament.id, team.id)
+
+    assert first_squad[0].squad_number == 10
+    assert first_squad[0].position == PositionType.FWD
+    assert second_squad[0].squad_number == 8
+    assert second_squad[0].position == PositionType.MID
+
+
+def test_upsert_team_players_treats_same_player_on_different_teams_as_distinct(
+    db_session,
+):
+    tournament = Tournament(
+        external_api_id=15,
+        name="Club World Cup",
+        season="2025",
+        logo_url=None,
+        start_date=date(2025, 6, 14),
+        end_date=date(2025, 7, 13),
+    )
+    team = Team(
+        external_api_id=24,
+        name="Team A",
+        short_name="TMA",
+        type=TeamType.CLUB,
+        logo_url=None,
+        country="A",
+    )
+    other_team = Team(
+        external_api_id=25,
+        name="Team B",
+        short_name="TMB",
+        type=TeamType.CLUB,
+        logo_url=None,
+        country="B",
+    )
+    player = make_player(404, "Transfer Player")
+
+    db_session.add_all([tournament, team, other_team, player])
+    db_session.commit()
+
+    upsert_team_players(
+        db_session,
+        [
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                squad_number=5,
+                position=PositionType.DEF,
+            ),
+            TeamPlayer(
+                tournament_id=tournament.id,
+                team_id=other_team.id,
+                player_id=player.id,
+                squad_number=6,
+                position=PositionType.MID,
+            ),
+        ],
+    )
+
+    first_squad = get_team_squad_by_tournament(db_session, tournament.id, team.id)
+    second_squad = get_team_squad_by_tournament(db_session, tournament.id, other_team.id)
+
+    assert first_squad[0].squad_number == 5
+    assert first_squad[0].position == PositionType.DEF
+    assert second_squad[0].squad_number == 6
+    assert second_squad[0].position == PositionType.MID
+
+
+def test_upsert_team_players_returns_without_execute_or_commit_when_rows_empty(
+    db_session,
+    mocker,
+):
+    execute_spy = mocker.spy(db_session, "execute")
+    commit_spy = mocker.spy(db_session, "commit")
+
+    upsert_team_players(db_session, [])
+
+    execute_spy.assert_not_called()
+    commit_spy.assert_not_called()

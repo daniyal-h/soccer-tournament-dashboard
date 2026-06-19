@@ -3,8 +3,10 @@ API_FOOTBALL_BASE_URL = "https://v3.football.api-sports.io"
 API_FOOTBALL_STANDINGS_ENDPOINT = "/standings"
 API_FOOTBALL_FIXTURES_ENDPOINT = "/fixtures"
 API_FOOTBALL_EVENTS_ENDPOINT = "/fixtures/events"
+API_FOOTBALL_PLAYERS_ENDPOINT = "/players"
 STANDINGS_MARGIN_DAYS = 1
 MATCHES_MARGIN_DAYS = 14
+PLAYER_DATA_MARGIN_DAYS = 1
 
 # codes based on Football-API fixture status can be collapsed into 5 types used in backend
 
