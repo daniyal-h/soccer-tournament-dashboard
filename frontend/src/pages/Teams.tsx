@@ -53,8 +53,6 @@ const Teams = () => {
     });
   }, [tournamentTeams, selectedGroup, selectedStage]);
 
-  // render error and loading states
-
   if (error) {
     return (
       <ErrorState
