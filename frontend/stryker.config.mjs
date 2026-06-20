@@ -3,7 +3,7 @@ export default {
   testRunner: 'vitest',
   coverageAnalysis: 'perTest',
 
-  concurrency: 2,
+  concurrency: 3,
   timeoutMS: 10000,
   timeoutFactor: 2,
   ignoreStatic: true,
