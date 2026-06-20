@@ -45,7 +45,9 @@ const SquadMemberCard = ({ member }: SquadMemberCardProps) => {
         {/* Right: details */}
         <div className="max-[380px]:hidden shrink-0 space-y-1 text-right text-xs text-muted-foreground">
           {playerSummary.nationality && (
-            <p data-testid="player-nationality" className="max-w-20 truncate">{playerSummary.nationality}</p>
+            <p data-testid="player-nationality" className="max-w-20 truncate">
+              {playerSummary.nationality}
+            </p>
           )}
           {playerSummary.height && <p>{playerSummary.height} cm</p>}
           {playerSummary.date_of_birth && <p>{getAge(playerSummary.date_of_birth)} yrs</p>}

@@ -155,7 +155,7 @@ describe('getStandings', () => {
 
     await expect(getStandings({ tournamentId: 1 })).rejects.toThrow('Invalid standings response');
   });
-  
+
   it('throws when one row in an otherwise valid group is invalid', async () => {
     mockApiGet.mockResolvedValue({
       A: [
