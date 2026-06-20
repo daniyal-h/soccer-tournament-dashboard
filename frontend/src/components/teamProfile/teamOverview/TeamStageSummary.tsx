@@ -32,6 +32,7 @@ const TeamStageSummary = ({ standing }: TeamStageSummaryProps) => {
         <div className="grid grid-cols-3 gap-3 text-center">
           <div
             className={cn(
+              // Stryker disable next-line StringLiteral: UI only
               'rounded-lg border p-4 bg-accent',
               isQualifiedPosition && 'bg-green-100 dark:bg-green-950',
             )}

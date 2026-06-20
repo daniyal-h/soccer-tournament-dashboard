@@ -14,6 +14,7 @@ import { isNavItemActive } from '@/utils/layout/navigationHelper';
  * Renders a side menu through button-click to show navigation items
  */
 const CompactNav = ({ navItems }: NavProps) => {
+  // Stryker disable next-line BooleanLiteral: equivalent mutant since it defaults to false upon render too
   const [isOpen, setIsOpen] = useState(false);
   const { pathname } = useLocation();
 

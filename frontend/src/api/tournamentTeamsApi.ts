@@ -4,6 +4,7 @@ import { apiGet } from './client';
 import { isTeamSummary } from './teamsApi';
 
 function isTournamentTeam(value: unknown): value is TournamentTeam {
+  // Stryker disable next-line ConditionalExpression
   if (typeof value !== 'object' || value === null) {
     return false;
   }

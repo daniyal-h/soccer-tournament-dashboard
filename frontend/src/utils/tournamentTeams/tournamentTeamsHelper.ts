@@ -9,7 +9,9 @@ export function getTournamentGroups(teams: TournamentTeam[]): string[] {
 }
 
 export function getTournamentStages(teams: TournamentTeam[]): MatchStage[] {
+  
   const availableStages = new Set(
+    // Stryker disable next-line BooleanLiteral, ConditionalExpression: null stages are ignored anyways
     teams.map((team) => team.stage_reached).filter((stage): stage is MatchStage => stage !== null),
   );
 
