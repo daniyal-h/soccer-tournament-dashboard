@@ -1,10 +1,23 @@
-import { render, screen, within } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { MemoryRouter, useNavigate } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { Standing } from '@/types/standing';
 
+import { ROUTES } from '@/constants/navigation';
+
 import { GroupTable } from './GroupTable';
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
+const mockNavigate = vi.mocked(useNavigate);
 
 const rows: Standing[] = [
   {
@@ -69,6 +82,10 @@ function renderGroupTable(tableRows = rows) {
 }
 
 describe('GroupTable', () => {
+  beforeEach(() => {
+    mockNavigate.mockReturnValue(vi.fn());
+  });
+
   it('renders all table headers', () => {
     renderGroupTable();
 
@@ -134,6 +151,49 @@ describe('GroupTable', () => {
     renderGroupTable(zeroStateRows);
 
     expect(screen.getAllByText('-')).toHaveLength(3);
+  });
+
+  it('navigates to the team profile when a team row is clicked', () => {
+    const navigate = vi.fn();
+    mockNavigate.mockReturnValue(navigate);
+
+    renderGroupTable();
+
+    fireEvent.click(screen.getByText('Argentina').closest('tr')!);
+
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledWith('/teams/1', {
+      state: { from: ROUTES.STANDINGS },
+    });
+  });
+
+  it('navigates to the team profile when Enter is pressed on a team row', () => {
+    const navigate = vi.fn();
+    mockNavigate.mockReturnValue(navigate);
+
+    renderGroupTable();
+
+    fireEvent.keyDown(screen.getByText('Brazil').closest('tr')!, {
+      key: 'Enter',
+    });
+
+    expect(navigate).toHaveBeenCalledOnce();
+    expect(navigate).toHaveBeenCalledWith('/teams/2', {
+      state: { from: ROUTES.STANDINGS },
+    });
+  });
+
+  it('does not navigate when a non-Enter key is pressed on a team row', () => {
+    const navigate = vi.fn();
+    mockNavigate.mockReturnValue(navigate);
+
+    renderGroupTable();
+
+    fireEvent.keyDown(screen.getByText('Canada').closest('tr')!, {
+      key: 'Space',
+    });
+
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it('highlights positions one and two', () => {

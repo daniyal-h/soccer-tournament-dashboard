@@ -182,6 +182,22 @@ describe('MatchSchedule', () => {
       expect(screen.queryByTestId('match-day-accordion')).not.toBeInTheDocument();
       expect(mockedMatchDayAccordion).not.toHaveBeenCalled();
     });
+
+    it('uses first kickoff and last kickoff to determine tournament window', () => {
+      mockedFindNextUpcomingDayKey.mockReturnValue('Middle');
+
+      const customGroups = [
+        createGroup('Start', [{ id: 1, kickoff: '2026-06-01T00:00:00Z' }]),
+        createGroup('Middle', [{ id: 2, kickoff: '2026-06-10T00:00:00Z' }]),
+        createGroup('End', [{ id: 3, kickoff: '2026-06-30T00:00:00Z' }]),
+      ];
+
+      vi.setSystemTime(new Date('2026-06-20T00:00:00Z'));
+
+      render(<MatchSchedule groupedMatches={customGroups} />);
+
+      expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('scroll-to-next-upcoming-day behavior', () => {
@@ -309,6 +325,31 @@ describe('MatchSchedule', () => {
 
       // effect has an empty dependency array — must not fire again on update
       expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not scroll before the tournament starts', () => {
+      mockedFindNextUpcomingDayKey.mockReturnValue('June 20, 2026');
+      vi.setSystemTime(new Date('2026-06-01T00:00:00Z'));
+
+      render(<MatchSchedule groupedMatches={groups} />);
+
+      expect(scrollIntoViewMock).not.toHaveBeenCalled();
+    });
+
+    it('does not scroll after the tournament ends', () => {
+      mockedFindNextUpcomingDayKey.mockReturnValue('June 20, 2026');
+      vi.setSystemTime(new Date('2026-07-01T00:00:00Z'));
+
+      render(<MatchSchedule groupedMatches={groups} />);
+
+      expect(scrollIntoViewMock).not.toHaveBeenCalled();
+    });
+
+    it('finds the next upcoming day using the provided grouped matches', () => {
+      render(<MatchSchedule groupedMatches={groups} />);
+
+      expect(mockedFindNextUpcomingDayKey).toHaveBeenCalledOnce();
+      expect(mockedFindNextUpcomingDayKey).toHaveBeenCalledWith(groups);
     });
   });
 });
