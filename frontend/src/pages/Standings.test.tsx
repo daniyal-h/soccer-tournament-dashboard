@@ -305,7 +305,6 @@ describe('Standings', () => {
     expect(screen.getByText('View group standings for the Copa Test.')).toBeInTheDocument();
   });
 
-
   it('renders pre-tournament loading description when no tournament is selected', () => {
     mockedUseTournament.mockReturnValue({
       selectedTournamentId: 1,
@@ -329,11 +328,7 @@ describe('Standings', () => {
 
     render(<Standings />);
 
-    expect(
-      screen.getByText(
-        "Loading group standings...",
-      ),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Loading group standings...')).toBeInTheDocument();
   });
 
   it('renders pre-tournament description when no tournament name exists even if loading is false', () => {
