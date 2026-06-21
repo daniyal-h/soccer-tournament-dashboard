@@ -15,8 +15,9 @@ const Schedule = () => {
 
   const tournamentName = selectedTournament?.name;
 
-  const description = `View upcoming and completed tournament matches for the 
-        ${tournamentName ?? 'the selected tournament'}.`;
+  const description = isLoading
+    ? 'Loading upcoming and completed matches...'
+    : `View upcoming and completed tournament matches for the ${tournamentName ?? 'the selected tournament'}.`;
 
   // render error state with possible retry logic
   if (error) {

@@ -117,9 +117,7 @@ describe('Schedule', () => {
 
     expect(screen.getByRole('heading', { name: 'Schedule' })).toBeInTheDocument();
 
-    expect(screen.getByText(/View upcoming and completed tournament matches/i)).toHaveTextContent(
-      'FIFA World Cup 2026',
-    );
+    expect(screen.getByText('Loading upcoming and completed matches...')).toBeInTheDocument();
 
     expect(screen.getByTestId('schedule-skeleton')).toBeInTheDocument();
     expect(screen.queryByTestId('match-schedule')).not.toBeInTheDocument();
@@ -133,7 +131,7 @@ describe('Schedule', () => {
 
     mockedUseMatches.mockReturnValue({
       groupedMatches: [],
-      isLoading: true,
+      isLoading: false,
       error: null,
       emptyState: null,
       refetch: vi.fn(),
