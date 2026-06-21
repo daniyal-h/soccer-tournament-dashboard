@@ -1,7 +1,7 @@
 import http from "k6/http";
 import { check, sleep } from "k6";
 
-import { BASE_URL, MATCH_ID } from "../constants.js";
+import { BASE_URL, MATCH_ID, TOURNAMENT_ID } from "../constants.js";
 
 export const options = {
     scenarios: {
@@ -37,7 +37,7 @@ export const options = {
 
 export default function scheduleNavigationStressTest() {
     const scheduleResponse = http.get(
-        `${BASE_URL}/api/v1/tournaments/${MATCH_ID}/matches`,
+        `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/matches`,
     );
 
     check(scheduleResponse, {
