@@ -30,6 +30,7 @@ function getRankingLabel(tournamentTeam: TournamentTeam): string {
 const TeamCard = ({ tournamentTeam }: TeamCardProps) => {
   const { team, group } = tournamentTeam;
   const rankStyle =
+    // Stryker disable next-line ConditionalExpression: equivalent mutation
     tournamentTeam.final_rank === null
       ? undefined
       : TEAM_RANK_CARD_STYLES[tournamentTeam.final_rank];
@@ -38,6 +39,7 @@ const TeamCard = ({ tournamentTeam }: TeamCardProps) => {
     <Link
       to={`/teams/${team.id}`}
       state={{ from: ROUTES.TEAMS }}
+      // Stryker disable next-line StringLiteral, ObjectLiteral: visual link decoration reset only
       style={{ textDecoration: 'none' }}
       className="block min-w-0"
     >

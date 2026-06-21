@@ -16,6 +16,7 @@ const MatchSchedule = ({ groupedMatches }: MatchScheduleProps) => {
   const navigationType = useNavigationType();
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
+  // Stryker disable next-line ArrayDeclaration: empty list is a valid input; equivalent
   const nextDay = useMemo(() => findNextUpcomingDayKey(groupedMatches), [groupedMatches]);
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const MatchSchedule = ({ groupedMatches }: MatchScheduleProps) => {
     const isLive = now >= start && now <= end;
     if (!isLive) return;
 
+    // Stryker disable next-line StringLiteral, OptionalChaining: scroll options are visual behavior only
     scrollTargetRef.current?.scrollIntoView({ behavior: 'instant', block: 'start' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

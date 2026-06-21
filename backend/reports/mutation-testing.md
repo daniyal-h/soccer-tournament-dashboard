@@ -1,7 +1,7 @@
 # Mutation Testing
 
 Tool: mutmut \
-Date of Test: Mon June 8 19:16:51 CDT 2026
+Date of Test: Fri June 19 21:43 CDT 2026
 
 ## Scope
 
@@ -16,15 +16,15 @@ mutmut results
 
 ## Result
 
-1146/1146  🎉 1124 🫥 0  ⏰ 0  🤔 0  🙁 22  🔇 0  🧙 0
+2001/2001  🎉 1968 🫥 0  ⏰ 0  🤔 0  🙁 33  🔇 0  🧙 0
 
-- Total mutants generated: 1146
-- Mutants killed: 1124
-- Surviving mutants: 22
+- Total mutants generated: 2001
+- Mutants killed: 1968
+- Surviving mutants: 33
 - Timeout/skipped mutants: 0
-- Mutation score: **98.1%**
+- Mutation score: **98.35%**
 
-The remaining 22 surviving mutants were manually reviewed and classified as equivalent mutants. These mutations did not alter observable program behavior and primarily involved:
+The remaining 33 surviving mutants were manually reviewed and classified as equivalent mutants. These mutations did not alter observable program behavior and primarily involved:
 - Replacement of fallback values that resulted in identical control flow (e.g., alternative falsy/default values)
 - Removal of explicit `None` assignments where schema defaults already produced the same output
 - Equivalent default handling paths where validation logic produced identical results

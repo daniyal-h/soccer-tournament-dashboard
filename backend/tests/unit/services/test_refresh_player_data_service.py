@@ -295,6 +295,39 @@ def test_fetch_player_data_for_tournament_defaults_missing_paging_to_single_page
     )
 
 
+def test_fetch_player_data_for_tournament_continues_after_duplicate_row(mocker):
+    tournament = SimpleNamespace(external_api_id=1, season="2026")
+
+    mocker.patch(
+        "app.api.v1.services.refresh_player_data.football_get",
+        return_value={
+            "paging": {"total": 1},
+            "response": [
+                make_player_entry(player_id=10),
+                make_player_entry(player_id=10),
+                make_player_entry(
+                    player_id=11,
+                    player_name="Kylian Mbappe",
+                    statistics=[
+                        {
+                            "team": {"id": 51},
+                            "league": {"id": 1, "season": 2026},
+                            "games": {"number": 9, "position": "Attacker"},
+                        }
+                    ],
+                ),
+            ],
+        },
+    )
+
+    rows = sut.fetch_player_data_for_tournament(tournament)
+
+    assert [(row.external_team_id, row.external_player_id) for row in rows] == [
+        (50, 10),
+        (51, 11),
+    ]
+
+
 def test_refresh_player_data_updates_rows_and_marks_job_success(mocker):
     db = object()
     tournament = SimpleNamespace(id=123, external_api_id=1, season="2026")
@@ -439,3 +472,48 @@ def test_refresh_player_data_completes_failed_job_and_reraises_outer_failure(moc
         sut.refresh_player_data(db)
 
     complete_job.assert_called_once_with(db, 777, success=False)
+
+
+def test_refresh_player_data_continues_after_skipped_tournament(mocker):
+    db = object()
+    skipped_tournament = SimpleNamespace(id=1, external_api_id=10, season="2026")
+    refreshed_tournament = SimpleNamespace(id=2, external_api_id=20, season="2027")
+    row = SimpleNamespace(external_team_id=50, external_player_id=10)
+
+    mocker.patch(
+        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        return_value=777,
+    )
+    complete_job = mocker.patch(
+        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+    )
+    mocker.patch(
+        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        return_value=[skipped_tournament, refreshed_tournament],
+    )
+    fetch_player_data = mocker.patch(
+        "app.api.v1.services.refresh_player_data.fetch_player_data_for_tournament",
+        side_effect=[[], [row]],
+    )
+    update_team_players = mocker.patch(
+        "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
+    )
+
+    result = sut.refresh_player_data(db)
+
+    assert fetch_player_data.call_args_list == [
+        mocker.call(skipped_tournament),
+        mocker.call(refreshed_tournament),
+    ]
+    update_team_players.assert_called_once_with(
+        db=db,
+        tournament_id=2,
+        rows=[row],
+    )
+    complete_job.assert_called_once_with(db, 777, success=True)
+
+    assert result["tournaments_checked"] == 2
+    assert result["tournaments_skipped"] == 1
+    assert result["tournaments_refreshed"] == 1
+    assert result["rows_processed"] == 1
+    assert result["failures"] == []

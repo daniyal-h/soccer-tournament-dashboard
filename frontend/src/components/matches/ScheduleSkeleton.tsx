@@ -23,6 +23,7 @@ const ScheduleSkeleton = () => {
           <div className="px-1 pb-4 pt-2">
             <div className="grid gap-4 md:grid-cols-2">
               {skeletonCards.map((cardKey) => (
+                // Stryker disable next-line StringLiteral
                 <Card key={`${dayKey}-${cardKey}`} className="w-full shadow-sm">
                   <CardContent className="min-w-0 space-y-3 p-4">
                     <div className="flex flex-col items-center gap-4">

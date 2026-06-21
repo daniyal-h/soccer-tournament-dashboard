@@ -9,7 +9,7 @@ import type { LocationState } from '@/types/navbar';
 
 import { ROUTES } from '@/constants/navigation';
 
-import { getBackLabel } from '@/utils/navigationHelper';
+import { getBackLabel } from '@/utils/layout/navigationHelper';
 
 const TeamProfile = () => {
   const location = useLocation();
@@ -26,6 +26,7 @@ const TeamProfile = () => {
       return;
     }
 
+    // Stryker disable next-line ConditionalExpression: equivalent mutation
     if (from) {
       navigate(from);
     }

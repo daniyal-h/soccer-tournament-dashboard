@@ -6,14 +6,14 @@ Tooling:
 - Vitest
 - React + TypeScript
 
-Date of Test: Tues June 9 16:44:31 CDT 2026
+Date of Test: Sat June 20 16:48 CDT 2026
 
 ## Results
 
-- Total Mutants: 1516
-- Mutation score: **98.28%** (1430/1455 non-ignored mutants killed)
-- Survived mutants (22) reviewed
-- Equivalent/style-only mutants excluded or disabled intentionally (64)
+- Total Mutants: 2312
+- Mutation score: **98.73%** (2176/2204 non-ignored mutants killed)
+- Survived mutants (28) reviewed
+- Equivalent/style-only mutants excluded or disabled intentionally (108)
 
 ## Notes
 

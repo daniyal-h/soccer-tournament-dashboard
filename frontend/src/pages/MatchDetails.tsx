@@ -10,7 +10,7 @@ import type { LocationState } from '@/types/navbar';
 
 import { ROUTES } from '@/constants/navigation';
 
-import { getBackLabel } from '@/utils/navigationHelper';
+import { getBackLabel } from '@/utils/layout/navigationHelper';
 
 const MatchDetails = () => {
   const location = useLocation();

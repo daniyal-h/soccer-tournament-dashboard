@@ -1,11 +1,13 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import MatchHeader from '@/components/matchEvents/header/MatchHeader';
 
 import type { Match } from '@/types/match';
 import type { ResponseMetadata } from '@/types/metadata';
+
+import { ROUTES } from '@/constants/navigation';
 
 vi.mock('@/components/matches/MatchStatusBadge', () => ({
   default: ({ status, elapsed }: { status: string; elapsed: number | null }) => (
@@ -74,6 +76,12 @@ function renderMatchHeader(match: Match = baseMatch, metadata: ResponseMetadata 
       <MatchHeader match={match} metadata={metadata} />
     </MemoryRouter>,
   );
+}
+
+function LocationStateProbe() {
+  const location = useLocation();
+
+  return <div data-testid="location-state">{JSON.stringify(location.state)}</div>;
 }
 
 describe('MatchHeader', () => {
@@ -314,5 +322,74 @@ describe('MatchHeader', () => {
     expect(screen.getByRole('link', { name: /Canada CAN/i })).toHaveAttribute('href', '/teams/10');
 
     expect(screen.getByRole('link', { name: /Brazil BRA/i })).toHaveAttribute('href', '/teams/20');
+  });
+
+  it('updates the relative freshness text when the interval ticks', () => {
+    renderMatchHeader(
+      baseMatch,
+      makeMetadata({
+        last_updated: '2026-06-11T19:09:00Z',
+        last_successful_refresh: null,
+      }),
+    );
+
+    expect(screen.getByText(/^Last updated:/)).toHaveTextContent(/1 minute ago/);
+
+    act(() => {
+      vi.setSystemTime(new Date('2026-06-11T19:14:00Z'));
+      vi.advanceTimersByTime(60_000);
+    });
+
+    expect(screen.getByText(/^Last updated:/)).toHaveTextContent(/6 minutes ago/);
+  });
+
+  it('restarts freshness timer when displayed timestamp changes', () => {
+    const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <MatchHeader
+          match={baseMatch}
+          metadata={makeMetadata({
+            last_updated: '2026-06-11T19:09:00Z',
+            last_successful_refresh: null,
+          })}
+        />
+      </MemoryRouter>,
+    );
+
+    rerender(
+      <MemoryRouter>
+        <MatchHeader
+          match={baseMatch}
+          metadata={makeMetadata({
+            last_updated: '2026-06-11T19:08:00Z',
+            last_successful_refresh: null,
+          })}
+        />
+      </MemoryRouter>,
+    );
+
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes match details route in link state when navigating to team profile', () => {
+    render(
+      <MemoryRouter initialEntries={['/matches/1']}>
+        <Routes>
+          <Route
+            path="/matches/1"
+            element={<MatchHeader match={baseMatch} metadata={baseMetadata} />}
+          />
+          <Route path="/teams/:teamId" element={<LocationStateProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('link', { name: /Canada CAN/i }));
+
+    expect(screen.getByTestId('location-state')).toHaveTextContent(
+      JSON.stringify({ from: ROUTES.MATCH_DETAILS(1) }),
+    );
   });
 });

@@ -15,6 +15,7 @@ const InLineNav = ({ navItems, className }: InLineNavProps) => {
   const { pathname } = useLocation();
 
   return (
+    // Stryker disable next-line StringLiteral: base flex layout classes are visual-only
     <div className={cn('flex items-center', className)}>
       {navItems.map((item) => (
         <NavLink

@@ -167,6 +167,38 @@ def test_display_sort_orders_active_then_ranked_then_unranked_teams():
     ]
 
 
+def test_display_sort_key_active_team_with_unknown_stage_uses_fallback_after_known_stages():
+    known_active = make_tournament_team_row(
+        team_name="Argentina",
+        final_rank=None,
+        stage_reached=StageType.GROUP,
+    )
+    unknown_active = make_tournament_team_row(
+        team_name="Mystery FC",
+        final_rank=None,
+        stage_reached="mystery_stage",
+    )
+
+    known_key = tournament_teams_service.get_tournament_team_display_sort_key(known_active)
+    unknown_key = tournament_teams_service.get_tournament_team_display_sort_key(unknown_active)
+
+    assert unknown_key == (0, 99, "Mystery FC")
+    assert known_key[0] == unknown_key[0]
+    assert unknown_key[1] > known_key[1]
+
+
+def test_display_sort_orders_unknown_active_stage_after_known_active_stages():
+    active_final = make_tournament_team_row("Argentina", stage_reached=StageType.FINAL)
+    active_unknown = make_tournament_team_row("Mystery FC", stage_reached="mystery_stage")
+    active_qf = make_tournament_team_row("Brazil", stage_reached=StageType.QUARTER_FINAL)
+
+    rows = [active_unknown, active_qf, active_final]
+
+    result = sorted(rows, key=tournament_teams_service.get_tournament_team_display_sort_key)
+
+    assert result == [active_final, active_qf, active_unknown]
+
+
 def test_get_ranked_tournament_teams_returns_cached_rows_without_repo_calls(mocker):
     db = Mock()
     cached_rows = [{"team_id": 1, "team": {"name": "Cached FC"}}]

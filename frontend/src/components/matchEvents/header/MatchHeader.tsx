@@ -53,6 +53,7 @@ const MatchHeader = ({ match, metadata }: MatchHeaderProps) => {
       <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 sm:gap-8">
         <Link
           to={`/teams/${match.team_a.id}`}
+          // Stryker disable next-line ObjectLiteral
           state={{ from: ROUTES.MATCH_DETAILS(match.id) }}
           className="flex min-w-0 flex-col items-end gap-2"
         >

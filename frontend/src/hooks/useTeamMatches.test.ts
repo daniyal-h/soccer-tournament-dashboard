@@ -262,6 +262,57 @@ describe('useTeamMatches', () => {
     );
   });
 
+  it('filters unfinished matches before taking the last five recent matches', () => {
+    const matches: Match[] = [
+      { ...baseMatch, id: 1, status: 'finished' },
+      { ...baseMatch, id: 2, status: 'finished' },
+      { ...baseMatch, id: 3, status: 'finished' },
+      {
+        ...baseMatch,
+        id: 99,
+        status: 'scheduled',
+        elapsed: null,
+        team_a_score: null,
+        team_b_score: null,
+      },
+      { ...baseMatch, id: 4, status: 'finished' },
+      { ...baseMatch, id: 5, status: 'finished' },
+      { ...baseMatch, id: 6, status: 'finished' },
+    ];
+
+    mockUseApiQueryReturn({
+      data: { matches },
+    });
+
+    const { result } = renderHook(() =>
+      useTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    );
+
+    expect(result.current.lastFiveMatches.map((match) => match.id)).toEqual([2, 3, 4, 5, 6]);
+  });
+
+  it('does not return an empty state when matches exist', () => {
+    mockUseApiQueryReturn({
+      data: {
+        matches: [baseMatch],
+      },
+      isInitialLoading: false,
+      displayError: null,
+    });
+
+    const { result } = renderHook(() =>
+      useTeamMatches({
+        tournament_id: 12,
+        team_id: 34,
+      }),
+    );
+
+    expect(result.current.emptyState).toBeNull();
+  });
+
   it('maps loading, refreshing, error, retry, and retry eligibility state', () => {
     const retry = vi.fn();
 

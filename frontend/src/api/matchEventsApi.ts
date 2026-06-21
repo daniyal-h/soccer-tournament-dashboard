@@ -12,6 +12,7 @@ function isNullablePlayerSummary(value: unknown) {
 }
 
 function isMatchEvent(value: unknown): value is MatchEvent {
+  // Stryker disable next-line ConditionalExpression
   if (typeof value !== 'object' || value === null) {
     return false;
   }

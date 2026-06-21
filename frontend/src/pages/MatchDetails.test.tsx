@@ -132,6 +132,35 @@ describe('MatchDetails', () => {
     expect(screen.getByTestId('location-pathname')).toHaveTextContent('/schedule');
   });
 
+  it('prefers browser back over location state when history exists', () => {
+    Object.defineProperty(globalThis.history, 'length', {
+      configurable: true,
+      value: 2,
+    });
+
+    renderMatchDetails([
+      '/schedule',
+      { pathname: '/matches/12', state: { from: '/custom-return' } },
+    ]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Previous Page' }));
+
+    expect(screen.getByTestId('location-pathname')).toHaveTextContent('/schedule');
+  });
+
+  it('falls back to schedule when location state from is not a string', () => {
+    Object.defineProperty(globalThis.history, 'length', {
+      configurable: true,
+      value: 1,
+    });
+
+    renderMatchDetails([{ pathname: '/matches/12', state: { from: 123 } }]);
+
+    fireEvent.click(screen.getByRole('button', { name: /back to schedule/i }));
+
+    expect(screen.getByTestId('location-pathname')).toHaveTextContent('/schedule');
+  });
+
   // scroll behaviour
   describe('scroll to top', () => {
     beforeEach(() => {

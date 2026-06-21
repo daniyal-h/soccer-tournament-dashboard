@@ -56,6 +56,42 @@ describe('SquadMemberCard', () => {
     vi.useRealTimers();
   });
 
+  it('does not leave extra spacing when first name is missing', () => {
+    render(
+      <SquadMemberCard
+        member={makeMember({
+          player: {
+            ...makeMember().player,
+            first_name: null,
+            last_name: 'Davies',
+          },
+        })}
+      />,
+    );
+
+    const fullName = screen.getByText('Davies');
+
+    expect(fullName.textContent).toBe('Davies');
+  });
+
+  it('does not leave extra spacing when last name is missing', () => {
+    render(
+      <SquadMemberCard
+        member={makeMember({
+          player: {
+            ...makeMember().player,
+            first_name: 'Alphonso',
+            last_name: null,
+          },
+        })}
+      />,
+    );
+
+    const fullName = screen.getByText('Alphonso');
+
+    expect(fullName.textContent).toBe('Alphonso');
+  });
+
   it('does not render full name when it matches display name', () => {
     render(
       <SquadMemberCard
@@ -71,6 +107,33 @@ describe('SquadMemberCard', () => {
     );
 
     expect(screen.getAllByText('Alphonso Davies')).toHaveLength(1);
+  });
+
+  it('does not render position element when position is missing', () => {
+    render(
+      <SquadMemberCard
+        member={makeMember({
+          position: null,
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId('player-position')).not.toBeInTheDocument();
+  });
+
+  it('does not render nationality element when nationality is missing', () => {
+    render(
+      <SquadMemberCard
+        member={makeMember({
+          player: {
+            ...makeMember().player,
+            nationality: null,
+          },
+        })}
+      />,
+    );
+
+    expect(screen.queryByTestId('player-nationality')).not.toBeInTheDocument();
   });
 
   it('renders available partial full name', () => {

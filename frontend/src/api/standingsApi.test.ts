@@ -126,4 +126,47 @@ describe('getStandings', () => {
       B: [],
     });
   });
+
+  it.each([
+    ['null standing row', { A: [null] }],
+    ['string standing row', { A: ['invalid'] }],
+    ['number standing row', { A: [123] }],
+    ['array standing row', { A: [[]] }],
+    ['missing team', { A: [{ ...standings.A[0], team: undefined }] }],
+    ['invalid team', { A: [{ ...standings.A[0], team: { id: '10' } }] }],
+    ['missing position', { A: [{ ...standings.A[0], position: undefined }] }],
+    ['invalid position', { A: [{ ...standings.A[0], position: '1' }] }],
+    ['missing matches_played', { A: [{ ...standings.A[0], matches_played: undefined }] }],
+    ['missing points', { A: [{ ...standings.A[0], points: undefined }] }],
+    ['missing wins', { A: [{ ...standings.A[0], wins: undefined }] }],
+    ['missing draws', { A: [{ ...standings.A[0], draws: undefined }] }],
+    ['missing losses', { A: [{ ...standings.A[0], losses: undefined }] }],
+    ['missing goals_for', { A: [{ ...standings.A[0], goals_for: undefined }] }],
+    ['missing goals_against', { A: [{ ...standings.A[0], goals_against: undefined }] }],
+    ['missing goal_difference', { A: [{ ...standings.A[0], goal_difference: undefined }] }],
+  ])('throws when response has %s', async (_caseName, response) => {
+    mockApiGet.mockResolvedValue(response);
+
+    await expect(getStandings({ tournamentId: 1 })).rejects.toThrow('Invalid standings response');
+  });
+
+  it('throws when response is an array', async () => {
+    mockApiGet.mockResolvedValue([]);
+
+    await expect(getStandings({ tournamentId: 1 })).rejects.toThrow('Invalid standings response');
+  });
+
+  it('throws when one row in an otherwise valid group is invalid', async () => {
+    mockApiGet.mockResolvedValue({
+      A: [
+        standings.A[0],
+        {
+          ...standings.A[0],
+          team: null,
+        },
+      ],
+    });
+
+    await expect(getStandings({ tournamentId: 1 })).rejects.toThrow('Invalid standings response');
+  });
 });

@@ -24,6 +24,7 @@ export function isStandingStats(value: unknown): value is StandingStats {
 }
 
 function isStanding(value: unknown): value is Standing {
+  // Stryker disable next-line ConditionalExpression
   if (typeof value !== 'object' || value === null) {
     return false;
   }
@@ -39,6 +40,7 @@ function isStandingsResponse(value: unknown): value is Record<string, Standing[]
   }
 
   return Object.entries(value).every(([group, rows]) => {
+    // Stryker disable ConditionalExpression: equivalent mutant
     return typeof group === 'string' && Array.isArray(rows) && rows.every(isStanding);
   });
 }

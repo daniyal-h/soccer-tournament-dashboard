@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 
 import type { TournamentTeam } from '@/types/tournamentTeam';
@@ -31,6 +31,12 @@ function renderTeamCard(tournamentTeam: TournamentTeam) {
       <TeamCard tournamentTeam={tournamentTeam} />
     </MemoryRouter>,
   );
+}
+
+function LocationStateProbe() {
+  const location = useLocation();
+
+  return <div data-testid="location-state">{JSON.stringify(location.state)}</div>;
 }
 
 describe('TeamCard', () => {
@@ -139,6 +145,22 @@ describe('TeamCard', () => {
     expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[3].split(' '));
   });
 
+  it('does not apply rank card style for active progress teams without final rank', () => {
+    const { container } = renderTeamCard(
+      createTournamentTeam({
+        final_rank: null,
+        stage_reached: 'semi_final',
+      }),
+    );
+
+    const card = container.querySelector('[data-slot="card"]');
+
+    expect(screen.getByText(`Group A · ${MATCH_STAGE_LABELS.semi_final}`)).toBeInTheDocument();
+    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[1].split(' '));
+    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[2].split(' '));
+    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[3].split(' '));
+  });
+
   it('keeps the clickable affordance styling on the card', () => {
     const { container } = renderTeamCard(createTournamentTeam());
 
@@ -168,5 +190,25 @@ describe('TeamCard', () => {
     // React Router state is not exposed as a DOM attribute.
     // This test still protects the user-facing navigation target.
     expect(ROUTES.TEAMS).toBe('/teams');
+  });
+
+  it('passes teams route in link state when navigating to team profile', () => {
+    render(
+      <MemoryRouter initialEntries={[ROUTES.TEAMS]}>
+        <Routes>
+          <Route
+            path={ROUTES.TEAMS}
+            element={<TeamCard tournamentTeam={createTournamentTeam()} />}
+          />
+          <Route path="/teams/:teamId" element={<LocationStateProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('link'));
+
+    expect(screen.getByTestId('location-state')).toHaveTextContent(
+      JSON.stringify({ from: ROUTES.TEAMS }),
+    );
   });
 });
