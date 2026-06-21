@@ -257,6 +257,7 @@ soccer-tournament-dashboard/
     user-stories/
 
   frontend/
+    reports/
     src/
       api/
       assets/
@@ -267,7 +268,6 @@ soccer-tournament-dashboard/
       hooks/
       lib/
       pages/
-      services/
       styles/
       types/
       utils/
@@ -277,17 +277,20 @@ soccer-tournament-dashboard/
     app/
       api/
         v1/
+          clients/
           routers/
           services/
           repositories/
-      api/
       constants/
       core/
       middleware/
       models/
       schemas/
       utils/
-      tests/
+
+    load-tests/
+    reports/
+    tests/
 
   database/
     constants/
