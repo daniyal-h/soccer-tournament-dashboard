@@ -47,16 +47,26 @@ A user opening a team profile triggers profile, match history, and squad request
 
 ## Results
 
-| Metric            | Result |
-| ----------------- | ------ |
-| Total Requests    |        |
-| Failure Rate      |        |
-| Successful Checks |        |
-| Average Latency   |        |
-| p95 Latency       |        |
-| Max Latency       |        |
+| Metric            | Result   |
+| ----------------- | -------- |
+| Total Requests    | 1,653    |
+| Failure Rate      | 0.00%    |
+| Successful Checks | 100.00%  |
+| Average Latency   | 21.63ms  |
+| p95 Latency       | 45.39ms  |
+| Max Latency       | 414.59ms |
 
 ## Outcome
+
+The team profile page flow remained stable under sustained load with zero failed requests and all validation checks passing successfully.
+
+The test completed 551 simulated team profile page loads, generating 1,653 total HTTP requests across the team profile, team match history, and squad endpoints. These requests were executed together to represent the frontend behavior where all three sections load in parallel.
+
+All endpoints consistently returned successful responses throughout the 10 minute test duration. The combined flow maintained low response times, with an average latency of 21.63ms and a p95 latency of 45.39ms, remaining well below the configured 500ms threshold.
+
+The maximum observed latency reached 414.59ms, but this represented an isolated spike and did not cause failures or sustained performance degradation.
+
+The test confirms that users can repeatedly load team profile pages while the backend continues serving team overview, match history, and squad data reliably under expected traffic conditions.
 
 ---
 
