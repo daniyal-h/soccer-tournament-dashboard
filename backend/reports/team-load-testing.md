@@ -97,19 +97,29 @@ The test validates that the backend remains responsive while enforcing rate limi
 
 ## Results
 
-| Metric             | Result |
-| ------------------ | ------ |
-| Total Requests     |        |
-| Successful Checks  |        |
-| Average Latency    |        |
-| p95 Latency        |        |
-| Max Latency        |        |
-| HTTP 429 Responses |        |
-| HTTP Failure Rate  |        |
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 676      |
+| Successful Checks  | 100.00%  |
+| Average Latency    | 12.04ms  |
+| p95 Latency        | 18.78ms  |
+| Max Latency        | 249.66ms |
+| HTTP 429 Responses | 195      |
+| HTTP Failure Rate  | 28.84%\* |
 
-\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses are expected when the spike test intentionally exceeds configured rate limits.
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected because the spike test intentionally exceeded configured rate limits.
 
 ## Outcome
+
+The combined team navigation flow remained stable during sudden bursts of elevated traffic. The test simulated users loading the teams page and navigating into individual team profiles, triggering requests across team listing, team overview, match history, and squad endpoints.
+
+All validation checks completed successfully, with the backend correctly returning either successful responses or rate-limited responses when traffic exceeded configured limits.
+
+Rate limiting activated as expected during the spike, producing 195 HTTP 429 responses. Despite the sudden traffic increase, latency remained consistently low, with an average response time of 12.04ms and a p95 latency of 18.78ms.
+
+The maximum observed latency reached 249.66ms, remaining well below the configured 1000ms threshold and showing no sustained performance degradation.
+
+The test confirms that users can rapidly navigate between team listings and team profiles during high-traffic periods while the backend maintains responsiveness and enforces API protection mechanisms.
 
 ---
 
