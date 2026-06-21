@@ -68,13 +68,13 @@ A navbar dropdown allows users to switch between tournaments, defaulting to Worl
 
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 columns on desktop). Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
-### Team Profile (in-progress)
+### Team Profile (completed)
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
-### Player Stats Leaderboard (planned)
+### Player Stats Leaderboard (in-progress)
 
-Tournament-wide player rankings pre-seeded into PostgreSQL via a daily scheduled job. Sortable by goals, assists, and cards. Filterable by position and country. Hover (desktop) or tap (mobile) reveals a full player detail card.
+Allows users to view top player leaderboards for the selected tournament. The page focuses on tournament-level player rankings for goals, assists, and yellow cards.
 
 ### Global Search (planned)
 
