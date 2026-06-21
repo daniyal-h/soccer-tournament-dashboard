@@ -3,7 +3,6 @@ from .cache_entry import CacheEntry
 from .enums import EventType, JobStatus, PositionType, StatusType
 from .match import Match
 from .match_event import MatchEvent
-from .player_stat import PlayerStat
 from .players import Player
 from .refresh_job import RefreshJob
 from .standing import Standing
@@ -21,7 +20,6 @@ __all__ = [
     "Match",
     "MatchEvent",
     "Player",
-    "PlayerStat",
     "PositionType",
     "RefreshJob",
     "Standing",
