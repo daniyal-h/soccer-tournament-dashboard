@@ -128,7 +128,7 @@ describe('GroupTable', () => {
     expect(cells[5]).toHaveTextContent('0'); // L
     expect(cells[6]).toHaveTextContent('8'); // GF
     expect(cells[7]).toHaveTextContent('2'); // GA
-    expect(cells[8]).toHaveTextContent('6'); // GD
+    expect(cells[8]).toHaveTextContent('+6'); // GD
     expect(cells[9]).toHaveTextContent('9'); // Pts
   });
 

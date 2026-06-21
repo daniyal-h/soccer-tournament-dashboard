@@ -17,7 +17,8 @@ describe('Legend', () => {
     render(<Legend />);
 
     expect(screen.getByText('MP').parentElement).toHaveClass('hidden');
-    expect(screen.getByText('GD').parentElement).toHaveClass('hidden');
+    expect(screen.getByText('GA').parentElement).toHaveClass('hidden');
+    expect(screen.getByText('GF').parentElement).toHaveClass('hidden');
   });
 
   it('renders primary legend items as inline-flex', () => {
