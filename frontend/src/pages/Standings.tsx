@@ -24,10 +24,15 @@ const Standings = () => {
 
   const tournamentName = selectedTournament?.name;
 
-  const description =
-    hasStarted && tournamentName
-      ? `View group standings for ${tournamentName}.`
-      : "The group stage hasn't started yet. Check back once the tournament kicks off.";
+  let description: string;
+
+  if (isLoading) {
+    description = 'Loading group standings...';
+  } else if (hasStarted && tournamentName) {
+    description = `View group standings for the ${tournamentName}.`;
+  } else {
+    description = "The group stage hasn't started yet. Check back once the tournament kicks off.";
+  }
 
   // render error state with possible retry logic
   if (error) {

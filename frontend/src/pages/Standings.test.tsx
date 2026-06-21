@@ -254,7 +254,7 @@ describe('Standings', () => {
 
     mockedUseStandings.mockReturnValue({
       standings: {},
-      isLoading: true,
+      isLoading: false,
       isRefreshing: false,
       error: null,
       refetch: vi.fn(),
@@ -302,42 +302,9 @@ describe('Standings', () => {
 
     render(<Standings />);
 
-    expect(screen.getByText('View group standings for Copa Test.')).toBeInTheDocument();
+    expect(screen.getByText('View group standings for the Copa Test.')).toBeInTheDocument();
   });
 
-  it('renders started tournament loading description with tournament name', () => {
-    mockedUseTournament.mockReturnValue({
-      selectedTournamentId: 1,
-      selectedTournament: {
-        id: 1,
-        name: 'Copa Test',
-        season: '2026',
-        logo_url: null,
-        start_date: '2024-01-01',
-        end_date: '2024-02-01',
-      },
-      tournaments: [],
-      setSelectedTournamentId: vi.fn(),
-      isLoading: false,
-      error: null,
-      refetch: vi.fn(),
-      canRetry: true,
-    });
-
-    mockedUseStandings.mockReturnValue({
-      standings: {},
-      isLoading: true,
-      isRefreshing: false,
-      error: null,
-      refetch: vi.fn(),
-      canRetry: true,
-    });
-
-    render(<Standings />);
-
-    expect(screen.getByText('View group standings for Copa Test.')).toBeInTheDocument();
-    expect(screen.getByText('Standings Skeleton Mock')).toBeInTheDocument();
-  });
 
   it('renders pre-tournament loading description when no tournament is selected', () => {
     mockedUseTournament.mockReturnValue({
@@ -364,7 +331,7 @@ describe('Standings', () => {
 
     expect(
       screen.getByText(
-        "The group stage hasn't started yet. Check back once the tournament kicks off.",
+        "Loading group standings...",
       ),
     ).toBeInTheDocument();
   });
