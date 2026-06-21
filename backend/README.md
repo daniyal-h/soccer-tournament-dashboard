@@ -302,7 +302,7 @@ API-Football client
 Existing update service
     ↓
 Repository/database layer
-````
+```
 
 Available refresh endpoints:
 
@@ -441,7 +441,7 @@ request_id
 
 ---
 
-## 
+##
 
 Tests cover:
 
@@ -510,6 +510,11 @@ load-tests/
     spikeNavigationTest.js
     rateLimitEventsTest.js
     stressNavigationTest.js
+
+  teams/
+    normalTeamProfileTest.js
+    stressTeamProfileTest.js
+    teamNavigationSpikeTest.js
 ```
 
 Shared load test values are defined in:
@@ -518,7 +523,7 @@ Shared load test values are defined in:
 load-tests/constants.js
 ```
 
-The constants file contains test identifiers such as the base URL, tournament ID, and match ID. Match-specific tests require a `MATCH_ID` that exists in the current seeded database. If the database is reseeded, update the constant before rerunning the tests.
+The constants file contains test identifiers such as the base URL, tournament ID, and match ID. Match-specific tests require a `MATCH_ID` that exists in the current seeded database. Likewise, team-specific tests require a `TEAM_ID`. If the database is reseeded, update the constants **before** rerunning the tests.
 
 ### Install k6
 
@@ -543,15 +548,7 @@ k6 run load-tests/standings/rateLimitTest.js
 k6 run load-tests/standings/stressTest.js
 ```
 
-### Run Schedule Load Tests
-
-```bash
-k6 run load-tests/schedule/normalScheduleTest.js
-k6 run load-tests/schedule/normalMatchDetailTest.js
-k6 run load-tests/schedule/spikeNavigationTest.js
-k6 run load-tests/schedule/rateLimitEventsTest.js
-k6 run load-tests/schedule/stressNavigationTest.js
-```
+Run the remaining load tests for `Schedule` and `Teams` in the same way.
 
 ### Load Testing Reports
 
@@ -566,15 +563,16 @@ Current reports:
 ```txt
 backend/reports/standings-load-testing.md
 backend/reports/schedule-load-testing.md
+backend/reports/teams-load-testing.md
 ```
 
 ### Notes
 
-* Normal load tests remain below configured endpoint rate limits
-* Spike and stress tests intentionally trigger HTTP 429 responses
-* HTTP 429 responses are expected behaviour during overload scenarios
-* Load tests run from one local IP, so rate-limit tests simulate repeated traffic from the same source
-* Heavy stress testing should be performed locally against Dockerized PostgreSQL rather than hosted environments
+- Normal load tests remain below configured endpoint rate limits
+- Spike and stress tests intentionally trigger HTTP 429 responses
+- HTTP 429 responses are expected behaviour during overload scenarios
+- Load tests run from one local IP, so rate-limit tests simulate repeated traffic from the same source
+- Heavy stress testing should be performed locally against Dockerized PostgreSQL rather than hosted environments
 
 ---
 
