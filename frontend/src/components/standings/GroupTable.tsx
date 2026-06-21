@@ -106,6 +106,8 @@ export function GroupTable({ rows }: GroupTableProps) {
                   col.key === 'pts' && 'font-bold',
                 )}
               >
+                {/* Add a '+' prefix for positive goal differences */}
+                {col.dataKey === 'goal_difference' && row[col.dataKey] > 0 ? '+' : ''}
                 {row[col.dataKey]}
               </TableCell>
             ))}
