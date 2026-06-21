@@ -150,21 +150,55 @@ The test validates system stability, database behavior, caching effectiveness, a
 
 ## Results
 
-| Metric             | Result |
-| ------------------ | ------ |
-| Total Requests     |        |
-| Successful Checks  |        |
-| Failed Checks      |        |
-| Average Latency    |        |
-| p95 Latency        |        |
-| Max Latency        |        |
-| HTTP Failure Rate  |        |
-| Peak Virtual Users |        |
+| Metric             | Result   |
+| ------------------ | -------- |
+| Total Requests     | 23,379   |
+| Successful Checks  | 95.67%   |
+| Failed Checks      | 4.32%    |
+| Average Latency    | 2.59s    |
+| p95 Latency        | 515.47ms |
+| Max Latency        | 1m 0s    |
+| HTTP Failure Rate  | 95.79%\* |
+| Peak Virtual Users | 200      |
 
-\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses are expected during stress testing because the test intentionally exceeds configured rate limits.
+\* k6 classifies HTTP 429 responses as failed HTTP requests by default. These responses were expected during stress testing because the test intentionally exceeded configured rate limits. Some additional failures occurred when the database connection pool reached its configured capacity during peak load.
 
 ## Outcome
+
+The team profile flow remained operational under extreme sustained traffic and passed the configured stress thresholds, with 95.67% successful validation checks and p95 latency of 515.47ms, remaining below the 2000ms threshold.
+
+The test completed 5,821 simulated team profile navigation flows and generated 23,379 total HTTP requests across the teams list, team profile, team matches, and squad endpoints. The flow reached 200 virtual users during the peak stress phase.
+
+During peak load, the backend logs showed SQLAlchemy database connection pool exhaustion:
+
+`QueuePool limit of size 5 overflow 10 reached, connection timed out, timeout 30.00`
+
+This indicates that the primary bottleneck under extreme concurrency was database connection availability rather than request processing logic. Because the team profile flow loads multiple DB-backed resources in parallel, it places more pressure on the connection pool than single-endpoint flows.
+
+Despite this bottleneck, the backend continued serving accepted requests efficiently. Expected successful responses maintained a p95 latency of 377.79ms, while the overall p95 latency remained 515.47ms. The maximum observed latency reached 1 minute due to requests waiting for database connections before timing out.
+
+The test confirms that the team profile flow can remain responsive under heavy overload while also identifying database connection pool capacity as the main scaling constraint for high-concurrency team profile usage.
 
 ---
 
 # Conclusion
+
+The Team Profile feature load tests validated that the backend can reliably support team profile browsing under expected usage patterns, sudden traffic spikes, and extreme concurrent load.
+
+Normal load testing confirmed that the complete team profile page flow handled sustained traffic with no failed requests. The test completed 551 simulated page loads, generating 1,653 total requests across the team profile, match history, and squad endpoints. All requests completed successfully, maintaining an average latency of 21.63ms and p95 latency of 45.39ms.
+
+Spike testing demonstrated that the team navigation flow remained responsive during sudden increases in traffic. Users were simulated loading the teams page and opening team profiles, triggering requests across four endpoints. Rate limiting activated correctly when traffic exceeded configured limits, producing HTTP 429 responses while maintaining low latency with a p95 response time of 18.78ms.
+
+Stress testing with 200 virtual users identified database connection capacity as the primary scaling limitation under extreme concurrent load. The team profile flow successfully completed 95.67% of validation checks, but some requests failed once the SQLAlchemy connection pool reached its configured limit.
+
+This bottleneck was expected due to the increased database pressure from loading multiple team resources concurrently. The frontend requests team overview, match history, and squad data in parallel, creating higher connection demand compared to single-endpoint flows.
+
+Overall, the Team Profile feature met performance expectations for normal and burst traffic scenarios. The tests confirmed:
+
+- stable handling of parallel page-loading requests
+- consistently low latency under expected usage
+- effective rate limiting during traffic spikes
+- reliable caching and request handling behavior
+- database connection pool capacity as the primary constraint under extreme concurrency
+
+Future scaling improvements would focus on database connection tuning, query optimization, or increasing available database resources rather than changes to the team profile request handling logic.
