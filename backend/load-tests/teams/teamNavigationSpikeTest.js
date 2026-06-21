@@ -5,7 +5,7 @@ import { BASE_URL, TEAM_ID, TOURNAMENT_ID } from "../constants.js";
 
 export const options = {
     scenarios: {
-        team_profile_navigation_spike: {
+        team_navigation_spike: {
             executor: "ramping-arrival-rate",
             stages: [
                 { duration: "30s", target: 30 },
@@ -26,7 +26,7 @@ export const options = {
     },
 };
 
-export default function teamProfileNavigationSpikeLoadTest() {
+export default function teamNavigationSpikeTest() {
     const teamsResponse = http.get(
         `${BASE_URL}/api/v1/tournaments/${TOURNAMENT_ID}/teams`,
     );
