@@ -60,12 +60,15 @@ Run locally:
 ```bash
 python database/scripts/generators/generate_teams_seed.py
 python database/scripts/generators/generate_standings_seed.py
+...
 ```
 
 The standings generator outputs:
 
 - `tournament_teams.sql`
 - `standings.sql`
+
+The remaining generators will output their own seeds.
 
 After verifying generated output locally, promote stable snapshots into `scripts/seeds/static/`.
 
