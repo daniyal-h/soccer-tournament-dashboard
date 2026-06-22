@@ -12,7 +12,7 @@ type CategoryPickerProps = {
 function CategoryPicker({ category, setCategory }: CategoryPickerProps) {
   return (
     <Tabs value={category} onValueChange={(value) => setCategory(value as CategoryType)}>
-      <TabsList variant="line" className="grid w-full grid-cols-3 sm:w-fit">
+      <TabsList variant="line" className="grid w-full sm:gap-4 grid-cols-3 sm:w-fit">
         {LEADERBOARD_CATEGORIES.map((category) => (
           <TabsTrigger className="cursor-pointer" value={category} key={category}>
             {CATEGORY_CONTENT[category].title}
