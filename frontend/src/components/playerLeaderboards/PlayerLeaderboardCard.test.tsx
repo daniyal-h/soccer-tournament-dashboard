@@ -27,7 +27,7 @@ vi.mock('@/constants/tournamentTeams', () => ({
   },
 }));
 
-vi.mock('@/utils/playerLeaderboards/playerLeaderboardHelper', () => ({
+vi.mock('@/utils/playerLeaderboards/playerLeaderboardsHelper', () => ({
   formatMinutes: vi.fn((minutes: number | null) => {
     if (minutes === null) {
       return null;

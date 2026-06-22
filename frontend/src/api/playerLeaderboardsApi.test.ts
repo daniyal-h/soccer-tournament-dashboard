@@ -158,11 +158,9 @@ describe('isPlayerLeaderboardResponse', () => {
   );
 
   it('returns false for an unknown category', () => {
-    expect(
-      isPlayerLeaderboardResponse(
-        createResponse({ category: 'banana' as never }),
-      ),
-    ).toBe(false);
+    expect(isPlayerLeaderboardResponse(createResponse({ category: 'banana' as never }))).toBe(
+      false,
+    );
   });
 
   it('returns false when data is not an array', () => {
