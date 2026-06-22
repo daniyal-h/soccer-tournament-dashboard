@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from pydantic import BaseModel, ConfigDict
 
 from app.models.enums import LeaderboardType
@@ -14,7 +12,7 @@ class RankedPlayer(BaseModel):
     team: TeamSummary
     appearances: int | None = None
     minutes_played: int | None = None
-    rating: Decimal | None = None
+    rating: float | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
