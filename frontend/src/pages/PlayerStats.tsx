@@ -14,7 +14,7 @@ const PlayerStats = () => {
   const description = 'Explore top players, goals, assists, and tournament records.';
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-8">
       <div className="space-y-3">
         <h1 className="text-3xl font-bold tracking-tight">Player Statistics</h1>
         <p className="text-muted-foreground">{description}</p>
