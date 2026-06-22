@@ -3,7 +3,7 @@
 ## Overview
 
 This document defines the v1 PostgreSQL schema for the Soccer Tournament Dashboard.  
-It covers the twelve tables created in the initial Alembic migration, including two junction tables: `tournament_teams` (M:N between tournaments and teams) and `team_players` (M:N between teams and players, scoped per tournament).
+It covers the twelve current tables in the schema, including two junction tables: `tournament_teams` (M:N between tournaments and teams) and `team_players` (M:N between teams and players, scoped per tournament).
 
 All timestamps are stored in UTC.
 
@@ -111,20 +111,24 @@ All timestamps are stored in UTC.
 
 ## Player Data
 
-### player_stats
+### player_leaderboards
 
-| Column         | Type         | Description                   |
-| -------------- | ------------ | ----------------------------- |
-| id             | Integer (PK) | Auto-incrementing primary key |
-| player_id      | Integer (FK) | → players.id                  |
-| team_id        | Integer (FK) | → teams.id                    |
-| tournament_id  | Integer (FK) | → tournaments.id              |
-| appearances    | Integer      | Matches played                |
-| minutes_played | Integer      | Minutes                       |
-| goals          | Integer      | Goals                         |
-| assists        | Integer      | Assists                       |
-| yellow_cards   | Integer      | Yellow cards                  |
-| red_cards      | Integer      | Red cards                     |
+Stores tournament-specific player leaderboard rows for the Statistics page. The table is intentionally leaderboard-focused rather than a full per-player statistics table. Supported categories are `goals`, `assists`, and `yellow_cards`.
+
+Each row represents one player's ranking in one category for one tournament. The `(tournament_id, category, player_id)` combination is unique so refreshes can upsert leaderboard rows idempotently.
+
+| Column         | Type         | Description                                      |
+| -------------- | ------------ | ------------------------------------------------ |
+| id             | Integer (PK) | Auto-incrementing primary key                    |
+| tournament_id  | Integer (FK) | → tournaments.id                                 |
+| team_id        | Integer (FK) | → teams.id                                       |
+| player_id      | Integer (FK) | → players.id                                     |
+| category       | Enum         | goals \| assists \| yellow_cards                 |
+| rank           | Integer      | Rank within the selected leaderboard category    |
+| value          | Integer      | Category value, such as goals, assists, or cards |
+| appearances    | Integer      | Matches played (nullable)                        |
+| minutes_played | Integer      | Minutes played (nullable)                        |
+| rating         | Numeric      | API-Football player rating, if provided          |
 
 ---
 
@@ -148,13 +152,13 @@ Resolves the M:N relationship between teams and players, scoped per tournament. 
 
 The three-column composite PK is intentional: the same player can be registered to different teams across different tournaments (e.g. club vs national team).
 
-| Column        | Type             | Description                          |
-| ------------- | ---------------- | ------------------------------------ |
-| tournament_id | Integer (FK, PK) | → tournaments.id                     |
-| team_id       | Integer (FK, PK) | → teams.id                           |
-| player_id     | Integer (FK, PK) | → players.id                         |
-| squad_number  | Integer          | Shirt number (nullable)              |
-| position      | Enum             | GK \| DEF \| MID \| FWD (nullable)  |
+| Column        | Type             | Description                        |
+| ------------- | ---------------- | ---------------------------------- |
+| tournament_id | Integer (FK, PK) | → tournaments.id                   |
+| team_id       | Integer (FK, PK) | → teams.id                         |
+| player_id     | Integer (FK, PK) | → players.id                       |
+| squad_number  | Integer          | Shirt number (nullable)            |
+| position      | Enum             | GK \| DEF \| MID \| FWD (nullable) |
 
 ---
 
@@ -186,18 +190,18 @@ The three-column composite PK is intentional: the same player can be registered 
 
 ## Relationships (Summary)
 
-| From        | To           | Cardinality | Participation     | Resolved via                                 |
-| ----------- | ------------ | ----------- | ----------------- | -------------------------------------------- |
-| tournaments | teams        | M:N         | Partial / Partial | tournament_teams                             |
-| tournaments | players      | M:N         | Partial / Partial | team_players                                 |
-| tournaments | matches      | 1:N         | Partial / Total   | matches.tournament_id                        |
-| tournaments | standings    | 1:N         | Partial / Total   | standings.tournament_id                      |
-| tournaments | player_stats | 1:N         | Partial / Total   | player_stats.tournament_id                   |
-| teams       | players      | M:N         | Partial / Partial | team_players                                 |
-| teams       | matches      | 1:N         | Partial / Total   | matches.team_a_id / team_b_id                |
-| teams       | standings    | 1:N         | Partial / Total   | standings.team_id                            |
-| teams       | player_stats | 1:N         | Partial / Total   | player_stats.team_id                         |
-| teams       | match_events | 1:N         | Partial / Total   | match_events.team_id                         |
-| players     | player_stats | 1:N         | Partial / Total   | player_stats.player_id                       |
-| players     | match_events | 1:N         | Partial / Partial | match_events.player_id / secondary_player_id |
-| matches     | match_events | 1:N         | Partial / Total   | match_events.match_id                        |
+| From        | To                  | Cardinality | Participation     | Resolved via                                 |
+| ----------- | ------------------- | ----------- | ----------------- | -------------------------------------------- |
+| tournaments | teams               | M:N         | Partial / Partial | tournament_teams                             |
+| tournaments | players             | M:N         | Partial / Partial | team_players                                 |
+| tournaments | matches             | 1:N         | Partial / Total   | matches.tournament_id                        |
+| tournaments | standings           | 1:N         | Partial / Total   | standings.tournament_id                      |
+| tournaments | player_leaderboards | 1:N         | Partial / Total   | player_leaderboards.tournament_id            |
+| teams       | players             | M:N         | Partial / Partial | team_players                                 |
+| teams       | matches             | 1:N         | Partial / Total   | matches.team_a_id / team_b_id                |
+| teams       | standings           | 1:N         | Partial / Total   | standings.team_id                            |
+| teams       | player_leaderboards | 1:N         | Partial / Total   | player_leaderboards.team_id                  |
+| teams       | match_events        | 1:N         | Partial / Total   | match_events.team_id                         |
+| players     | player_leaderboards | 1:N         | Partial / Total   | player_leaderboards.player_id                |
+| players     | match_events        | 1:N         | Partial / Partial | match_events.player_id / secondary_player_id |
+| matches     | match_events        | 1:N         | Partial / Total   | match_events.match_id                        |

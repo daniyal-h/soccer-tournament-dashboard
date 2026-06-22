@@ -51,3 +51,9 @@ class PositionType(str, enum.Enum):
     DEF = "DEF"
     MID = "MID"
     FWD = "FWD"
+
+
+class LeaderboardType(str, enum.Enum):
+    GOALS = "goals"
+    ASSISTS = "assists"
+    YELLOW_CARD = "yellow_cards"
