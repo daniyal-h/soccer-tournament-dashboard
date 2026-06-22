@@ -8,7 +8,7 @@ export interface PlayerLeaderboardOptions {
   category: LeadershipType;
 }
 
-export interface PlayerLeaderboard {
+export interface RankedPlayer {
   rank: number;
   value: number;
   player: PlayerSimpleSummary;
@@ -16,4 +16,12 @@ export interface PlayerLeaderboard {
   appearances: number | null;
   minutes_played: number | null;
   rating: number | null;
+}
+
+export interface PlayerLeaderboardApiResponse {
+  data: RankedPlayer[];
+}
+
+export interface PlayerLeaderboard {
+  leaderboard: RankedPlayer[];
 }
