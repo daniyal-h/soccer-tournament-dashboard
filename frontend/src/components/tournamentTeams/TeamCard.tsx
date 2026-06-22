@@ -7,7 +7,7 @@ import type { TournamentTeam } from '@/types/tournamentTeam';
 
 import { MATCH_STAGE_LABELS } from '@/constants/matches';
 import { ROUTES } from '@/constants/navigation';
-import { TEAM_RANK_CARD_STYLES } from '@/constants/tournamentTeams';
+import { RANK_CARD_STYLES } from '@/constants/tournamentTeams';
 
 import { cn } from '@/lib/utils';
 
@@ -31,9 +31,7 @@ const TeamCard = ({ tournamentTeam }: TeamCardProps) => {
   const { team, group } = tournamentTeam;
   const rankStyle =
     // Stryker disable next-line ConditionalExpression: equivalent mutation
-    tournamentTeam.final_rank === null
-      ? undefined
-      : TEAM_RANK_CARD_STYLES[tournamentTeam.final_rank];
+    tournamentTeam.final_rank === null ? undefined : RANK_CARD_STYLES[tournamentTeam.final_rank];
 
   return (
     <Link
@@ -45,7 +43,7 @@ const TeamCard = ({ tournamentTeam }: TeamCardProps) => {
     >
       <Card
         className={cn(
-          'relative w-full cursor-pointer overflow-hidden shadow-sm transition-all',
+          'relative w-full cursor-pointer overflow-hidden shadow-sm transition-all border',
           'hover:bg-accent hover:shadow-md',
           'active:scale-[0.98] active:bg-accent',
           rankStyle,

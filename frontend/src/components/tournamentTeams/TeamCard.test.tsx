@@ -6,7 +6,7 @@ import type { TournamentTeam } from '@/types/tournamentTeam';
 
 import { MATCH_STAGE_LABELS } from '@/constants/matches';
 import { ROUTES } from '@/constants/navigation';
-import { TEAM_RANK_CARD_STYLES } from '@/constants/tournamentTeams';
+import { RANK_CARD_STYLES } from '@/constants/tournamentTeams';
 
 import TeamCard from './TeamCard';
 
@@ -128,7 +128,7 @@ describe('TeamCard', () => {
 
     const card = container.querySelector('[data-slot="card"]');
 
-    expect(card).toHaveClass(...TEAM_RANK_CARD_STYLES[1].split(' '));
+    expect(card).toHaveClass(...RANK_CARD_STYLES[1].split(' '));
   });
 
   it('does not apply a rank card style when final rank is null', () => {
@@ -140,9 +140,9 @@ describe('TeamCard', () => {
 
     const card = container.querySelector('[data-slot="card"]');
 
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[1].split(' '));
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[2].split(' '));
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[3].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[1].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[2].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[3].split(' '));
   });
 
   it('does not apply rank card style for active progress teams without final rank', () => {
@@ -156,9 +156,9 @@ describe('TeamCard', () => {
     const card = container.querySelector('[data-slot="card"]');
 
     expect(screen.getByText(`Group A · ${MATCH_STAGE_LABELS.semi_final}`)).toBeInTheDocument();
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[1].split(' '));
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[2].split(' '));
-    expect(card).not.toHaveClass(...TEAM_RANK_CARD_STYLES[3].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[1].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[2].split(' '));
+    expect(card).not.toHaveClass(...RANK_CARD_STYLES[3].split(' '));
   });
 
   it('keeps the clickable affordance styling on the card', () => {
