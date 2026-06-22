@@ -117,6 +117,7 @@ def downgrade() -> None:
         create_type=False,
     )
 
-
     leaderboard_type_enum.drop(op.get_bind(), checkfirst=True)
+
+
 # ### end Alembic commands ###
