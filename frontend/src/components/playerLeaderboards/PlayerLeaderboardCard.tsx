@@ -6,7 +6,7 @@ import { RANK_CARD_STYLES } from '@/constants/tournamentTeams';
 
 import { cn } from '@/lib/utils';
 
-import { formatMinutes, formatRating } from '@/utils/playerLeaderboards/playerLeaderboardHelper';
+import { formatMinutes, formatRating } from '@/utils/playerLeaderboards/playerLeaderboardsHelper';
 import { getInitials } from '@/utils/teams/teamSquadHelper';
 
 type PlayerLeaderboardCardProps = {
@@ -60,8 +60,8 @@ function PlayerLeaderboardCard({ player: rankedPlayer, valueLabel }: PlayerLeade
         </div>
 
         <div className="flex flex-wrap gap-1 pt-2 text-xs text-muted-foreground">
-          {appearances !== null && <span>{appearances} matches</span>} ·
-          {minutesText && <span>{minutesText}</span>} ·
+          {appearances !== null && <span>{appearances} matches · </span>}
+          {minutesText && <span>{minutesText} · </span>}
           {ratingText && <span>Rating {ratingText}</span>}
         </div>
       </div>
