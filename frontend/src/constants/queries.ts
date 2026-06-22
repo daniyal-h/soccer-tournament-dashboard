@@ -1,3 +1,5 @@
+import type { CategoryType } from '@/types/playerLeaderboard';
+
 // keys to Frontend cache
 export const queryKeys = {
   tournaments: {
@@ -31,6 +33,11 @@ export const queryKeys = {
     squad: (tournamentId: number, teamId: number) =>
       ['teams', 'squad', tournamentId, teamId] as const,
   },
+
+  playerLeaderboard: {
+    all: (tournamentId: number, category: CategoryType) =>
+      ['playerLeaderboard', category, tournamentId] as const,
+  },
 };
 
 const SECOND = 1000;
@@ -51,6 +58,8 @@ export const QUERY_STALE_TIMES = {
   tournamentTeams: 15 * MINUTE,
 
   teams: 5 * MINUTE,
+
+  playerLeaderboard: 5 * MINUTE,
 } as const;
 
 export const QUERY_GC_TIMES = {

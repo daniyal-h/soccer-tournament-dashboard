@@ -115,7 +115,7 @@ def test_get_player_leaderboard_returns_cached_response_without_db_fetch(mocker)
     assert result.data[0].player.display_name == "Kylian Mbappé"
     assert result.data[0].team.short_name == "FRA"
     assert result.data[0].minutes_played == 597
-    assert result.data[0].rating == Decimal("7.61")
+    assert result.data[0].rating == 7.61
 
 
 def test_get_player_leaderboard_fetches_wraps_and_caches_when_cache_missing(mocker):
@@ -173,7 +173,7 @@ def test_get_player_leaderboard_fetches_wraps_and_caches_when_cache_missing(mock
     assert result.data[0].team.name == "France"
     assert result.data[0].appearances == 7
     assert result.data[0].minutes_played == 597
-    assert result.data[0].rating == Decimal("7.61")
+    assert result.data[0].rating == 7.61
 
     set_cache.assert_called_once()
     args, kwargs = set_cache.call_args

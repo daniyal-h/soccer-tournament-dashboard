@@ -83,7 +83,7 @@ def test_get_player_leaderboard_cache_miss_returns_rows_and_writes_cache(db_sess
     assert row.value == 8
     assert row.appearances == 7
     assert row.minutes_played == 597
-    assert row.rating == Decimal("7.61")
+    assert row.rating == 7.61
     assert row.player.display_name == "M. Acuña"
     assert row.player.photo_url == "https://example.com/acuna.png"
     assert row.team.name == "Argentina"
