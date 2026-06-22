@@ -38,6 +38,7 @@ class JobName(str, enum.Enum):
     MATCH_EVENTS_REFRESH = "match_events_refresh"
     TEAM_RANKINGS_REFRESH = "team_rankings_refresh"
     PLAYER_DATA_REFRESH = "player_data_refresh"
+    PLAYER_LEADERBOARDS_REFRESH = "player_leaderboards_refresh"
 
 
 class JobStatus(str, enum.Enum):
