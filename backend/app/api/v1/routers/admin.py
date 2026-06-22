@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
+from app.api.v1.services import refresh_player_leaderboards as refresh_player_leaderboards_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.api.v1.services import refresh_team_rankings as refresh_team_rankings_service
 from app.api.v1.services import refresh_team_squads as refresh_team_squads_service
