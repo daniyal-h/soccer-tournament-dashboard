@@ -87,7 +87,7 @@ def make_player_entry(
     }
 
 
-def test_transform_player_data_row_maps_valid_player_registration():
+def test_transform_team_squads_row_maps_valid_player_registration():
     rows = sut.transform_team_squads_data_row(
         make_player_entry(),
         tournament_external_api_id=1,
@@ -110,7 +110,7 @@ def test_transform_player_data_row_maps_valid_player_registration():
     assert row.position == "FWD"
 
 
-def test_transform_player_data_row_uses_safe_defaults_for_optional_player_fields():
+def test_transform_team_squads_row_uses_safe_defaults_for_optional_player_fields():
     rows = sut.transform_team_squads_data_row(
         make_player_entry(
             player_name=None,
@@ -153,7 +153,7 @@ def test_transform_player_data_row_uses_safe_defaults_for_optional_player_fields
         {"player": {"id": 10}, "statistics": None},
     ],
 )
-def test_transform_player_data_row_returns_empty_for_missing_required_data(entry):
+def test_transform_team_squads_row_returns_empty_for_missing_required_data(entry):
     assert (
         sut.transform_team_squads_data_row(
             entry,
@@ -164,7 +164,7 @@ def test_transform_player_data_row_returns_empty_for_missing_required_data(entry
     )
 
 
-def test_transform_player_data_row_filters_wrong_team_league_and_season_rows():
+def test_transform_team_squads_row_filters_wrong_team_league_and_season_rows():
     rows = sut.transform_team_squads_data_row(
         make_player_entry(
             statistics=[
@@ -200,7 +200,7 @@ def test_transform_player_data_row_filters_wrong_team_league_and_season_rows():
     assert rows[0].position == "FWD"
 
 
-def test_transform_player_data_row_allows_same_player_on_multiple_matching_teams():
+def test_transform_team_squads_row_allows_same_player_on_multiple_matching_teams():
     rows = sut.transform_team_squads_data_row(
         make_player_entry(
             player_id=77,
@@ -227,11 +227,11 @@ def test_transform_player_data_row_allows_same_player_on_multiple_matching_teams
     ]
 
 
-def test_fetch_player_data_for_tournament_paginates_and_deduplicates(mocker):
+def test_fetch_team_squads_for_tournament_paginates_and_deduplicates(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     football_get = mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         side_effect=[
             {
                 "paging": {"total": 2},
@@ -278,11 +278,11 @@ def test_fetch_player_data_for_tournament_paginates_and_deduplicates(mocker):
     ]
 
 
-def test_fetch_player_data_for_tournament_defaults_missing_paging_to_single_page(mocker):
+def test_fetch_team_squads_for_tournament_defaults_missing_paging_to_single_page(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     football_get = mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         return_value={"response": [make_player_entry()]},
     )
 
@@ -295,11 +295,11 @@ def test_fetch_player_data_for_tournament_defaults_missing_paging_to_single_page
     )
 
 
-def test_fetch_player_data_for_tournament_continues_after_duplicate_row(mocker):
+def test_fetch_team_squads_for_tournament_continues_after_duplicate_row(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         return_value={
             "paging": {"total": 1},
             "response": [
@@ -328,35 +328,35 @@ def test_fetch_player_data_for_tournament_continues_after_duplicate_row(mocker):
     ]
 
 
-def test_refresh_player_data_updates_rows_and_marks_job_success(mocker):
+def test_refresh_team_squads_updates_rows_and_marks_job_success(mocker):
     db = object()
     tournament = SimpleNamespace(id=123, external_api_id=1, season="2026")
     row = SimpleNamespace(external_team_id=50, external_player_id=10)
 
     create_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.create_job",
         return_value=777,
     )
     complete_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.complete_job"
     )
     get_refreshable_tournaments = mocker.patch(
-        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        "app.api.v1.services.refresh_team_squads.tournaments_service.get_refreshable_tournaments",
         return_value=[tournament],
     )
-    fetch_player_data = mocker.patch(
-        "app.api.v1.services.refresh_player_data.fetch_player_data_for_tournament",
+    fetch_team_squads = mocker.patch(
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
         return_value=[row],
     )
     update_team_players = mocker.patch(
-        "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
+        "app.api.v1.services.refresh_team_squads.team_players_service.update_team_players"
     )
 
     result = sut.refresh_team_squads(db, margin_days=3)
 
     create_job.assert_called_once_with(db, JobName.TEAM_SQUADS_REFRESH)
     get_refreshable_tournaments.assert_called_once_with(db, 3)
-    fetch_player_data.assert_called_once_with(tournament)
+    fetch_team_squads.assert_called_once_with(tournament)
     update_team_players.assert_called_once_with(
         db=db,
         tournament_id=123,
@@ -371,27 +371,27 @@ def test_refresh_player_data_updates_rows_and_marks_job_success(mocker):
     assert result["failures"] == []
 
 
-def test_refresh_player_data_skips_tournament_with_no_rows(mocker):
+def test_refresh_team_squads_skips_tournament_with_no_rows(mocker):
     db = object()
     tournament = SimpleNamespace(id=123, external_api_id=1, season="2026")
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.create_job",
         return_value=777,
     )
     complete_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.complete_job"
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        "app.api.v1.services.refresh_team_squads.tournaments_service.get_refreshable_tournaments",
         return_value=[tournament],
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.fetch_player_data_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
         return_value=[],
     )
     update_team_players = mocker.patch(
-        "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
+        "app.api.v1.services.refresh_team_squads.team_players_service.update_team_players"
     )
 
     result = sut.refresh_team_squads(db)
@@ -406,29 +406,29 @@ def test_refresh_player_data_skips_tournament_with_no_rows(mocker):
     assert result["failures"] == []
 
 
-def test_refresh_player_data_records_tournament_failure_and_completes_failed_job(mocker):
+def test_refresh_team_squads_records_tournament_failure_and_completes_failed_job(mocker):
     db = object()
     good_tournament = SimpleNamespace(id=1, external_api_id=10, season="2026")
     bad_tournament = SimpleNamespace(id=2, external_api_id=20, season="2027")
     row = SimpleNamespace(external_team_id=50, external_player_id=10)
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.create_job",
         return_value=777,
     )
     complete_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.complete_job"
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        "app.api.v1.services.refresh_team_squads.tournaments_service.get_refreshable_tournaments",
         return_value=[good_tournament, bad_tournament],
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.fetch_player_data_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
         side_effect=[[row], RuntimeError("API exploded")],
     )
     update_team_players = mocker.patch(
-        "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
+        "app.api.v1.services.refresh_team_squads.team_players_service.update_team_players"
     )
 
     result = sut.refresh_team_squads(db)
@@ -453,18 +453,18 @@ def test_refresh_player_data_records_tournament_failure_and_completes_failed_job
     ]
 
 
-def test_refresh_player_data_completes_failed_job_and_reraises_outer_failure(mocker):
+def test_refresh_team_squads_completes_failed_job_and_reraises_outer_failure(mocker):
     db = object()
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.create_job",
         return_value=777,
     )
     complete_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.complete_job"
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        "app.api.v1.services.refresh_team_squads.tournaments_service.get_refreshable_tournaments",
         side_effect=RuntimeError("database unavailable"),
     )
 
@@ -474,34 +474,34 @@ def test_refresh_player_data_completes_failed_job_and_reraises_outer_failure(moc
     complete_job.assert_called_once_with(db, 777, success=False)
 
 
-def test_refresh_player_data_continues_after_skipped_tournament(mocker):
+def test_refresh_team_squads_continues_after_skipped_tournament(mocker):
     db = object()
     skipped_tournament = SimpleNamespace(id=1, external_api_id=10, season="2026")
     refreshed_tournament = SimpleNamespace(id=2, external_api_id=20, season="2027")
     row = SimpleNamespace(external_team_id=50, external_player_id=10)
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.create_job",
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.create_job",
         return_value=777,
     )
     complete_job = mocker.patch(
-        "app.api.v1.services.refresh_player_data.refresh_jobs_repo.complete_job"
+        "app.api.v1.services.refresh_team_squads.refresh_jobs_repo.complete_job"
     )
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.tournaments_service.get_refreshable_tournaments",
+        "app.api.v1.services.refresh_team_squads.tournaments_service.get_refreshable_tournaments",
         return_value=[skipped_tournament, refreshed_tournament],
     )
-    fetch_player_data = mocker.patch(
-        "app.api.v1.services.refresh_player_data.fetch_player_data_for_tournament",
+    fetch_team_squads = mocker.patch(
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
         side_effect=[[], [row]],
     )
     update_team_players = mocker.patch(
-        "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
+        "app.api.v1.services.refresh_team_squads.team_players_service.update_team_players"
     )
 
     result = sut.refresh_team_squads(db)
 
-    assert fetch_player_data.call_args_list == [
+    assert fetch_team_squads.call_args_list == [
         mocker.call(skipped_tournament),
         mocker.call(refreshed_tournament),
     ]

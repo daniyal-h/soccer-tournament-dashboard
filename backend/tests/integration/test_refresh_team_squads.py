@@ -83,7 +83,7 @@ def make_player_response(
     }
 
 
-def test_refresh_player_data_inserts_players_team_players_invalidates_cache_and_success_job(
+def test_refresh_team_squads_inserts_players_team_players_invalidates_cache_and_success_job(
     db_session,
     mocker,
 ):
@@ -133,7 +133,7 @@ def test_refresh_player_data_inserts_players_team_players_invalidates_cache_and_
     db_session.commit()
 
     football_get = mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         side_effect=[
             {
                 "paging": {"total": 2},
@@ -237,7 +237,7 @@ def test_refresh_player_data_inserts_players_team_players_invalidates_cache_and_
     assert result["failures"] == []
 
 
-def test_refresh_player_data_updates_existing_player_and_team_player_registration(
+def test_refresh_team_squads_updates_existing_player_and_team_player_registration(
     db_session,
     mocker,
 ):
@@ -285,7 +285,7 @@ def test_refresh_player_data_updates_existing_player_and_team_player_registratio
     original_created_at = existing_player.created_at
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         return_value={
             "paging": {"total": 1},
             "response": [
@@ -336,7 +336,7 @@ def test_refresh_player_data_updates_existing_player_and_team_player_registratio
     assert result["failures"] == []
 
 
-def test_refresh_player_data_filters_invalid_rows_and_deduplicates(
+def test_refresh_team_squads_filters_invalid_rows_and_deduplicates(
     db_session,
     mocker,
 ):
@@ -360,7 +360,7 @@ def test_refresh_player_data_filters_invalid_rows_and_deduplicates(
     db_session.commit()
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         return_value={
             "paging": {"total": 1},
             "response": [
@@ -432,7 +432,7 @@ def test_refresh_player_data_filters_invalid_rows_and_deduplicates(
     assert result["failures"] == []
 
 
-def test_refresh_player_data_records_failure_for_one_tournament_and_continues(
+def test_refresh_team_squads_records_failure_for_one_tournament_and_continues(
     db_session,
     mocker,
 ):
@@ -463,7 +463,7 @@ def test_refresh_player_data_records_failure_for_one_tournament_and_continues(
     db_session.commit()
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         side_effect=[
             {
                 "paging": {"total": 1},
@@ -508,7 +508,7 @@ def test_refresh_player_data_records_failure_for_one_tournament_and_continues(
     ]
 
 
-def test_refresh_player_data_marks_tournament_skipped_when_api_returns_no_rows(
+def test_refresh_team_squads_marks_tournament_skipped_when_api_returns_no_rows(
     db_session,
     mocker,
 ):
@@ -526,7 +526,7 @@ def test_refresh_player_data_marks_tournament_skipped_when_api_returns_no_rows(
     db_session.commit()
 
     mocker.patch(
-        "app.api.v1.services.refresh_player_data.football_get",
+        "app.api.v1.services.refresh_team_squads.football_get",
         return_value={"paging": {"total": 1}, "response": []},
     )
 
