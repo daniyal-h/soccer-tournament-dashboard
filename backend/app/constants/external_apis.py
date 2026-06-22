@@ -6,7 +6,7 @@ API_FOOTBALL_EVENTS_ENDPOINT = "/fixtures/events"
 API_FOOTBALL_PLAYERS_ENDPOINT = "/players"
 STANDINGS_MARGIN_DAYS = 1
 MATCHES_MARGIN_DAYS = 14
-PLAYER_DATA_MARGIN_DAYS = 1
+TEAM_SQUADS_MARGIN_DAYS = 1
 
 # codes based on Football-API fixture status can be collapsed into 5 types used in backend
 

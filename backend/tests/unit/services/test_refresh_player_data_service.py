@@ -2,8 +2,8 @@ from datetime import date
 from types import SimpleNamespace
 
 import pytest
+from backend.app.api.v1.services import refresh_team_squads as sut
 
-from app.api.v1.services import refresh_player_data as sut
 from app.models.enums import JobName
 
 
@@ -88,7 +88,7 @@ def make_player_entry(
 
 
 def test_transform_player_data_row_maps_valid_player_registration():
-    rows = sut.transform_player_data_row(
+    rows = sut.transform_team_squads_data_row(
         make_player_entry(),
         tournament_external_api_id=1,
         season="2026",
@@ -111,7 +111,7 @@ def test_transform_player_data_row_maps_valid_player_registration():
 
 
 def test_transform_player_data_row_uses_safe_defaults_for_optional_player_fields():
-    rows = sut.transform_player_data_row(
+    rows = sut.transform_team_squads_data_row(
         make_player_entry(
             player_name=None,
             firstname=None,
@@ -155,7 +155,7 @@ def test_transform_player_data_row_uses_safe_defaults_for_optional_player_fields
 )
 def test_transform_player_data_row_returns_empty_for_missing_required_data(entry):
     assert (
-        sut.transform_player_data_row(
+        sut.transform_team_squads_data_row(
             entry,
             tournament_external_api_id=1,
             season="2026",
@@ -165,7 +165,7 @@ def test_transform_player_data_row_returns_empty_for_missing_required_data(entry
 
 
 def test_transform_player_data_row_filters_wrong_team_league_and_season_rows():
-    rows = sut.transform_player_data_row(
+    rows = sut.transform_team_squads_data_row(
         make_player_entry(
             statistics=[
                 {
@@ -201,7 +201,7 @@ def test_transform_player_data_row_filters_wrong_team_league_and_season_rows():
 
 
 def test_transform_player_data_row_allows_same_player_on_multiple_matching_teams():
-    rows = sut.transform_player_data_row(
+    rows = sut.transform_team_squads_data_row(
         make_player_entry(
             player_id=77,
             statistics=[
@@ -259,7 +259,7 @@ def test_fetch_player_data_for_tournament_paginates_and_deduplicates(mocker):
         ],
     )
 
-    rows = sut.fetch_player_data_for_tournament(tournament)
+    rows = sut.fetch_squad_data_for_tournament(tournament)
 
     assert [(row.external_team_id, row.external_player_id) for row in rows] == [
         (50, 10),
@@ -286,7 +286,7 @@ def test_fetch_player_data_for_tournament_defaults_missing_paging_to_single_page
         return_value={"response": [make_player_entry()]},
     )
 
-    rows = sut.fetch_player_data_for_tournament(tournament)
+    rows = sut.fetch_squad_data_for_tournament(tournament)
 
     assert len(rows) == 1
     football_get.assert_called_once_with(
@@ -320,7 +320,7 @@ def test_fetch_player_data_for_tournament_continues_after_duplicate_row(mocker):
         },
     )
 
-    rows = sut.fetch_player_data_for_tournament(tournament)
+    rows = sut.fetch_squad_data_for_tournament(tournament)
 
     assert [(row.external_team_id, row.external_player_id) for row in rows] == [
         (50, 10),
@@ -352,9 +352,9 @@ def test_refresh_player_data_updates_rows_and_marks_job_success(mocker):
         "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
     )
 
-    result = sut.refresh_player_data(db, margin_days=3)
+    result = sut.refresh_team_squads(db, margin_days=3)
 
-    create_job.assert_called_once_with(db, JobName.PLAYER_DATA_REFRESH)
+    create_job.assert_called_once_with(db, JobName.TEAM_SQUADS_REFRESH)
     get_refreshable_tournaments.assert_called_once_with(db, 3)
     fetch_player_data.assert_called_once_with(tournament)
     update_team_players.assert_called_once_with(
@@ -394,7 +394,7 @@ def test_refresh_player_data_skips_tournament_with_no_rows(mocker):
         "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
     )
 
-    result = sut.refresh_player_data(db)
+    result = sut.refresh_team_squads(db)
 
     update_team_players.assert_not_called()
     complete_job.assert_called_once_with(db, 777, success=True)
@@ -431,7 +431,7 @@ def test_refresh_player_data_records_tournament_failure_and_completes_failed_job
         "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
     )
 
-    result = sut.refresh_player_data(db)
+    result = sut.refresh_team_squads(db)
 
     update_team_players.assert_called_once_with(
         db=db,
@@ -469,7 +469,7 @@ def test_refresh_player_data_completes_failed_job_and_reraises_outer_failure(moc
     )
 
     with pytest.raises(RuntimeError, match="database unavailable"):
-        sut.refresh_player_data(db)
+        sut.refresh_team_squads(db)
 
     complete_job.assert_called_once_with(db, 777, success=False)
 
@@ -499,7 +499,7 @@ def test_refresh_player_data_continues_after_skipped_tournament(mocker):
         "app.api.v1.services.refresh_player_data.team_players_service.update_team_players"
     )
 
-    result = sut.refresh_player_data(db)
+    result = sut.refresh_team_squads(db)
 
     assert fetch_player_data.call_args_list == [
         mocker.call(skipped_tournament),

@@ -1,7 +1,8 @@
 import json
 from datetime import UTC, date, datetime, timedelta
 
-from app.api.v1.services.refresh_player_data import refresh_player_data
+from backend.app.api.v1.services.refresh_team_squads import refresh_team_squads
+
 from app.constants.external_apis import API_FOOTBALL_PLAYERS_ENDPOINT
 from app.models.cache_entry import CacheEntry
 from app.models.enums import JobName, JobStatus
@@ -173,12 +174,12 @@ def test_refresh_player_data_inserts_players_team_players_invalidates_cache_and_
         ],
     )
 
-    result = refresh_player_data(db_session, margin_days=1)
+    result = refresh_team_squads(db_session, margin_days=1)
 
     players = db_session.query(Player).order_by(Player.external_api_id).all()
     team_players = db_session.query(TeamPlayer).order_by(TeamPlayer.player_id).all()
     job = (
-        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.PLAYER_DATA_REFRESH).one()
+        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.TEAM_SQUADS_REFRESH).one()
     )
     remaining_cache_keys = {row.cache_key for row in db_session.query(CacheEntry).all()}
 
@@ -305,7 +306,7 @@ def test_refresh_player_data_updates_existing_player_and_team_player_registratio
         },
     )
 
-    result = refresh_player_data(db_session, margin_days=1)
+    result = refresh_team_squads(db_session, margin_days=1)
 
     player = db_session.query(Player).where(Player.external_api_id == 3010).one()
     registration = (
@@ -403,12 +404,12 @@ def test_refresh_player_data_filters_invalid_rows_and_deduplicates(
         },
     )
 
-    result = refresh_player_data(db_session, margin_days=1)
+    result = refresh_team_squads(db_session, margin_days=1)
 
     players = db_session.query(Player).all()
     team_players = db_session.query(TeamPlayer).all()
     job = (
-        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.PLAYER_DATA_REFRESH).one()
+        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.TEAM_SQUADS_REFRESH).one()
     )
 
     assert len(players) == 1
@@ -480,12 +481,12 @@ def test_refresh_player_data_records_failure_for_one_tournament_and_continues(
         ],
     )
 
-    result = refresh_player_data(db_session, margin_days=1)
+    result = refresh_team_squads(db_session, margin_days=1)
 
     player = db_session.query(Player).where(Player.external_api_id == 500).one()
     registration = db_session.query(TeamPlayer).one()
     job = (
-        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.PLAYER_DATA_REFRESH).one()
+        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.TEAM_SQUADS_REFRESH).one()
     )
 
     assert player.display_name == "Successful Player"
@@ -529,10 +530,10 @@ def test_refresh_player_data_marks_tournament_skipped_when_api_returns_no_rows(
         return_value={"paging": {"total": 1}, "response": []},
     )
 
-    result = refresh_player_data(db_session, margin_days=1)
+    result = refresh_team_squads(db_session, margin_days=1)
 
     job = (
-        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.PLAYER_DATA_REFRESH).one()
+        db_session.query(RefreshJob).where(RefreshJob.job_name == JobName.TEAM_SQUADS_REFRESH).one()
     )
 
     assert db_session.query(Player).count() == 0

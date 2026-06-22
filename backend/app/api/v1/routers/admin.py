@@ -1,19 +1,19 @@
 from typing import Annotated
 
+from backend.app.api.v1.services import refresh_team_squads as refresh_team_squads_service
 from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
-from app.api.v1.services import refresh_player_data as refresh_player_data_service
 from app.api.v1.services import refresh_player_leaderboards as refresh_player_leaderboards_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.api.v1.services import refresh_team_rankings as refresh_team_rankings_service
 from app.constants.external_apis import (
     MATCHES_MARGIN_DAYS,
-    PLAYER_DATA_MARGIN_DAYS,
     STANDINGS_MARGIN_DAYS,
+    TEAM_SQUADS_MARGIN_DAYS,
 )
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
@@ -106,19 +106,18 @@ def refresh_team_rankings(request: Request, db: Annotated[Session, Depends(get_d
     return refresh_team_rankings_service.refresh_team_rankings(db)
 
 
-@router.post("/tournaments/refresh-player-data")
+@router.post("/tournaments/refresh-team-squads")
 @limiter.limit("3/minute")
-def refresh_player_data(
+def refresh_team_squads(
     request: Request,
     db: Annotated[Session, Depends(get_db)],
-    margin_days: Annotated[int, Query(ge=0, le=30)] = PLAYER_DATA_MARGIN_DAYS,
+    margin_days: Annotated[int, Query(ge=0, le=30)] = TEAM_SQUADS_MARGIN_DAYS,
 ) -> dict:
     """
-    Refresh player data for all teams in live tournaments.
-    The refresh includes squads and statistics.
+    Refresh team squad for all teams in live tournaments.
     Return a summary of successful refreshes and failures.
     """
-    return refresh_player_data_service.refresh_player_data(db, margin_days)
+    return refresh_team_squads_service.refresh_team_squads(db, margin_days)
 
 
 @router.post("/tournaments/refresh-player-leaderboards")

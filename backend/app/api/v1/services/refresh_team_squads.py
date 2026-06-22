@@ -6,7 +6,7 @@ from app.api.v1.clients.football_api import football_get
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.services import team_players as team_players_service
 from app.api.v1.services import tournaments as tournaments_service
-from app.constants.external_apis import API_FOOTBALL_PLAYERS_ENDPOINT, PLAYER_DATA_MARGIN_DAYS
+from app.constants.external_apis import API_FOOTBALL_PLAYERS_ENDPOINT, TEAM_SQUADS_MARGIN_DAYS
 from app.models.enums import JobName
 from app.schemas.teams import TeamPlayerRefreshRow
 from app.utils.refresh_summary import RefreshSummary
@@ -52,7 +52,7 @@ def map_position(value: str | None) -> str | None:
     return None
 
 
-def transform_player_data_row(
+def transform_team_squads_data_row(
     row: dict,
     tournament_external_api_id: int,
     season: str,
@@ -98,22 +98,15 @@ def transform_player_data_row(
                 height=normalize_height(player.get("height")),
                 squad_number=games.get("number"),
                 position=map_position(games.get("position")),
-                # Later extension point:
-                # appearances=games.get("appearences") or 0,
-                # minutes_played=games.get("minutes") or 0,
-                # goals=(stats.get("goals") or {}).get("total") or 0,
-                # assists=(stats.get("goals") or {}).get("assists") or 0,
-                # yellow_cards=(stats.get("cards") or {}).get("yellow") or 0,
-                # red_cards=(stats.get("cards") or {}).get("red") or 0,
             )
         )
 
     return rows
 
 
-def fetch_player_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
+def fetch_squad_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
     """
-    Fetch player data through the players/statistics endpoint.
+    Fetch team squad data through the players/statistics endpoint.
     Ensure to loop through all pages for every tournament.
     """
     rows = []
@@ -136,7 +129,7 @@ def fetch_player_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
         total_pages = paging.get("total") or 1
 
         for entry in data.get("response", []):
-            transformed_rows = transform_player_data_row(
+            transformed_rows = transform_team_squads_data_row(
                 entry,
                 tournament_external_api_id=tournament.external_api_id,
                 season=tournament.season,
@@ -159,9 +152,9 @@ def fetch_player_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
     return rows
 
 
-def refresh_player_data(
+def refresh_team_squads(
     db: Session,
-    margin_days: int = PLAYER_DATA_MARGIN_DAYS,
+    margin_days: int = TEAM_SQUADS_MARGIN_DAYS,
 ) -> dict:
     """
     Get all refreshable tournaments.
@@ -170,7 +163,7 @@ def refresh_player_data(
     Upsert players and tournament-scoped team player registrations.
     Later this same API sweep can also upsert player_stats.
     """
-    job_id = refresh_jobs_repo.create_job(db, JobName.PLAYER_DATA_REFRESH)
+    job_id = refresh_jobs_repo.create_job(db, JobName.TEAM_SQUADS_REFRESH)
     summary = RefreshSummary(resource_name="Player Data")
 
     try:
@@ -179,7 +172,7 @@ def refresh_player_data(
 
         for tournament in tournaments:
             try:
-                rows = fetch_player_data_for_tournament(tournament)
+                rows = fetch_squad_data_for_tournament(tournament)
 
                 if not rows:
                     summary.mark_skipped()
