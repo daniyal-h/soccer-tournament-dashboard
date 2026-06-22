@@ -1,11 +1,11 @@
 import type { PlayerSimpleSummary } from './player';
 import type { TeamSummary } from './team';
 
-export type LeadershipType = 'goals' | 'assists' | 'yellow_cards';
+export type CategoryType = 'goals' | 'assists' | 'yellow_cards';
 
 export interface PlayerLeaderboardOptions {
   tournament_id: number;
-  category: LeadershipType;
+  category: CategoryType;
 }
 
 export interface RankedPlayer {
@@ -19,11 +19,11 @@ export interface RankedPlayer {
 }
 
 export interface PlayerLeaderboardApiResponse {
-  category: LeadershipType;
+  category: CategoryType;
   data: RankedPlayer[];
 }
 
 export interface PlayerLeaderboard {
-  category: LeadershipType;
+  category: CategoryType;
   leaderboard: RankedPlayer[];
 }

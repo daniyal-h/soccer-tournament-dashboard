@@ -1,4 +1,4 @@
-import type { LeadershipType } from '@/types/playerLeaderboard';
+import type { CategoryType } from '@/types/playerLeaderboard';
 
 // keys to Frontend cache
 export const queryKeys = {
@@ -35,7 +35,7 @@ export const queryKeys = {
   },
 
   playerLeaderboard: {
-    all: (tournamentId: number, category: LeadershipType) =>
+    all: (tournamentId: number, category: CategoryType) =>
       ['playerLeaderboard', category, tournamentId] as const,
   },
 };
