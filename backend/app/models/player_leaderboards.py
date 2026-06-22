@@ -27,13 +27,13 @@ class PlayerLeaderboard(TimestampMixin, Base):
         nullable=False,
     )
 
-    rank: Mapped[int] = mapped_column(Integer, nullable=False)
-    value: Mapped[int] = mapped_column(Integer, nullable=False)
+    rank: Mapped[int] = mapped_column(Integer, nullable=False)  # placement in top-20
+    value: Mapped[int] = mapped_column(Integer, nullable=False)  # value of category (x goals)
 
-    # optional data
+    # optional data to enrich frontend player card
     appearances: Mapped[int | None] = mapped_column(Integer, nullable=True)
     minutes_played: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    rating: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)
+    rating: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True) 
 
     __table_args__ = (
         UniqueConstraint(
