@@ -13,7 +13,7 @@ class RankedPlayer(BaseModel):
     player: PlayerSimpleSummary
     team: TeamSummary
     appearances: int | None = None
-    minutes_player: int | None = None
+    minutes_played: int | None = None
     rating: Decimal | None = None
 
     model_config = ConfigDict(from_attributes=True)
