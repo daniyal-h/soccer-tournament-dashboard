@@ -59,14 +59,17 @@ class MatchSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class PlayerSummary(BaseModel):
+class PlayerSimpleSummary(BaseModel):
     id: int
     display_name: str
+    photo_url: str | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PlayerSummary(PlayerSimpleSummary):
     first_name: str | None = None
     last_name: str | None = None
-    photo_url: str | None = None
     nationality: str | None = None
     date_of_birth: date | None = None
     height: int | None = None
-
-    model_config = ConfigDict(from_attributes=True)
