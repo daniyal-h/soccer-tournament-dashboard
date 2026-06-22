@@ -19,9 +19,11 @@ export interface RankedPlayer {
 }
 
 export interface PlayerLeaderboardApiResponse {
+  category: LeadershipType;
   data: RankedPlayer[];
 }
 
 export interface PlayerLeaderboard {
+  category: LeadershipType;
   leaderboard: RankedPlayer[];
 }
