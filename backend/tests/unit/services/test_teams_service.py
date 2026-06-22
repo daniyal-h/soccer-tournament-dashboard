@@ -203,7 +203,7 @@ def test_get_team_profile_builds_response_from_registration_and_standing_then_ca
         return_value=standing,
     )
     get_ttl = mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     get_expires_at = mocker.patch(
@@ -273,7 +273,7 @@ def test_get_team_profile_returns_none_standing_when_standing_missing_and_caches
         return_value=None,
     )
     mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     mocker.patch(
@@ -319,7 +319,7 @@ def test_get_team_profile_preserves_null_group_when_registration_has_no_group(mo
         return_value=None,
     )
     mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=timedelta(minutes=5),
     )
     mocker.patch(
@@ -506,7 +506,7 @@ def test_get_team_matches_fetches_matches_then_caches_response(mocker):
         return_value=matches,
     )
     get_ttl = mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     get_expires_at = mocker.patch(
@@ -570,7 +570,7 @@ def test_get_team_matches_caches_empty_list_for_valid_team_with_no_matches(mocke
         return_value=[],
     )
     mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     mocker.patch(
@@ -787,7 +787,7 @@ def test_get_team_squad_fetches_squad_then_caches_response(mocker):
         return_value=squad,
     )
     get_ttl = mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     get_expires_at = mocker.patch(
@@ -855,7 +855,7 @@ def test_get_team_squad_caches_empty_list_for_valid_team_with_no_squad(mocker):
         return_value=[],
     )
     mocker.patch(
-        "app.api.v1.services.teams.get_team_profile_ttl",
+        "app.api.v1.services.teams.get_tournament_data_ttl",
         return_value=ttl,
     )
     mocker.patch(

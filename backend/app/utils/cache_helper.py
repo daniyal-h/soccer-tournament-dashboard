@@ -20,15 +20,15 @@ from app.constants.cache_ttl import (
     STANDINGS_PRE_TOURNAMENT_FAR_TTL,
     STANDINGS_PRE_TOURNAMENT_SOON_TTL,
     STANDINGS_TTL,
-    TEAM_PROFILE_FINISHED_TTL,
-    TEAM_PROFILE_PRE_TOURNAMENT_FAR_TTL,
-    TEAM_PROFILE_PRE_TOURNAMENT_SOON_TTL,
-    TEAM_PROFILE_TTL,
     TEAMS_FINISHED_TTL,
     TEAMS_GROUP_STAGE_TTL,
     TEAMS_KNOCKOUT_TTL,
     TEAMS_PRE_TOURNAMENT_FAR_TTL,
     TEAMS_PRE_TOURNAMENT_SOON_TTL,
+    TOURNAMENT_DATA_ACTIVE_TTL,
+    TOURNAMENT_DATA_FINISHED_TTL,
+    TOURNAMENT_DATA_PRE_TOURNAMENT_FAR_TTL,
+    TOURNAMENT_DATA_PRE_TOURNAMENT_SOON_TTL,
 )
 from app.constants.team_rankings import KNOCKOUT_STAGES
 from app.models.enums import StageType, StatusType
@@ -209,20 +209,22 @@ def get_teams_ttl(
         return TEAMS_GROUP_STAGE_TTL
 
 
-def get_team_profile_ttl(tournament: Tournament, today: date | None = None) -> timedelta:
+def get_tournament_data_ttl(
+    tournament: Tournament,
+    today: date | None = None,
+) -> timedelta:
     current_date = today or date.today()
 
-    # soon or far pre-tournament TTLs
     if current_date < tournament.start_date:
+        # within a day is soon, otherwise far
         days_until_start = (tournament.start_date - current_date).days
 
         if days_until_start <= 1:
-            return TEAM_PROFILE_PRE_TOURNAMENT_SOON_TTL
+            return TOURNAMENT_DATA_PRE_TOURNAMENT_SOON_TTL
 
-        return TEAM_PROFILE_PRE_TOURNAMENT_FAR_TTL
+        return TOURNAMENT_DATA_PRE_TOURNAMENT_FAR_TTL
 
-    # ongoing or finished tournaments
     if current_date <= tournament.end_date:
-        return TEAM_PROFILE_TTL
+        return TOURNAMENT_DATA_ACTIVE_TTL
 
-    return TEAM_PROFILE_FINISHED_TTL
+    return TOURNAMENT_DATA_FINISHED_TTL

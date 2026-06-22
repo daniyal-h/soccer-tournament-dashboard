@@ -11,7 +11,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.schemas.common import TeamStandingsSummary
 from app.schemas.errors import NotFoundError
 from app.schemas.teams import TeamMatchesResponse, TeamProfileResponse, TeamSquadResponse
-from app.utils.cache_helper import get_expires_at, get_team_profile_ttl
+from app.utils.cache_helper import get_expires_at, get_tournament_data_ttl
 
 
 def get_team_profile(db: Session, tournament_id: int, team_id: int) -> TeamProfileResponse:
@@ -36,7 +36,7 @@ def get_team_profile(db: Session, tournament_id: int, team_id: int) -> TeamProfi
         standing=TeamStandingsSummary.model_validate(standing) if standing else None,
     )
 
-    ttl = get_team_profile_ttl(tournament)
+    ttl = get_tournament_data_ttl(tournament)
 
     cache_service.set_cache(
         db, cache_key, payload=jsonable_encoder(team_profile), expires_at=get_expires_at(ttl)
@@ -61,7 +61,7 @@ def get_team_matches(db: Session, tournament_id: int, team_id: int) -> TeamMatch
 
     team_matches = TeamMatchesResponse(data=matches)
 
-    ttl = get_team_profile_ttl(tournament)
+    ttl = get_tournament_data_ttl(tournament)
 
     cache_service.set_cache(
         db, cache_key, payload=jsonable_encoder(team_matches), expires_at=get_expires_at(ttl)
@@ -86,7 +86,7 @@ def get_team_squad(db: Session, tournament_id: int, team_id: int) -> TeamSquadRe
 
     team_squad = TeamSquadResponse(data=squad)
 
-    ttl = get_team_profile_ttl(tournament)
+    ttl = get_tournament_data_ttl(tournament)
 
     cache_service.set_cache(
         db, cache_key, payload=jsonable_encoder(team_squad), expires_at=get_expires_at(ttl)

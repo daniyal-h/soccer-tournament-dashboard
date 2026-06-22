@@ -2,11 +2,13 @@ from decimal import Decimal
 
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy import ForeignKey, Index, Integer, Numeric, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.enums import LeaderboardType
 
 from .base import Base, TimestampMixin
+from .players import Player
+from .team import Team
 
 
 class PlayerLeaderboard(TimestampMixin, Base):
@@ -15,8 +17,8 @@ class PlayerLeaderboard(TimestampMixin, Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     tournament_id: Mapped[int] = mapped_column(ForeignKey("tournaments.id"), nullable=False)
-    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
     player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), nullable=False)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), nullable=False)
 
     category: Mapped[LeaderboardType] = mapped_column(
         SQLAlchemyEnum(
@@ -34,6 +36,9 @@ class PlayerLeaderboard(TimestampMixin, Base):
     appearances: Mapped[int | None] = mapped_column(Integer, nullable=True)
     minutes_played: Mapped[int | None] = mapped_column(Integer, nullable=True)
     rating: Mapped[Decimal | None] = mapped_column(Numeric(4, 2), nullable=True)
+
+    team: Mapped[Team] = relationship("Team", lazy="joined")
+    player: Mapped[Player] = relationship("Player", lazy="joined")
 
     __table_args__ = (
         UniqueConstraint(
