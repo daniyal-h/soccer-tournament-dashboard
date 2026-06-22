@@ -7,6 +7,7 @@ import { CATEGORY_CONTENT } from '@/constants/playerLeaderboards';
 import EmptyState from '../feedback/EmptyState';
 import ErrorState from '../feedback/ErrorState';
 import PlayerLeaderboardList from './PlayerLeaderboardList';
+import PlayerLeaderboardSkeleton from './PlayerLeaderboardSkeleton';
 
 type PlayerLeaderboardSectionProps = {
   tournamentId: number;
@@ -42,7 +43,7 @@ function PlayerLeaderboardSection({
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">{content.title}</h2>
         <p className="text-muted-foreground">{content.loading}</p>
-        {/* TODO: skeleton */}
+        <PlayerLeaderboardSkeleton />
       </section>
     );
   }
