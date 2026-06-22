@@ -59,9 +59,9 @@ function PlayerLeaderboardCard({ player: rankedPlayer, valueLabel }: PlayerLeade
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 pt-1 text-xs text-muted-foreground">
-          {appearances !== null && <span>{appearances} matches</span>}
-          {minutesText && <span>{minutesText}</span>}
+        <div className="flex flex-wrap gap-1 pt-2 text-xs text-muted-foreground">
+          {appearances !== null && <span>{appearances} matches</span>} ·
+          {minutesText && <span>{minutesText}</span>} ·
           {ratingText && <span>Rating {ratingText}</span>}
         </div>
       </div>
