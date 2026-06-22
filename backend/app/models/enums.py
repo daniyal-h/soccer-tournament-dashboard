@@ -56,4 +56,4 @@ class PositionType(str, enum.Enum):
 class LeaderboardType(str, enum.Enum):
     GOALS = "goals"
     ASSISTS = "assists"
-    YELLOW_CARD = "yellow_cards"
+    YELLOW_CARDS = "yellow_cards"
