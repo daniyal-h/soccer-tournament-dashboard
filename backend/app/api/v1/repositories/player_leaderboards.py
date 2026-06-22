@@ -2,12 +2,11 @@ from sqlalchemy.orm import Session
 
 from app.models.enums import LeaderboardType
 from app.models.player_leaderboards import PlayerLeaderboard
-from app.schemas.player_leaderboards import RankedPlayer
 
 
 def get_tournament_leaderboard_by_category(
     db: Session, tournament_id: int, category: LeaderboardType
-) -> list[RankedPlayer]:
+) -> list[PlayerLeaderboard]:
     return (
         db.query(PlayerLeaderboard)
         .where(
