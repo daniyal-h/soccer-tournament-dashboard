@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import CategoryPicker from '@/components/playerLeaderboards/CategoryPicker';
-import PlayerLeaderboardSection from '@/components/playerLeaderboards/TeamLeaderboardSection';
+import PlayerLeaderboardSection from '@/components/playerLeaderboards/PlayerLeaderboardSection';
 
 import { useTournament } from '@/context/TournamentContext';
 
