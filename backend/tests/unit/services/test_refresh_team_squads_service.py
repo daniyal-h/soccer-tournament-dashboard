@@ -2,8 +2,8 @@ from datetime import date
 from types import SimpleNamespace
 
 import pytest
-from backend.app.api.v1.services import refresh_team_squads as sut
 
+from app.api.v1.services import refresh_team_squads as sut
 from app.models.enums import JobName
 
 
@@ -227,7 +227,7 @@ def test_transform_team_squads_row_allows_same_player_on_multiple_matching_teams
     ]
 
 
-def test_fetch_team_squads_for_tournament_paginates_and_deduplicates(mocker):
+def test_fetch_team_squads_data_for_tournament_paginates_and_deduplicates(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     football_get = mocker.patch(
@@ -259,7 +259,7 @@ def test_fetch_team_squads_for_tournament_paginates_and_deduplicates(mocker):
         ],
     )
 
-    rows = sut.fetch_squad_data_for_tournament(tournament)
+    rows = sut.fetch_team_squads_data_for_tournament(tournament)
 
     assert [(row.external_team_id, row.external_player_id) for row in rows] == [
         (50, 10),
@@ -278,7 +278,7 @@ def test_fetch_team_squads_for_tournament_paginates_and_deduplicates(mocker):
     ]
 
 
-def test_fetch_team_squads_for_tournament_defaults_missing_paging_to_single_page(mocker):
+def test_fetch_team_squads_data_for_tournament_defaults_missing_paging_to_single_page(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     football_get = mocker.patch(
@@ -286,7 +286,7 @@ def test_fetch_team_squads_for_tournament_defaults_missing_paging_to_single_page
         return_value={"response": [make_player_entry()]},
     )
 
-    rows = sut.fetch_squad_data_for_tournament(tournament)
+    rows = sut.fetch_team_squads_data_for_tournament(tournament)
 
     assert len(rows) == 1
     football_get.assert_called_once_with(
@@ -295,7 +295,7 @@ def test_fetch_team_squads_for_tournament_defaults_missing_paging_to_single_page
     )
 
 
-def test_fetch_team_squads_for_tournament_continues_after_duplicate_row(mocker):
+def test_fetch_team_squads_data_for_tournament_continues_after_duplicate_row(mocker):
     tournament = SimpleNamespace(external_api_id=1, season="2026")
 
     mocker.patch(
@@ -320,7 +320,7 @@ def test_fetch_team_squads_for_tournament_continues_after_duplicate_row(mocker):
         },
     )
 
-    rows = sut.fetch_squad_data_for_tournament(tournament)
+    rows = sut.fetch_team_squads_data_for_tournament(tournament)
 
     assert [(row.external_team_id, row.external_player_id) for row in rows] == [
         (50, 10),
@@ -345,7 +345,7 @@ def test_refresh_team_squads_updates_rows_and_marks_job_success(mocker):
         return_value=[tournament],
     )
     fetch_team_squads = mocker.patch(
-        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_data_for_tournament",
         return_value=[row],
     )
     update_team_players = mocker.patch(
@@ -387,7 +387,7 @@ def test_refresh_team_squads_skips_tournament_with_no_rows(mocker):
         return_value=[tournament],
     )
     mocker.patch(
-        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_data_for_tournament",
         return_value=[],
     )
     update_team_players = mocker.patch(
@@ -424,7 +424,7 @@ def test_refresh_team_squads_records_tournament_failure_and_completes_failed_job
         return_value=[good_tournament, bad_tournament],
     )
     mocker.patch(
-        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_data_for_tournament",
         side_effect=[[row], RuntimeError("API exploded")],
     )
     update_team_players = mocker.patch(
@@ -492,7 +492,7 @@ def test_refresh_team_squads_continues_after_skipped_tournament(mocker):
         return_value=[skipped_tournament, refreshed_tournament],
     )
     fetch_team_squads = mocker.patch(
-        "app.api.v1.services.refresh_team_squads.fetch_team_squads_for_tournament",
+        "app.api.v1.services.refresh_team_squads.fetch_team_squads_data_for_tournament",
         side_effect=[[], [row]],
     )
     update_team_players = mocker.patch(

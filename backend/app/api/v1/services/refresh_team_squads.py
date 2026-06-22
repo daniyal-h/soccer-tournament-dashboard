@@ -104,7 +104,7 @@ def transform_team_squads_data_row(
     return rows
 
 
-def fetch_squad_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
+def fetch_team_squads_data_for_tournament(tournament) -> list[TeamPlayerRefreshRow]:
     """
     Fetch team squad data through the players/statistics endpoint.
     Ensure to loop through all pages for every tournament.
@@ -172,7 +172,7 @@ def refresh_team_squads(
 
         for tournament in tournaments:
             try:
-                rows = fetch_squad_data_for_tournament(tournament)
+                rows = fetch_team_squads_data_for_tournament(tournament)
 
                 if not rows:
                     summary.mark_skipped()

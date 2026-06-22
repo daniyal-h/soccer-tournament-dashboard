@@ -1,8 +1,7 @@
 import json
 from datetime import UTC, date, datetime, timedelta
 
-from backend.app.api.v1.services.refresh_team_squads import refresh_team_squads
-
+from app.api.v1.services.refresh_team_squads import refresh_team_squads
 from app.constants.external_apis import API_FOOTBALL_PLAYERS_ENDPOINT
 from app.models.cache_entry import CacheEntry
 from app.models.enums import JobName, JobStatus
