@@ -7,6 +7,7 @@ from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_player_data as refresh_player_data_service
+from app.api.v1.services import refresh_player_leaderboards as refresh_player_leaderboards_service
 from app.api.v1.services import refresh_standings as refresh_standings_service
 from app.api.v1.services import refresh_team_rankings as refresh_team_rankings_service
 from app.constants.external_apis import (
@@ -118,6 +119,16 @@ def refresh_player_data(
     Return a summary of successful refreshes and failures.
     """
     return refresh_player_data_service.refresh_player_data(db, margin_days)
+
+
+@router.post("/tournaments/refresh-player-leaderboards")
+@limiter.limit("3/minute")
+def refresh_player_leaderboards(request: Request, db: Annotated[Session, Depends(get_db)]) -> dict:
+    """
+    Refresh player leaderboards for all live tournaments.
+    Return a summary of successful refreshes and failures.
+    """
+    return refresh_player_leaderboards_service.refresh_player_leaderboards(db)
 
 
 @router.put("/tournaments/{tournament_id}/matches")
