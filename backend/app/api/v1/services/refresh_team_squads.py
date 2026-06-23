@@ -164,7 +164,7 @@ def refresh_team_squads(
     Later this same API sweep can also upsert player_stats.
     """
     job_id = refresh_jobs_repo.create_job(db, JobName.TEAM_SQUADS_REFRESH)
-    summary = RefreshSummary(resource_name="Player Data")
+    summary = RefreshSummary(resource_name="Team Squads")
 
     try:
         tournaments = tournaments_service.get_refreshable_tournaments(db, margin_days)
