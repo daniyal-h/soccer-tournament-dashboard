@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from app.api.v1.repositories.player_leaderboards import (
     get_tournament_leaderboard_by_category,
+    replace_player_leaderboards_in_tournament,
 )
 from app.models.enums import LeaderboardType
 from app.models.player_leaderboards import PlayerLeaderboard
@@ -196,3 +197,206 @@ def test_get_tournament_leaderboard_by_category_returns_empty_list_when_no_categ
     )
 
     assert rows == []
+
+
+def test_replace_player_leaderboards_in_tournament_replaces_only_selected_tournament(
+    db_session,
+):
+    tournament = make_tournament(
+        external_api_id=1,
+        name="World Cup",
+        season="2022",
+    )
+    other_tournament = make_tournament(
+        external_api_id=2,
+        name="Euro",
+        season="2024",
+    )
+
+    team = make_team(external_api_id=26, name="Argentina", short_name="ARG")
+    other_team = make_team(external_api_id=2, name="France", short_name="FRA")
+
+    old_player = make_player(external_api_id=1, display_name="Old Player")
+    new_player = make_player(external_api_id=2, display_name="New Player")
+    other_player = make_player(external_api_id=3, display_name="Other Tournament Player")
+
+    db_session.add_all(
+        [
+            tournament,
+            other_tournament,
+            team,
+            other_team,
+            old_player,
+            new_player,
+            other_player,
+        ]
+    )
+    db_session.flush()
+
+    db_session.add_all(
+        [
+            PlayerLeaderboard(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=old_player.id,
+                category=LeaderboardType.GOALS,
+                rank=1,
+                value=99,
+                appearances=7,
+                minutes_played=700,
+                rating=Decimal("9.90"),
+            ),
+            PlayerLeaderboard(
+                tournament_id=other_tournament.id,
+                team_id=other_team.id,
+                player_id=other_player.id,
+                category=LeaderboardType.GOALS,
+                rank=1,
+                value=8,
+                appearances=7,
+                minutes_played=650,
+                rating=Decimal("8.10"),
+            ),
+        ]
+    )
+    db_session.commit()
+
+    replacement_rows = [
+        PlayerLeaderboard(
+            tournament_id=tournament.id,
+            team_id=team.id,
+            player_id=new_player.id,
+            category=LeaderboardType.GOALS,
+            rank=1,
+            value=4,
+            appearances=5,
+            minutes_played=450,
+            rating=Decimal("7.25"),
+        ),
+        PlayerLeaderboard(
+            tournament_id=tournament.id,
+            team_id=team.id,
+            player_id=new_player.id,
+            category=LeaderboardType.ASSISTS,
+            rank=2,
+            value=3,
+            appearances=None,
+            minutes_played=None,
+            rating=None,
+        ),
+    ]
+
+    replace_player_leaderboards_in_tournament(
+        db_session,
+        tournament.id,
+        replacement_rows,
+    )
+
+    selected_rows = (
+        db_session.query(PlayerLeaderboard)
+        .filter(PlayerLeaderboard.tournament_id == tournament.id)
+        .order_by(PlayerLeaderboard.category, PlayerLeaderboard.rank)
+        .all()
+    )
+
+    assert len(selected_rows) == 2
+    assert {row.player_id for row in selected_rows} == {new_player.id}
+    assert {row.category for row in selected_rows} == {
+        LeaderboardType.GOALS,
+        LeaderboardType.ASSISTS,
+    }
+    assert all(row.player_id != old_player.id for row in selected_rows)
+
+    goals_row = next(row for row in selected_rows if row.category == LeaderboardType.GOALS)
+    assert goals_row.rank == 1
+    assert goals_row.value == 4
+    assert goals_row.appearances == 5
+    assert goals_row.minutes_played == 450
+    assert goals_row.rating == Decimal("7.25")
+
+    assists_row = next(row for row in selected_rows if row.category == LeaderboardType.ASSISTS)
+    assert assists_row.rank == 2
+    assert assists_row.value == 3
+    assert assists_row.appearances is None
+    assert assists_row.minutes_played is None
+    assert assists_row.rating is None
+
+    other_rows = (
+        db_session.query(PlayerLeaderboard)
+        .filter(PlayerLeaderboard.tournament_id == other_tournament.id)
+        .all()
+    )
+
+    assert len(other_rows) == 1
+    assert other_rows[0].player_id == other_player.id
+    assert other_rows[0].value == 8
+
+
+def test_replace_player_leaderboards_in_tournament_with_empty_rows_clears_only_selected_tournament(
+    db_session,
+):
+    tournament = make_tournament(
+        external_api_id=1,
+        name="World Cup",
+        season="2022",
+    )
+    other_tournament = make_tournament(
+        external_api_id=2,
+        name="Euro",
+        season="2024",
+    )
+
+    team = make_team(external_api_id=26, name="Argentina", short_name="ARG")
+    other_team = make_team(external_api_id=2, name="France", short_name="FRA")
+
+    player = make_player(external_api_id=1, display_name="Player One")
+    other_player = make_player(external_api_id=2, display_name="Player Two")
+
+    db_session.add_all([tournament, other_tournament, team, other_team, player, other_player])
+    db_session.flush()
+
+    db_session.add_all(
+        [
+            PlayerLeaderboard(
+                tournament_id=tournament.id,
+                team_id=team.id,
+                player_id=player.id,
+                category=LeaderboardType.GOALS,
+                rank=1,
+                value=8,
+                appearances=7,
+                minutes_played=597,
+                rating=Decimal("7.61"),
+            ),
+            PlayerLeaderboard(
+                tournament_id=other_tournament.id,
+                team_id=other_team.id,
+                player_id=other_player.id,
+                category=LeaderboardType.GOALS,
+                rank=1,
+                value=6,
+                appearances=6,
+                minutes_played=500,
+                rating=Decimal("7.20"),
+            ),
+        ]
+    )
+    db_session.commit()
+
+    replace_player_leaderboards_in_tournament(db_session, tournament.id, [])
+
+    selected_count = (
+        db_session.query(PlayerLeaderboard)
+        .filter(PlayerLeaderboard.tournament_id == tournament.id)
+        .count()
+    )
+    other_rows = (
+        db_session.query(PlayerLeaderboard)
+        .filter(PlayerLeaderboard.tournament_id == other_tournament.id)
+        .all()
+    )
+
+    assert selected_count == 0
+    assert len(other_rows) == 1
+    assert other_rows[0].player_id == other_player.id
+    assert other_rows[0].value == 6
