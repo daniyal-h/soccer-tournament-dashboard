@@ -103,7 +103,10 @@ def update_matches(db: Session, tournament_id: int, data: list[MatchRefreshRow])
         )
 
     matches_repo.upsert_matches_in_tournament(db, tournament_id, rows)
+
+    # since bracket uses matches as a source of truth, invalidate its cache as well
     cache_service.invalidate_cache(db, f"matches:{tournament_id}")
+    cache_service.invalidate_cache(db, f"bracket:{tournament_id}")
 
 
 def get_live_matches(db: Session) -> list[Match]:
