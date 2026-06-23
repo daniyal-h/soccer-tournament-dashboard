@@ -8,7 +8,7 @@ A tournament-agnostic soccer dashboard built with World Cup 2026 as the primary 
 
 ## Current Status
 
-Core standings infrastructure, tournament selection, database seeding pipeline, refresh jobs, CI/CD, Dockerization, and production deployment are implemented. Match schedules, player statistics, and knockout visualization are currently under active development.
+Core standings infrastructure, tournament selection, match schedules, player statistics, database seeding pipeline, refresh jobs, CI/CD, Dockerization, and production deployment are implemented. Knockout visualization is currently under active development.
 
 ---
 
@@ -72,17 +72,17 @@ The default homepage. Matches grouped by date, responsive grid layout (single co
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
-### Player Stats Leaderboard (in-progress)
+### Player Stats Leaderboard (completed)
 
 Allows users to view top player leaderboards for the selected tournament. The page focuses on tournament-level player rankings for goals, assists, and yellow cards.
 
-### Global Search (planned)
+### Knockout Bracket (in-progress)
+
+The Bracket feature allows users to view the knockout stage progression for the selected tournament. The page focuses on displaying tournament matches by knockout round, including participating teams, scores, match status, and winners.
+
+### Global Search (possibly removed)
 
 Persistent search bar in the navbar. Searches teams and players from the PostgreSQL cache using full-text search (tsvector/tsquery). Filter chips for All, Teams, and Players. Debounced input to avoid unnecessary queries.
-
-### Knockout Bracket (planned)
-
-Visual bracket from Round of 16 through to the Final. Renders placeholder slots before July 4 when the knockout stage begins, then populates with real data as matches are played.
 
 ---
 
