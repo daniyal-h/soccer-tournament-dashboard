@@ -157,6 +157,7 @@ GET /api/v1/tournaments
 GET /api/v1/tournaments/{tournament_id}
 GET /api/v1/tournaments/{tournament_id}/standings
 GET /api/v1/tournaments/{tournament_id}/matches
+GET /api/v1/tournaments/{tournament_id}/bracket
 GET /api/v1/matches/{match_id}
 GET /api/v1/matches/{match_id}/events
 GET /api/v1/tournaments/{tournament_id}teams/{team_id}
@@ -311,7 +312,8 @@ POST /api/v1/admin/tournaments/refresh-standings
 POST /api/v1/admin/tournaments/refresh-matches
 POST /api/v1/admin/tournaments/refresh-match-events
 POST /api/v1/admin/tournaments/refresh-team-rankings
-POST /api/v1/admin/tournaments/refresh-player-data
+POST /api/v1/admin/tournaments/refresh-team-squads
+POST /api/v1/admin/tournaments/refresh-player-leaderboards
 ```
 
 Refresh services:
