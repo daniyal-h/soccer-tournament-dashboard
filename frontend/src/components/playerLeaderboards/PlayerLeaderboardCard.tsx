@@ -19,6 +19,7 @@ function PlayerLeaderboardCard({ player: rankedPlayer, valueLabel }: PlayerLeade
 
   const minutesText = formatMinutes(minutes_played);
   const ratingText = formatRating(rating);
+  const appearancesSuffix = appearances !== null && appearances > 1 ? 'matches' : 'match';
 
   const rankStyle = RANK_CARD_STYLES[rank];
 
@@ -60,7 +61,11 @@ function PlayerLeaderboardCard({ player: rankedPlayer, valueLabel }: PlayerLeade
         </div>
 
         <div className="flex flex-wrap gap-1 pt-2 text-xs text-muted-foreground">
-          {appearances !== null && <span>{appearances} matches · </span>}
+          {appearances !== null && (
+            <span>
+              {appearances} {appearancesSuffix} ·{' '}
+            </span>
+          )}
           {minutesText && <span>{minutesText} · </span>}
           {ratingText && <span>Rating {ratingText}</span>}
         </div>

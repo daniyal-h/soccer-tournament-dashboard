@@ -20,3 +20,15 @@ class RankedPlayer(BaseModel):
 class PlayerLeaderboardResponse(BaseModel):
     category: LeaderboardType
     data: list[RankedPlayer]
+
+
+class PlayerLeaderboardRefreshRow(BaseModel):
+    external_team_id: int
+    external_player_id: int
+
+    category: LeaderboardType
+    rank: int
+    value: int
+    appearances: int | None = None
+    minutes_played: int | None = None
+    rating: float | None = None

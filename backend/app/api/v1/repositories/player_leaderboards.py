@@ -16,3 +16,18 @@ def get_tournament_leaderboard_by_category(
         .limit(20)
         .all()
     )
+
+
+# entirely replace all leaderboards in the given tournament with new ones
+def replace_player_leaderboards_in_tournament(
+    db: Session,
+    tournament_id: int,
+    rows: list[PlayerLeaderboard],
+) -> None:
+    db.query(PlayerLeaderboard).filter(
+        PlayerLeaderboard.tournament_id == tournament_id,
+    ).delete(synchronize_session=False)
+
+    db.add_all(rows)
+
+    db.commit()

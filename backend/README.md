@@ -162,7 +162,7 @@ GET /api/v1/matches/{match_id}/events
 GET /api/v1/tournaments/{tournament_id}teams/{team_id}
 GET /api/v1/tournaments/{tournament_id}/teams/{team_id}/squad
 GET /api/v1/tournaments/{tournament_id}teams/{team_id}/matches
-GET /api/v1/tournaments/{tournament_id}/player-stats
+GET /api/v1/tournaments/{tournament_id}/player-leaderboard?category={category}
 GET /api/v1/search
 ```
 
@@ -322,7 +322,8 @@ app/api/v1/services/
   refresh_matches.py
   refresh_match_events.py
   refresh_team_rankings.py
-  refresh_player_data.py
+  refresh_team_squads.py
+  refresh_player_leaderboards.py
 
 app/api/v1/clients/
   football_api.py
