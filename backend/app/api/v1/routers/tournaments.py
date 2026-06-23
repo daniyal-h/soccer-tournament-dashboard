@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Path, Query, Request
 from sqlalchemy.orm import Session
 
+from app.api.v1.services import brackets as brackets_service
 from app.api.v1.services import matches as matches_service
 from app.api.v1.services import player_leaderboards as player_leaderboards_service
 from app.api.v1.services import standings as standings_service
@@ -12,6 +13,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
 from app.models.enums import LeaderboardType
+from app.schemas.brackets import BracketResponse
 from app.schemas.matches import MatchResponse
 from app.schemas.player_leaderboards import PlayerLeaderboardResponse
 from app.schemas.standings import StandingResponse
@@ -124,3 +126,17 @@ def get_player_leaderboard(
     """
 
     return player_leaderboards_service.get_player_leaderboard(db, tournament_id, category)
+
+
+@router.get("/{tournament_id}/bracket", response_model=BracketResponse)
+@limiter.limit("60/minute")
+def get_bracket(
+    request: Request,
+    db: Annotated[Session, Depends(get_db)],
+    tournament_id: Annotated[int, Path(gt=0)],
+):
+    """
+    Return all the matches grouped by stage type for the given tournament.
+    """
+
+    return brackets_service.get_bracket(db, tournament_id)
