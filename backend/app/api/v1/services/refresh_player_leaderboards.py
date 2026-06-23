@@ -6,7 +6,7 @@ from app.api.v1.clients.football_api import football_get
 from app.api.v1.repositories import refresh_jobs as refresh_jobs_repo
 from app.api.v1.services import player_leaderboards as player_leaderboards_service
 from app.api.v1.services import tournaments as tournaments_service
-from app.constants.external_apis import LEADERBOARD_ENDPOINTS
+from app.constants.external_apis import API_FOOTBALL_LEADERBOARD_ENDPOINTS
 from app.models.enums import JobName
 from app.models.tournament import Tournament
 from app.schemas.player_leaderboards import PlayerLeaderboardRefreshRow
@@ -60,7 +60,7 @@ def fetch_player_leaderboards_for_tournament(
     rows: list[PlayerLeaderboardRefreshRow] = []
     leaderboard_seen = set()
 
-    for category, endpoint in LEADERBOARD_ENDPOINTS.items():
+    for category, endpoint in API_FOOTBALL_LEADERBOARD_ENDPOINTS.items():
         params = {
             "league": tournament.external_api_id,
             "season": tournament.season,
