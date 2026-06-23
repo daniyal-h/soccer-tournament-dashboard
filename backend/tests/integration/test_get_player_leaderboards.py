@@ -91,7 +91,7 @@ def test_get_player_leaderboard_cache_miss_returns_rows_and_writes_cache(db_sess
 
     cache_entry = (
         db_session.query(CacheEntry)
-        .where(CacheEntry.cache_key == f"player_leaderboards:{tournament.id}:goals")
+        .where(CacheEntry.cache_key == f"player_leaderboard:{tournament.id}:goals")
         .one_or_none()
     )
 
@@ -155,7 +155,7 @@ def test_get_player_leaderboard_cache_hit_returns_cached_payload_without_using_f
 
     cache_entries = (
         db_session.query(CacheEntry)
-        .where(CacheEntry.cache_key == f"player_leaderboards:{tournament.id}:goals")
+        .where(CacheEntry.cache_key == f"player_leaderboard:{tournament.id}:goals")
         .all()
     )
 
@@ -231,11 +231,11 @@ def test_get_player_leaderboard_uses_category_specific_cache_keys(db_session):
     cache_keys = {
         row.cache_key
         for row in db_session.query(CacheEntry)
-        .where(CacheEntry.cache_key.like(f"player_leaderboards:{tournament.id}:%"))
+        .where(CacheEntry.cache_key.like(f"player_leaderboard:{tournament.id}:%"))
         .all()
     }
 
     assert cache_keys == {
-        f"player_leaderboards:{tournament.id}:goals",
-        f"player_leaderboards:{tournament.id}:assists",
+        f"player_leaderboard:{tournament.id}:goals",
+        f"player_leaderboard:{tournament.id}:assists",
     }

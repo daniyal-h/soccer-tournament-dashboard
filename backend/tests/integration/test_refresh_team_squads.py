@@ -229,7 +229,7 @@ def test_refresh_team_squads_inserts_players_team_players_invalidates_cache_and_
     assert job.status == JobStatus.SUCCESS
     assert job.finished_at is not None
 
-    assert result["resource_name"] == "Player Data"
+    assert result["resource_name"] == "Team Squads"
     assert result["tournaments_checked"] == 1
     assert result["tournaments_refreshed"] == 1
     assert result["rows_processed"] == 2

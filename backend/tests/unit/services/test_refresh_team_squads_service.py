@@ -364,7 +364,7 @@ def test_refresh_team_squads_updates_rows_and_marks_job_success(mocker):
     )
     complete_job.assert_called_once_with(db, 777, success=True)
 
-    assert result["resource_name"] == "Player Data"
+    assert result["resource_name"] == "Team Squads"
     assert result["tournaments_checked"] == 1
     assert result["tournaments_refreshed"] == 1
     assert result["rows_processed"] == 1
