@@ -16,7 +16,7 @@ def get_player_leaderboard(
     Get the top-20 players in the specified tournament and category.
     Check cache first, otherwise retrieve data, cache and return it.
     """
-    cache_key = f"player_leaderboards:{tournament_id}:{category.value}"
+    cache_key = f"player_leaderboard:{tournament_id}:{category.value}"
     cached = cache_service.get_cache(db, cache_key)
 
     if cached is not None:
