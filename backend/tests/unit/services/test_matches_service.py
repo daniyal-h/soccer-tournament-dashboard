@@ -547,7 +547,10 @@ def test_update_matches_builds_group_match_rows_and_invalidates_cache(mocker):
     assert match.team_b_score is None
     assert match.kickoff_time == datetime(2026, 6, 11, 20, 0, tzinfo=timezone.utc)
 
-    invalidate_cache.assert_called_once_with(db, "matches:1")
+    assert invalidate_cache.call_args_list == [
+        mocker.call(db, "matches:1"),
+        mocker.call(db, "bracket:1"),
+    ]
 
 
 def test_update_matches_keeps_group_none_when_group_match_teams_do_not_match(mocker):
@@ -673,7 +676,10 @@ def test_update_matches_handles_empty_data_and_invalidates_cache(mocker):
     get_team_id.assert_not_called()
     get_team_group.assert_not_called()
     upsert.assert_called_once_with(db, tournament_id, [])
-    invalidate_cache.assert_called_once_with(db, "matches:1")
+    assert invalidate_cache.call_args_list == [
+        mocker.call(db, "matches:1"),
+        mocker.call(db, "bracket:1"),
+    ]
 
 
 def test_update_matches_reraises_when_team_resolution_fails(mocker):
@@ -818,3 +824,28 @@ def test_update_matches_preserves_kickoff_time_and_elapsed(mocker):
 
     assert match.kickoff_time == kickoff_time
     assert match.elapsed == 67
+
+
+def test_update_matches_invalidates_bracket_cache_after_successful_upsert(mocker):
+    db = Mock()
+    tournament_id = 7
+
+    mocker.patch.object(
+        matches_service.teams_service,
+        "get_team_id_from_external_id",
+        side_effect=[101, 202],
+    )
+    mocker.patch.object(
+        matches_service.tournament_teams_service,
+        "get_team_group",
+        side_effect=["A", "A"],
+    )
+    upsert = mocker.patch.object(matches_service.matches_repo, "upsert_matches_in_tournament")
+    invalidate_cache = mocker.patch.object(matches_service.cache_service, "invalidate_cache")
+
+    matches_service.update_matches(db, tournament_id, [make_row()])
+
+    upsert.assert_called_once()
+    invalidate_cache.assert_any_call(db, "matches:7")
+    invalidate_cache.assert_any_call(db, "bracket:7")
+    assert invalidate_cache.call_count == 2
