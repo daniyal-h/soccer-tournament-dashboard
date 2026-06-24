@@ -80,11 +80,13 @@ describe('MatchCenter', () => {
       team_b_penalties: 2,
     };
 
+    mockGetMatchCenterDisplay.mockReturnValue('0 - 0');
+
     render(<MatchCenter match={penaltyMatch} />);
 
     expect(screen.getByText('0 - 0')).toBeInTheDocument();
     expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
-    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
   });
 
   it('renders score and penalty shootout line for live matches with penalties', () => {
@@ -97,11 +99,13 @@ describe('MatchCenter', () => {
       team_b_penalties: 2,
     };
 
+    mockGetMatchCenterDisplay.mockReturnValue('0 - 0');
+
     render(<MatchCenter match={penaltyMatch} />);
 
     expect(screen.getByText('0 - 0')).toBeInTheDocument();
     expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
-    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
   });
 
   it('renders penalties when one side has zero penalties', () => {
@@ -114,11 +118,13 @@ describe('MatchCenter', () => {
       team_b_penalties: 2,
     };
 
+    mockGetMatchCenterDisplay.mockReturnValue('0 - 0');
+
     render(<MatchCenter match={penaltyMatch} />);
 
     expect(screen.getByText('0 - 0')).toBeInTheDocument();
     expect(screen.getByText('Pens: 0 - 2')).toBeInTheDocument();
-    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
   });
 
   it('falls back to helper when only one penalty value is present', () => {
