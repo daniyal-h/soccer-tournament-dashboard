@@ -23,8 +23,8 @@ export function useBracket({ tournament_id }: BracketOptions) {
   const bracket = query.data ?? EMPTY_BRACKET;
 
   const emptyState =
-    !query.isInitialLoading && !query.displayError && hasBracketMatches(bracket)
-      ? 'The bracket will appear once tournament data is available.'
+    !query.isInitialLoading && !query.displayError && !hasBracketMatches(bracket)
+      ? 'The bracket will appear once knockout matches are available.'
       : null;
 
   return {
