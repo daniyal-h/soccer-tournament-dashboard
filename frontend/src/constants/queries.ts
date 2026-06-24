@@ -38,6 +38,10 @@ export const queryKeys = {
     all: (tournamentId: number, category: CategoryType) =>
       ['playerLeaderboard', category, tournamentId] as const,
   },
+
+  bracket: {
+    all: (tournamentId: number) => ['bracket', tournamentId] as const,
+  },
 };
 
 const SECOND = 1000;
@@ -60,6 +64,8 @@ export const QUERY_STALE_TIMES = {
   teams: 5 * MINUTE,
 
   playerLeaderboard: 5 * MINUTE,
+
+  bracket: 5 * MINUTE,
 } as const;
 
 export const QUERY_GC_TIMES = {

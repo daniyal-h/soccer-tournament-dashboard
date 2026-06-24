@@ -285,12 +285,14 @@ describe('MatchCard', () => {
       team_b_penalties: 2,
     };
 
+    mockGetMatchCenterDisplay.mockReturnValue('0 - 0');
+
     renderMatchCard(penaltyMatch);
 
     expect(screen.getByText('0 - 0')).toBeInTheDocument();
     expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
 
-    expect(mockGetMatchCenterDisplay).not.toHaveBeenCalled();
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
     expect(mockGetMatchMetaDisplay).toHaveBeenCalledExactlyOnceWith(penaltyMatch);
   });
 
