@@ -10,7 +10,7 @@ interface BracketTabsProps {
 }
 
 function BracketTabs({ rounds }: BracketTabsProps) {
-  const defaultStage = rounds[0].stage;
+  const defaultStage = rounds[0]?.stage;
 
   if (!defaultStage) {
     return null;
