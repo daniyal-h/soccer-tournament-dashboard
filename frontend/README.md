@@ -136,26 +136,6 @@ Sentry is integrated for error tracking and session replay.
 
 ---
 
-## Feature Flags
-
-Feature flags are used to control incomplete or staged features.
-
-Example:
-
-```ts
-const flags = {
-  knockoutBracket: import.meta.env.VITE_ENABLE_BRACKET === 'true',
-};
-```
-
-Use flags to:
-
-- hide incomplete features
-- safely deploy UI changes
-- enable features without redeploying
-
----
-
 ## Styling
 
 - Tailwind CSS is used for styling
