@@ -1,9 +1,14 @@
+import { BracketGrid } from '@/components/bracket/BracketGrid';
+import { BracketSkeleton } from '@/components/bracket/BracketSkeleton';
+import BracketTabs from '@/components/bracket/BracketTab';
 import EmptyState from '@/components/feedback/EmptyState';
 import ErrorState from '@/components/feedback/ErrorState';
 
 import { useTournament } from '@/context/TournamentContext';
 
 import { useBracket } from '@/hooks/useBracket';
+
+import { getBracketRounds } from '@/utils/bracket/bracketHelper';
 
 const Bracket = () => {
   const { selectedTournamentId, error: tournamentError } = useTournament();
@@ -21,9 +26,10 @@ const Bracket = () => {
         <h1 className="text-3xl font-bold tracking-tight">Bracket</h1>
 
         <p className="text-muted-foreground">{description}</p>
+
+        <BracketSkeleton />
       </section>
     );
-    // TODO: ADD SKELETON LATER
   }
 
   if (error) {
@@ -40,11 +46,20 @@ const Bracket = () => {
     return <EmptyState title="Bracket Coming Soon" description={emptyState} />;
   }
 
+  const rounds = getBracketRounds(bracket);
+
   return (
     <section className="space-y-3">
       <h1 className="text-3xl font-bold tracking-tight">Bracket</h1>
-
       <p className="text-muted-foreground">{description}</p>
+
+      {/* Render tabs for smaller screens, otherwise grid form */}
+      <div className="md:hidden">
+        <BracketTabs rounds={rounds} />
+      </div>
+      <div className="hidden md:block">
+        <BracketGrid rounds={rounds} />
+      </div>
     </section>
   );
 };
