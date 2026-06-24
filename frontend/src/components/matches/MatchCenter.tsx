@@ -10,20 +10,24 @@ import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
 function MatchCenter({ match }: { match: Match }) {
   const hasPenalties = match.team_a_penalties !== null && match.team_b_penalties !== null;
 
-  if ((match.status === 'finished' || match.status === 'live') && hasPenalties) {
+  const centerDisplay = getMatchCenterDisplay(match);
+
+  if (hasPenalties) {
     return (
-      <div className="flex flex-col items-center">
-        <span>
-          {match.team_a_score} - {match.team_b_score}
-        </span>
-        <span className="text-xs text-muted-foreground">
+      <div className="flex h-10 flex-col items-center justify-center leading-none">
+        <span>{centerDisplay}</span>
+        <span className="mt-1 text-xs text-muted-foreground">
           Pens: {match.team_a_penalties} - {match.team_b_penalties}
         </span>
       </div>
     );
   }
 
-  return <span>{getMatchCenterDisplay(match)}</span>;
+  return (
+    <div className="flex h-10 items-center justify-center">
+      <span>{centerDisplay}</span>
+    </div>
+  );
 }
 
 export default MatchCenter;
