@@ -8,7 +8,10 @@ import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
  * If penalties occurred, inline under the score.
  */
 function MatchCenter({ match }: { match: Match }) {
-  const hasPenalties = match.team_a_penalties !== null && match.team_b_penalties !== null;
+  const hasPenalties =
+    (match.status === 'live' || match.status === 'finished') &&
+    match.team_a_penalties !== null &&
+    match.team_b_penalties !== null;
 
   const centerDisplay = getMatchCenterDisplay(match);
 
