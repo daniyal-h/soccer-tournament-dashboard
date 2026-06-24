@@ -1,4 +1,7 @@
-import type { BracketResponse } from '@/types/bracket';
+import type { BracketResponse, BracketRound } from '@/types/bracket';
+
+import { BRACKET_STAGE_ORDER } from '@/constants/brackets';
+import { MATCH_STAGE_LABELS } from '@/constants/matches';
 
 export function hasBracketMatches(bracket: BracketResponse) {
   return (
@@ -9,4 +12,14 @@ export function hasBracketMatches(bracket: BracketResponse) {
     bracket.third_place.length > 0 ||
     bracket.final.length > 0
   );
+}
+
+export function getBracketRounds(bracket: BracketResponse): BracketRound[] {
+  // filter empty rounds from outside in for smaller tournaments
+  // e.g. some may not have enough teams for Round of 32 or 16
+  return BRACKET_STAGE_ORDER.map((stage) => ({
+    stage,
+    title: MATCH_STAGE_LABELS[stage],
+    matches: bracket[stage],
+  })).filter((round) => round.matches.length > 0);
 }
