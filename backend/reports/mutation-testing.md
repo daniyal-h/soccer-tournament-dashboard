@@ -16,15 +16,15 @@ mutmut results
 
 ## Result
 
-2001/2001  🎉 1968 🫥 0  ⏰ 0  🤔 0  🙁 33  🔇 0  🧙 0
+2335/2335  🎉 2295 🫥 0  ⏰ 0  🤔 0  🙁 38  🔇 0  🧙 0
 
-- Total mutants generated: 2001
-- Mutants killed: 1968
-- Surviving mutants: 33
+- Total mutants generated: 2335
+- Mutants killed: 2297
+- Surviving mutants: 38
 - Timeout/skipped mutants: 0
-- Mutation score: **98.35%**
+- Mutation score: **98.37%**
 
-The remaining 33 surviving mutants were manually reviewed and classified as equivalent mutants. These mutations did not alter observable program behavior and primarily involved:
+The remaining 38 surviving mutants were manually reviewed and classified as equivalent mutants. These mutations did not alter observable program behavior and primarily involved:
 - Replacement of fallback values that resulted in identical control flow (e.g., alternative falsy/default values)
 - Removal of explicit `None` assignments where schema defaults already produced the same output
 - Equivalent default handling paths where validation logic produced identical results
