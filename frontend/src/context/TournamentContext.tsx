@@ -60,6 +60,7 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
   // if someone manually edited localStorage to an invalid ID,
   // reset back to the default tournament
   useEffect(() => {
+    // Stryker disable next-line LogicalOperator, ConditionalExpression: equivalent mutant
     if (isLoading || tournaments.length === 0) {
       return;
     }
@@ -71,6 +72,7 @@ export const TournamentProvider = ({ children }: TournamentProviderProps) => {
     if (!hasValidTournament) {
       localStorage.setItem('selectedTournamentId', String(DEFAULT_TOURNAMENT_ID));
 
+      // Stryker disable next-line StringLiteral: equivalent mutant
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedTournamentId(DEFAULT_TOURNAMENT_ID);
     }

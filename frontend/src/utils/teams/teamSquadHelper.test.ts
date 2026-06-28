@@ -132,4 +132,13 @@ describe('getAge', () => {
 
     vi.useRealTimers();
   });
+
+  it('does not treat a birthday later this month as already passed', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-01T00:00:00Z'));
+
+    expect(getAge('2000-11-02')).toBe(25);
+
+    vi.useRealTimers();
+  });
 });

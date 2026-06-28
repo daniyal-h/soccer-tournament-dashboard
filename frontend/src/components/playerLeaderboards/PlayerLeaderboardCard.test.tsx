@@ -141,6 +141,25 @@ describe('PlayerLeaderboardCard', () => {
     expect(screen.queryByText(/Rating/)).not.toBeInTheDocument();
   });
 
+  it.each([
+    [0, '0 match ·'],
+    [1, '1 match ·'],
+    [2, '2 matches ·'],
+  ])('renders the correct appearance suffix for %s appearances', (appearances, expectedText) => {
+    render(
+      <PlayerLeaderboardCard
+        player={makeRankedPlayer({
+          appearances,
+          minutes_played: null,
+          rating: null,
+        })}
+        valueLabel="Goals"
+      />,
+    );
+
+    expect(screen.getByText(expectedText)).toBeInTheDocument();
+  });
+
   it('does not render a short name separator when team short name is empty', () => {
     render(
       <PlayerLeaderboardCard
@@ -182,6 +201,25 @@ describe('PlayerLeaderboardCard', () => {
     expect(card).not.toHaveClass('gold-rank');
     expect(card).not.toHaveClass('silver-rank');
     expect(card).not.toHaveClass('bronze-rank');
+  });
+
+  it('applies the base card layout and surface classes', () => {
+    const { container } = render(
+      <PlayerLeaderboardCard player={makeRankedPlayer()} valueLabel="Goals" />,
+    );
+
+    expect(container.querySelector('article')).toHaveClass(
+      'flex',
+      'min-w-0',
+      'items-center',
+      'gap-4',
+      'rounded-xl',
+      'border',
+      'bg-card',
+      'p-4',
+      'shadow-sm',
+      'transition-colors',
+    );
   });
 
   it('passes minutes and rating through formatter helpers', async () => {

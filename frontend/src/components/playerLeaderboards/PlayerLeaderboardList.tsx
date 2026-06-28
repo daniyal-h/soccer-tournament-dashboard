@@ -17,6 +17,7 @@ function PlayerLeaderboardList({ players, category }: PlayerLeaderboardListProps
       <div className="grid gap-4 min-[900px]:grid-cols-2">
         {players.map((player) => (
           <PlayerLeaderboardCard
+            // Stryker disable next-line StringLiteral: equivalent mutant
             key={`${category}-${player.player.id}`} // a player may appear in multiple categories
             player={player}
             valueLabel={content.valueLabel}

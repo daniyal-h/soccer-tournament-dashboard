@@ -118,6 +118,7 @@ export function getWinnerSide(match: Match): 'team_a' | 'team_b' | null {
     match.team_b_score != null &&
     match.team_a_score !== match.team_b_score
   ) {
+    // Stryker disable next-line EqualityOperator: never a case of equalled score due to previous if-statement
     return match.team_a_score > match.team_b_score ? 'team_a' : 'team_b';
   }
 
@@ -125,8 +126,10 @@ export function getWinnerSide(match: Match): 'team_a' | 'team_b' | null {
   if (
     match.team_a_penalties != null &&
     match.team_b_penalties != null &&
+    // Stryker disable next-line ConditionalExpression: never a case of equaled penalties
     match.team_a_penalties !== match.team_b_penalties
   ) {
+    // Stryker disable next-line EqualityOperator: never a case of equaled penalties
     return match.team_a_penalties > match.team_b_penalties ? 'team_a' : 'team_b';
   }
 

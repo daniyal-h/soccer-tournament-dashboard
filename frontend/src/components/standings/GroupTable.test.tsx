@@ -153,6 +153,21 @@ describe('GroupTable', () => {
     expect(screen.getAllByText('-')).toHaveLength(3);
   });
 
+  it('applies interactive row styling to every team row', () => {
+    renderGroupTable();
+
+    expect(screen.getByText('Argentina').closest('tr')).toHaveClass(
+      'cursor-pointer',
+      'active:scale-[0.98]',
+      'active:bg-accent',
+    );
+    expect(screen.getByText('Canada').closest('tr')).toHaveClass(
+      'cursor-pointer',
+      'active:scale-[0.98]',
+      'active:bg-accent',
+    );
+  });
+
   it('navigates to the team profile when a team row is clicked', () => {
     const navigate = vi.fn();
     mockNavigate.mockReturnValue(navigate);

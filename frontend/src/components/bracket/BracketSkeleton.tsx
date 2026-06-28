@@ -6,7 +6,9 @@ export function BracketSkeleton() {
       <div className="space-y-7 md:hidden">
         <div
           className="grid w-full sm:w-fit sm:gap-4 pt-5"
+          // Stryker disable next-line ObjectLiteral: skeleton is visual only
           style={{
+            // Stryker disable next-line StringLiteral: skeleton is visual only
             gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
           }}
         >
