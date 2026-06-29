@@ -227,6 +227,29 @@ docker compose down -v
 
 ---
 
+## Scheduled Data Refresh
+
+Tournament data is refreshed through authenticated HTTP endpoints invoked by scheduled jobs. This keeps cached data up to date while avoiding unnecessary requests to the API-Football free tier.
+
+| Resource             | Frequency       |
+| -------------------- | --------------- |
+| Match Events         | Every minute    |
+| Matches              | Every 5 minutes |
+| Standings            | Every hour      |
+| Player Data (Squads) | Daily           |
+| Player Leaderboards  | Daily           |
+
+Each scheduled refresh:
+
+1. Identifies active tournaments.
+2. Fetches the latest data from API-Football.
+3. Transforms external responses into internal models.
+4. Upserts database records.
+5. Invalidates affected cache entries.
+6. Records execution status in the `refresh_jobs` table.
+
+---
+
 ## Testing
 
 See [docs/test-plan.md](docs/test-plan.md) for the full strategy and live status.
