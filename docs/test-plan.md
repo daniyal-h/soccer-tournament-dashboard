@@ -204,6 +204,10 @@ npm run test:mutation
 
 Mutation testing is performed after implementing stable feature logic rather than during early scaffolding work.
 
+## Final Results
+
+Killed **~98%** of 2335 backend mutants and 2641 frontend mutants.
+
 ---
 
 # 5. Load Testing
@@ -247,17 +251,6 @@ Verifies that excessive traffic is rejected correctly using HTTP 429 responses w
 Validates backend behaviour under extreme sustained traffic and confirms that protective controls remain functional under overload conditions.
 
 ---
-
-## Current Endpoint Coverage
-
-| Feature Area      | Endpoints Covered                                                                                                    | Status                                      |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| Standings         | `/tournaments/{id}/standings`                                                                                        | Implemented                                 |
-| Matches           | `/tournaments/{id}/matches`, `/matches/{id}`, `/matches/{id}/events`                                                 | Implemented                                 |
-| Team Profile      | `/tournaments/{id}/teams/{id}/profile`, `/tournaments/{id}/teams/{id}/matches`, `/tournaments/{id}/teams/{id}/squad` | Implemented                                 |
-| Player Statistics | `/tournaments/{id}/player-leaderboards?category=...`                                                                 | Implemented                                 |
-| Bracket           | `/tournaments/{id}/bracket`                                                                                          | Implemented                                 |
-| Admin Refresh     | refresh HTTP trigger endpoints                                                                                       | Partially covered by unit/integration tests |
 
 ## Completed Load Test Coverage
 
