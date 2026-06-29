@@ -156,4 +156,22 @@ describe('BracketTabs', () => {
 
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('sets the grid columns based on the number of rounds', () => {
+    render(
+      <BracketTabs
+        rounds={[
+          makeRound({ stage: 'round_of_16' }),
+          makeRound({ stage: 'quarter_final' }),
+          makeRound({ stage: 'semi_final' }),
+        ]}
+      />,
+    );
+
+    const tabsList = screen.getByRole('tablist');
+
+    expect(tabsList).toHaveStyle({
+      gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+    });
+  });
 });

@@ -232,6 +232,329 @@ def test_fetch_player_leaderboards_for_tournament_filters_and_maps_rows(mocker):
     assert yellow_cards_row.value == 2
 
 
+def test_fetch_player_leaderboards_continues_after_invalid_statistics_row(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service,
+        "API_FOOTBALL_LEADERBOARD_ENDPOINTS",
+        {"goals": "/players/topscorers"},
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 1
+    assert rows[0].external_player_id == 101
+    assert rows[0].external_team_id == 201
+    assert rows[0].value == 6
+
+
+def test_fetch_player_leaderboards_continues_after_missing_team_id(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service, "API_FOOTBALL_LEADERBOARD_ENDPOINTS", {"goals": "/players/topscorers"}
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 1
+    assert rows[0].external_team_id == 201
+    assert rows[0].value == 6
+
+
+def test_fetch_player_leaderboards_continues_after_wrong_league(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service, "API_FOOTBALL_LEADERBOARD_ENDPOINTS", {"goals": "/players/topscorers"}
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {"id": 200},
+                            "league": {"id": 999, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 1
+    assert rows[0].external_team_id == 201
+    assert rows[0].value == 6
+
+
+def test_fetch_player_leaderboards_continues_after_wrong_season(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service, "API_FOOTBALL_LEADERBOARD_ENDPOINTS", {"goals": "/players/topscorers"}
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {"id": 200},
+                            "league": {"id": 39, "season": "2023"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                    ],
+                }
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 1
+    assert rows[0].external_team_id == 201
+    assert rows[0].value == 6
+
+
+def test_fetch_player_leaderboards_continues_after_duplicate_player_category(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service, "API_FOOTBALL_LEADERBOARD_ENDPOINTS", {"goals": "/players/topscorers"}
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                        {
+                            "team": {"id": 202},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            "team": {"id": 203},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 88},
+                        },
+                    ],
+                },
+                {
+                    "player": {"id": 102},
+                    "statistics": [
+                        {
+                            "team": {"id": 204},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 5},
+                        },
+                    ],
+                },
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 2
+    assert [row.external_player_id for row in rows] == [101, 102]
+    assert [row.external_team_id for row in rows] == [201, 204]
+    assert [row.value for row in rows] == [6, 5]
+
+
+def test_fetch_player_leaderboards_continues_after_missing_player_id(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service, "API_FOOTBALL_LEADERBOARD_ENDPOINTS", {"goals": "/players/topscorers"}
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {},
+                    "statistics": [
+                        {
+                            "team": {"id": 200},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        }
+                    ],
+                },
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        }
+                    ],
+                },
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 1
+    assert rows[0].external_player_id == 101
+    assert rows[0].external_team_id == 201
+
+
+def test_fetch_player_leaderboards_continues_after_duplicate_leaderboard_key(mocker):
+    tournament = make_tournament()
+
+    mocker.patch.object(
+        service,
+        "API_FOOTBALL_LEADERBOARD_ENDPOINTS",
+        {"goals": "/players/topscorers"},
+    )
+    mocker.patch.object(
+        service,
+        "football_get",
+        return_value={
+            "response": [
+                {
+                    "player": {"id": 101},
+                    "statistics": [
+                        {
+                            "team": {"id": 201},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 6},
+                        },
+                        {
+                            # duplicate key; must be skipped, not break the stats loop
+                            "team": {"id": 202},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 99},
+                        },
+                        {
+                            # also duplicate key; if duplicate continue mutates to break,
+                            # this branch proves the loop stopped too early only if there is
+                            # a later different player in the same response? No, same player
+                            # key is still duplicate, so it won't append either way.
+                            "team": {"id": 203},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 88},
+                        },
+                    ],
+                },
+                {
+                    "player": {"id": 102},
+                    "statistics": [
+                        {
+                            "team": {"id": 204},
+                            "league": {"id": 39, "season": "2024"},
+                            "games": {},
+                            "goals": {"total": 5},
+                        }
+                    ],
+                },
+            ]
+        },
+    )
+
+    rows = service.fetch_player_leaderboards_for_tournament(tournament)
+
+    assert len(rows) == 2
+    assert [row.external_player_id for row in rows] == [101, 102]
+    assert [row.external_team_id for row in rows] == [201, 204]
+
+
 def test_fetch_player_leaderboards_for_tournament_handles_missing_response(mocker):
     tournament = make_tournament()
 
@@ -316,6 +639,46 @@ def test_refresh_player_leaderboards_skips_empty_rows(mocker):
     assert result["tournaments_skipped"] == 1
     assert result["tournaments_refreshed"] == 0
     assert result["rows_processed"] == 0
+    assert result["failures"] == []
+
+
+def test_refresh_player_leaderboards_continues_after_empty_tournament(mocker):
+    db = object()
+    empty_tournament = make_tournament(tournament_id=1, external_api_id=39, season="2024")
+    populated_tournament = make_tournament(tournament_id=2, external_api_id=40, season="2025")
+
+    mocker.patch.object(service.refresh_jobs_repo, "create_job", return_value=123)
+    complete_job = mocker.patch.object(service.refresh_jobs_repo, "complete_job")
+
+    get_tournaments = mocker.patch.object(
+        service.tournaments_service,
+        "get_refreshable_tournaments",
+        return_value=[empty_tournament, populated_tournament],
+    )
+
+    populated_rows = [object(), object()]
+
+    fetch = mocker.patch.object(
+        service,
+        "fetch_player_leaderboards_for_tournament",
+        side_effect=[[], populated_rows],
+    )
+    update = mocker.patch.object(
+        service.player_leaderboards_service,
+        "update_player_leaderboards",
+    )
+
+    result = service.refresh_player_leaderboards(db)
+
+    get_tournaments.assert_called_once_with(db, margin_days=0)
+    assert fetch.call_count == 2
+    update.assert_called_once_with(db, populated_tournament.id, populated_rows)
+    complete_job.assert_called_once_with(db, 123, success=True)
+
+    assert result["tournaments_checked"] == 2
+    assert result["tournaments_skipped"] == 1
+    assert result["tournaments_refreshed"] == 1
+    assert result["rows_processed"] == 2
     assert result["failures"] == []
 
 

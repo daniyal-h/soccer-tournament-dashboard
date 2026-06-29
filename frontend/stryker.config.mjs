@@ -22,10 +22,6 @@ export default {
     '!src/components/layout/AppLayout.tsx',
     '!src/components/layout/PageContainer.tsx',
 
-    // placeholder pages
-    '!src/pages/PlayerStats.tsx',
-    '!src/pages/Bracket.tsx',
-
     // ShadCN components
     '!src/components/ui/**',
 
