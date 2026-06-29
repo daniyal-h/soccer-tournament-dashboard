@@ -444,7 +444,7 @@ request_id
 
 ---
 
-##
+## Testing
 
 Tests cover:
 
@@ -518,6 +518,16 @@ load-tests/
     normalTeamProfileTest.js
     stressTeamProfileTest.js
     teamNavigationSpikeTest.js
+
+  statistics/
+  normalPlayerLeaderboardsTest.js
+  playerLeaderboardsTestSpikeTest.js
+  stressPlayerLeaderboardsTest.js
+
+  bracket/
+  normalBracketTest.js
+  bracketSpikeTest.js
+  stressBracketTest.js
 ```
 
 Shared load test values are defined in:
@@ -551,22 +561,24 @@ k6 run load-tests/standings/rateLimitTest.js
 k6 run load-tests/standings/stressTest.js
 ```
 
-Run the remaining load tests for `Schedule` and `Teams` in the same way.
+Run the remaining load tests for `Schedule`, `Teams`, `Statistics`, and `Bracket` in the same way.
 
 ### Load Testing Reports
 
 Reports and analysis are stored in:
 
 ```txt
-backend/reports/
+reports/
 ```
 
 Current reports:
 
 ```txt
-backend/reports/standings-load-testing.md
-backend/reports/schedule-load-testing.md
-backend/reports/teams-load-testing.md
+reports/standings-load-testing.md
+reports/schedule-load-testing.md
+reports/teams-load-testing.md
+reports/statistics-load-testing.md
+reports/bracket-load-testing.md
 ```
 
 ### Notes
