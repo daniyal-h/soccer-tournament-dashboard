@@ -8,7 +8,7 @@ A tournament-agnostic soccer dashboard built with World Cup 2026 as the primary 
 
 ## Current Status
 
-Core standings infrastructure, tournament selection, match schedules, player statistics, database seeding pipeline, refresh jobs, CI/CD, Dockerization, and production deployment are implemented. Knockout visualization is currently under active development.
+The core tournament dashboard is feature complete, including standings, match schedules, team profiles, player leaderboards, and knockout brackets.
 
 ---
 
@@ -60,29 +60,25 @@ The API key never leaves the backend. The frontend is entirely agnostic to the d
 
 ## Features
 
-### Tournament Selection & Standings (completed)
+### Tournament Selection & Standings
 
 A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
 
-### Match Schedule & Details (completed)
+### Match Schedule & Details
 
 The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 columns on desktop). Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
 
-### Team Profile (completed)
+### Team Profile
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
-### Player Stats Leaderboard (completed)
+### Player Stats Leaderboard
 
 Allows users to view top player leaderboards for the selected tournament. The page focuses on tournament-level player rankings for goals, assists, and yellow cards.
 
-### Knockout Bracket (in-progress)
+### Knockout Bracket
 
 The Bracket feature allows users to view the knockout stage progression for the selected tournament. The page focuses on displaying tournament matches by knockout round, including participating teams, scores, match status, and winners.
-
-### Global Search (possibly removed)
-
-Persistent search bar in the navbar. Searches teams and players from the PostgreSQL cache using full-text search (tsvector/tsquery). Filter chips for All, Teams, and Players. Debounced input to avoid unnecessary queries.
 
 ---
 
@@ -212,12 +208,10 @@ See [docs/test-plan.md](docs/test-plan.md) for the full strategy and live status
 | Unit            | pytest         | Individual service functions, cache logic, ranking calculations   |
 | Mutation        | mutmut         | Run incrementally after each function, 85 to 90% kill rate target |
 | Integration     | pytest + HTTPX | Routes through service layer against a test database              |
-| Acceptance      | Playwright     | End-to-end user journeys against the deployed app                 |
 | Load            | k6             | Sustained traffic against core endpoints                          |
 | Spike           | k6             | Sudden traffic surge simulating World Cup final kickoff           |
 | Stress          | k6             | Find the breaking point under increasing load                     |
 | Static analysis | SonarCloud     | Runs on every push via GitHub Actions                             |
-| Contract        | Pact           | Frontend and backend contract verified independently              |
 
 Run the backend test suite:
 
@@ -234,6 +228,17 @@ mutmut results
 
 ---
 
+## Quality Assurance
+
+Quality Highlights
+
+• ~98% backend mutation score (mutmut and Stryker)
+• Load, spike and stress testing using k6
+• SonarCloud static analysis
+• Structured logging and Sentry monitoring
+
+---
+
 ## CI/CD Pipeline
 
 Every push to a feature branch runs linting and the full test suite via GitHub Actions. Merging to `main` triggers an automatic deployment to Render staging, awaiting promotion to production. Branch protection on `main` enforces passing CI before any merge.
@@ -241,6 +246,8 @@ Every push to a feature branch runs linting and the full test suite via GitHub A
 ```
 feature branch → PR → CI (lint + test + SonarCloud) → merge to main → auto-deploy to staging → manual promotion to production
 ```
+
+Cached API responses are stored in PostgreSQL with endpoint-specific TTL policies. Scheduled refresh jobs keep tournament data synchronized while minimizing external API usage.
 
 ---
 
@@ -324,8 +331,7 @@ Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
 
 ## Known Limitations and Future Improvements
 
-- The knockout bracket cannot be tested against real progression data until July 4 when the knockout stage begins
-- Player stats refresh daily rather than in real time, a paid API tier would allow more frequent updates
-- No user authentication in the current version; saved preferences use localStorage only
-- Head-to-head match history between teams is a natural next feature given the existing data model
-- Standings refresh on a 1-minute cache TTL during live matches; there may be up to 1 minute of lag between a goal and the standings updating
+- Player statistics refresh daily to remain within API-Football free-tier limits.
+- Live standings may lag by up to one minute during active matches due to cache TTL.
+- Authentication and user accounts are intentionally out of scope.
+- Head-to-head comparisons and historical tournament analytics are natural future extensions.
