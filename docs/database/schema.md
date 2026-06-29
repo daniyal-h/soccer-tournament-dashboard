@@ -3,7 +3,7 @@
 ## Overview
 
 This document defines the v1 PostgreSQL schema for the Soccer Tournament Dashboard.  
-It covers the twelve current tables in the schema, including two junction tables: `tournament_teams` (M:N between tournaments and teams) and `team_players` (M:N between teams and players, scoped per tournament).
+It covers the eleven current tables in the schema, including two junction tables: `tournament_teams` and `team_players`.
 
 All timestamps are stored in UTC.
 
@@ -41,16 +41,17 @@ All timestamps are stored in UTC.
 
 ### players
 
-| Column          | Type         | Description                   |
-| --------------- | ------------ | ----------------------------- |
-| id              | Integer (PK) | Auto-incrementing primary key |
-| external_api_id | Integer      | API-Football ID               |
-| first_name      | String       | First name                    |
-| last_name       | String       | Last name                     |
-| date_of_birth   | Date         | DOB                           |
-| photo_url       | String       | Player image                  |
-| nationality     | String       | Nationality                   |
-| height          | Integer      | Height (cm)                   |
+| Column          | Type         | Description                              |
+| --------------- | ------------ | ---------------------------------------- |
+| id              | Integer (PK) | Auto-incrementing primary key            |
+| external_api_id | Integer      | API-Football ID                          |
+| display_name    | String       | Preferred display name from API-Football |
+| first_name      | String       | First name, nullable when unavailable    |
+| last_name       | String       | Last name, nullable when unavailable     |
+| date_of_birth   | Date         | DOB, nullable when unavailable           |
+| photo_url       | String       | Player image                             |
+| nationality     | String       | Nationality                              |
+| height          | Integer      | Height (cm)                              |
 
 ---
 
@@ -58,22 +59,27 @@ All timestamps are stored in UTC.
 
 ### matches
 
-| Column          | Type         | Description                                             |
-| --------------- | ------------ | ------------------------------------------------------- |
-| id              | Integer (PK) | Auto-incrementing primary key                           |
-| external_api_id | Integer      | API-Football ID                                         |
-| tournament_id   | Integer (FK) | → tournaments.id                                        |
-| team_a_id       | Integer (FK) | → teams.id                                              |
-| team_b_id       | Integer (FK) | → teams.id                                              |
-| kickoff_time    | DateTime     | UTC kickoff                                             |
-| stage           | Enum         | group \| knockout \| other                              |
-| group           | String       | Group label                                             |
-| status          | Enum         | scheduled \| live \| finished \| postponed \| cancelled |
-| venue           | String       | Stadium + city                                          |
-| team_a_score    | Integer      | Goals                                                   |
-| team_b_score    | Integer      | Goals                                                   |
+| Column           | Type         | Description                                             |
+| ---------------- | ------------ | ------------------------------------------------------- |
+| id               | Integer (PK) | Auto-incrementing primary key                           |
+| external_api_id  | Integer      | API-Football ID                                         |
+| tournament_id    | Integer (FK) | → tournaments.id                                        |
+| team_a_id        | Integer (FK) | → teams.id                                              |
+| team_b_id        | Integer (FK) | → teams.id                                              |
+| kickoff_time     | DateTime     | UTC kickoff                                             |
+| stage            | Enum         | group \| knockout \| other                              |
+| group            | String       | Group label                                             |
+| status           | Enum         | scheduled \| live \| finished \| postponed \| cancelled |
+| venue            | String       | Stadium + city                                          |
+| team_a_score     | Integer      | Goals                                                   |
+| team_b_score     | Integer      | Goals                                                   |
+| team_a_penalties | Integer      | Team A penalty shootout score, nullable                 |
+| team_b_penalties | Integer      | Team B penalty shootout score, nullable                 |
 
-**Note:** `goal_difference` is derived (not stored).
+**Notes:**
+
+- `matches_played` and `goal_difference` are derived (not stored).
+- The `knockout bracket` is not stored separately. It is derived from match rows using knockout-stage metadata, scores, penalty scores, and match status.
 
 ---
 
@@ -138,11 +144,13 @@ Each row represents one player's ranking in one category for one tournament. The
 
 Resolves the M:N relationship between tournaments and teams. A team's group assignment is stored here because it is a property of the registration, not of the team itself.
 
-| Column        | Type             | Description      |
-| ------------- | ---------------- | ---------------- |
-| tournament_id | Integer (FK, PK) | → tournaments.id |
-| team_id       | Integer (FK, PK) | → teams.id       |
-| group         | String           | Group assignment |
+| Column        | Type             | Description                                                                 |
+| ------------- | ---------------- | --------------------------------------------------------------------------- |
+| tournament_id | Integer (FK, PK) | → tournaments.id                                                            |
+| team_id       | Integer (FK, PK) | → teams.id                                                                  |
+| group         | String           | Group assignment                                                            |
+| final_rank    | Integer          | Final tournament placement, nullable until known                            |
+| stage_reached | Enum/String      | Furthest stage reached: group, R32, R16, QF, SF, third_place, final, winner |
 
 ---
 
@@ -174,6 +182,8 @@ The three-column composite PK is intentional: the same player can be registered 
 | last_updated | DateTime        | Last write                    |
 | expires_at   | DateTime        | Expiry                        |
 
+**Note:** `cache_entries` stores serialized endpoint responses keyed by feature-specific cache keys.
+
 ---
 
 ### refresh_jobs
@@ -185,6 +195,8 @@ The three-column composite PK is intentional: the same player can be registered 
 | status      | Enum         | running \| success \| failed  |
 | started_at  | DateTime     | Start time                    |
 | finished_at | DateTime     | End time                      |
+
+**Note:** `refresh_jobs` logs background refresh execution status.
 
 ---
 

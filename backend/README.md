@@ -164,7 +164,7 @@ GET /api/v1/tournaments/{tournament_id}teams/{team_id}
 GET /api/v1/tournaments/{tournament_id}/teams/{team_id}/squad
 GET /api/v1/tournaments/{tournament_id}teams/{team_id}/matches
 GET /api/v1/tournaments/{tournament_id}/player-leaderboard?category={category}
-GET /api/v1/search
+GET /api/v1/tournaments/{tournament_id}/bracket
 ```
 
 Versioning keeps the API contract stable when future breaking changes are introduced.
