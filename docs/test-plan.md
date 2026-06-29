@@ -24,16 +24,16 @@ The goal is to ensure the application remains stable, performant, maintainable, 
 
 ## Functional Areas
 
-| Area                    | Description                          |
-| ----------------------- | ------------------------------------ |
-| Tournament Selector     | Tournament switching and persistence |
-| Group Standings         | Standings retrieval and ranking      |
-| Match Schedule          | Match retrieval and grouping         |
-| Team Profiles           | Team detail retrieval                |
-| Player Statistics       | Player rankings and filtering        |
-| Global Search           | Team/player search behaviour         |
-| Knockout Bracket        | Tournament progression visualization |
-| Admin Refresh Endpoints | Manual refresh workflows             |
+| Area                    | Description                                            |
+| ----------------------- | ------------------------------------------------------ |
+| Tournament Selector     | Tournament switching and persistence                   |
+| Group Standings         | Standings retrieval, ranking, and pre-tournament state |
+| Match Schedule          | Match retrieval, grouping, and match card behaviour    |
+| Match Details           | Match detail retrieval and event timeline rendering    |
+| Team Profiles           | Team overview, squad, match history, and recent form   |
+| Player Statistics       | Goals, assists, and yellow cards leaderboards          |
+| Knockout Bracket        | Knockout-stage progression visualization               |
+| Admin Refresh Endpoints | Manual and scheduled refresh workflows                 |
 
 ---
 
@@ -148,27 +148,6 @@ npm run test:run -- src/pages src/components
 
 ---
 
-## Acceptance Testing
-
-Acceptance testing validates user-facing flows against user stories.
-
-Planned tooling:
-
-- `Playwright`
-
-Coverage areas:
-
-- tournament selection
-- standings browsing
-- navigation flows
-- search interaction
-- error handling
-- responsive layouts
-
-Acceptance scenarios are derived directly from documented user stories.
-
----
-
 ## Regression Testing
 
 Regression testing is automated through GitHub Actions and executed on pull requests.
@@ -180,8 +159,9 @@ CI validation includes:
 - type checking
 - unit tests
 - integration tests
-- mutation testing
 - Docker build validation
+
+Mutation testing and load testing are run manually during feature completion and refinement because they are slower and more resource-intensive than the standard PR checks.
 
 All required checks must pass before merge into `main`.
 
@@ -240,7 +220,10 @@ Load tests are organized by feature area:
 load-tests/
   standings/
   matches/
-  search/
+  schedule/
+  teams/
+  statistics/
+  bracket/
 ```
 
 ---
@@ -267,11 +250,22 @@ Validates backend behaviour under extreme sustained traffic and confirms that pr
 
 ## Current Endpoint Coverage
 
-| Endpoint  | Status      |
-| --------- | ----------- |
-| Standings | Implemented |
-| Matches   | Planned     |
-| Search    | Planned     |
+| Feature Area      | Endpoints Covered                                                                                                    | Status                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Standings         | `/tournaments/{id}/standings`                                                                                        | Implemented                                 |
+| Matches           | `/tournaments/{id}/matches`, `/matches/{id}`, `/matches/{id}/events`                                                 | Implemented                                 |
+| Team Profile      | `/tournaments/{id}/teams/{id}/profile`, `/tournaments/{id}/teams/{id}/matches`, `/tournaments/{id}/teams/{id}/squad` | Implemented                                 |
+| Player Statistics | `/tournaments/{id}/player-leaderboards?category=...`                                                                 | Implemented                                 |
+| Bracket           | `/tournaments/{id}/bracket`                                                                                          | Implemented                                 |
+| Admin Refresh     | refresh HTTP trigger endpoints                                                                                       | Partially covered by unit/integration tests |
+
+## Completed Load Test Coverage
+
+| Feature Area      | Normal Load | Spike Test | Stress Test                     | Main Finding                                                 |
+| ----------------- | ----------- | ---------- | ------------------------------- | ------------------------------------------------------------ |
+| Team Profile      | Passed      | Passed     | Passed with overload bottleneck | DB connection pool limits under high concurrency             |
+| Player Statistics | Passed      | Passed     | Passed with overload bottleneck | DB connection pool limits under high concurrency             |
+| Bracket           | Passed      | Passed     | Passed with overload bottleneck | Cached endpoint stayed fast; pool capacity became bottleneck |
 
 ---
 
@@ -280,8 +274,7 @@ Validates backend behaviour under extreme sustained traffic and confirms that pr
 | Endpoint Type     | Limit               |
 | ----------------- | ------------------- |
 | General Endpoints | 100 requests/min/IP |
-| Standings         | 60 requests/min/IP  |
-| Search            | 30 requests/min/IP  |
+| Feature Endpoints | 60 requests/min/IP  |
 | Admin Endpoints   | 3 requests/min/IP   |
 
 Rate limiting is implemented using `slowapi`.
@@ -445,12 +438,9 @@ The application is considered test-stable when:
 
 Planned future testing areas include:
 
-- combined multi-endpoint load scenarios
-- search throughput benchmarking
-- live polling simulation
+- combined multi-feature load scenarios
+- live polling simulation during active matches
 - background job concurrency testing
-- frontend E2E automation expansion
-- deployment performance comparison
-- CI performance baselining
-
-This document will evolve alongside the application architecture and infrastructure.
+- frontend E2E automation with Playwright if browser-level regression coverage becomes necessary
+- hosted-environment performance comparison
+- CI runtime and test flakiness baselining
