@@ -248,6 +248,10 @@ Each scheduled refresh:
 5. Invalidates affected cache entries.
 6. Records execution status in the `refresh_jobs` table.
 
+```
+Cron Scheduler → Authenticated HTTP Request → Admin Refresh Endpoint → API-Football / Derivations → PostgreSQL → Cache Invalidation
+```
+
 ---
 
 ## Testing
