@@ -1,6 +1,6 @@
 # Entity Relationship Diagram
 
-Visual reference for the v1 PostgreSQL schema. All twelve current tables are shown with their columns, types, and key constraints.
+Visual reference for the v1 PostgreSQL schema. All eleven current tables are shown with their columns, types, and key constraints.
 
 ```mermaid
 erDiagram
@@ -27,9 +27,11 @@ erDiagram
   players {
     int id PK
     int external_api_id
+    string display_name
     string first_name
     string last_name
     date date_of_birth
+    string photo_url
     string nationality
     int height
   }
@@ -38,6 +40,8 @@ erDiagram
     int tournament_id PK,FK
     int team_id PK,FK
     string group
+    int final_rank
+    string stage_reached
   }
 
   team_players {
@@ -61,6 +65,8 @@ erDiagram
     string venue
     int team_a_score
     int team_b_score
+    int team_a_penalties
+    int team_b_penalties
   }
 
   standings {
