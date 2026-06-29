@@ -18,7 +18,7 @@ This project uses a consistent commit message format to keep history readable an
 
 `perf`: improve performance
 
-`style`: formatting changes, whitespace, linting, no logic changes
+`format`: formatting changes, whitespace, linting, no logic changes
 
 `test`: add or modify tests
 
@@ -26,11 +26,7 @@ This project uses a consistent commit message format to keep history readable an
 
 `chore`: maintenance tasks, tooling, config, dependencies
 
-`build`: build system or dependency changes
-
 `ci`: CI/CD configuration or scripts
-
-`revert`: revert a previous commit
 
 ---
 
