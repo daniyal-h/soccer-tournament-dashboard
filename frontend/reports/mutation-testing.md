@@ -6,14 +6,14 @@ Tooling:
 - Vitest
 - React + TypeScript
 
-Date of Test: Sat June 20 16:48 CDT 2026
+Date of Test: Sat June 28 19:17 CDT 2026
 
 ## Results
 
-- Total Mutants: 2312
-- Mutation score: **98.73%** (2176/2204 non-ignored mutants killed)
-- Survived mutants (28) reviewed
-- Equivalent/style-only mutants excluded or disabled intentionally (108)
+- Total Mutants: 2641
+- Mutation score: **98.5%** (2476/2514 non-ignored mutants killed)
+- Survived mutants (38) reviewed
+- Equivalent/style-only mutants excluded or disabled intentionally (127)
 
 ## Notes
 
@@ -21,7 +21,6 @@ Excluded files:
 
 - shadcn/ui components
 - layout wrappers
-- placeholder pages
 
 Focused mutation coverage areas:
 
