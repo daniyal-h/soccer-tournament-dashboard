@@ -62,21 +62,49 @@ The API key never leaves the backend. The frontend is entirely agnostic to the d
 
 ### Tournament Selection & Standings
 
-A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored). The top two teams are highlighted for advancement, and a pre-tournament zero state is shown before matches begin.
+<img src="assets/screenshots/standings.png" width="900" alt="Tournament standings">
+
+A navbar dropdown allows users to switch between tournaments, defaulting to World Cup 2026. The selected tournament is persisted in `localStorage`, while all backend routes accept a `tournament_id` parameter to support a tournament-agnostic architecture. Standings are displayed in collapsible group cards, each containing a table ranked by FIFA tiebreaker rules (points, goal difference, goals scored).
 
 ### Match Schedule & Details
 
-The default homepage. Matches grouped by date, responsive grid layout (single column on mobile, 2 columns on desktop). Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
+<table>
+<tr>
+<td align="center"><b>Schedule</b></td>
+<td align="center"><b>Match Details</b></td>
+</tr>
+<tr>
+<td><img src="assets/screenshots/schedule.png" width="430"></td>
+<td><img src="assets/screenshots/match-details.png" width="430"></td>
+</tr>
+</table>
 
-### Team Profile
+Matches grouped by date. Live matches auto-refresh only when an active match is in progress. All major events (goals, penalties, cards, substitutions, etc.) within a match can also be viewed by clicking on a match card within the schedule. Graceful fallback to cached data with a delay notice if the API is unavailable.
+
+### Teams & Profile
+
+<table>
+<tr>
+<td align="center"><b>Teams</b></td>
+<td align="center"><b>Team Profile</b></td>
+</tr>
+<tr>
+<td><img src="assets/screenshots/teams.png" width="430"></td>
+<td><img src="assets/screenshots/team-profile.png" width="430"></td>
+</tr>
+</table>
 
 Dedicated team page showing the squad, recent form (last 5 results as W/D/L indicators), tournament stats, and FIFA world ranking. Accessible from standings, match cards, and search results.
 
 ### Player Stats Leaderboard
 
+<img src="assets/screenshots/statistics.png" width="900" alt="Tournament statistics">
+
 Allows users to view top player leaderboards for the selected tournament. The page focuses on tournament-level player rankings for goals, assists, and yellow cards.
 
 ### Knockout Bracket
+
+<img src="assets/screenshots/bracket.png" width="900" alt="Tournament bracket">
 
 The Bracket feature allows users to view the knockout stage progression for the selected tournament. The page focuses on displaying tournament matches by knockout round, including participating teams, scores, match status, and winners.
 
