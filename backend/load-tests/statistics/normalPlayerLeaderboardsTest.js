@@ -9,11 +9,11 @@ export const options = {
     scenarios: {
         player_leaderboards_normal: {
             executor: "constant-arrival-rate",
-            rate: 55,
+            rate: 18, // 18*3 = 54 < 60
             timeUnit: "1m",
             duration: "10m",
-            preAllocatedVUs: 5,
-            maxVUs: 10,
+            preAllocatedVUs: 3,
+            maxVUs: 5,
         },
     },
 
