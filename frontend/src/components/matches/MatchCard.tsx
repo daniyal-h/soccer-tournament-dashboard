@@ -19,9 +19,15 @@ interface MatchCardProps {
   match: Match;
   variant?: 'default' | 'nested';
   from?: string;
+  showDateInCenter?: boolean;
 }
 
-const MatchCard = ({ match, variant = 'default', from = ROUTES.SCHEDULE }: MatchCardProps) => {
+const MatchCard = ({
+  match,
+  variant = 'default',
+  from = ROUTES.SCHEDULE,
+  showDateInCenter,
+}: MatchCardProps) => {
   const winner = getWinnerSide(match);
 
   return (
@@ -68,7 +74,7 @@ const MatchCard = ({ match, variant = 'default', from = ROUTES.SCHEDULE }: Match
 
               {/* time, score or special status */}
               <div className="px-4 text-center">
-                <MatchCenter match={match} />
+                <MatchCenter match={match} showDateInCenter={showDateInCenter} />
               </div>
 
               {/* team B details */}

@@ -19,7 +19,13 @@ const TeamMatchStageAccordion = ({ group }: TeamMatchStageAccordionProps) => {
       <AccordionContent className="px-1 pt-2 pb-4">
         <div className="grid gap-4 md:grid-cols-2">
           {group.matches.map((match) => (
-            <MatchCard key={match.id} match={match} variant="nested" from={ROUTES.TEAMS} />
+            <MatchCard
+              key={match.id}
+              match={match}
+              variant="nested"
+              from={ROUTES.TEAMS}
+              showDateInCenter
+            />
           ))}
         </div>
       </AccordionContent>
