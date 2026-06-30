@@ -16,6 +16,7 @@ export const BACK_ROUTE_LABELS: Record<string, string> = {
 export const PRIMARY_NAV_ITEMS = [
   { label: 'Standings', to: ROUTES.STANDINGS },
   { label: 'Schedule', to: ROUTES.SCHEDULE },
+  { label: 'Bracket', to: ROUTES.BRACKET },
 ];
 
 export const NAV_ITEMS = [
