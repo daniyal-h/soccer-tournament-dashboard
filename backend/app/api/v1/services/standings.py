@@ -50,13 +50,20 @@ def get_standings(
     cached = cache_service.get_cache(db, cache_key)
 
     # return cache, if group specified, return just the group data
-    if cached:
-        # cache stores serialized response-shaped data
+    if cached is not None:
+        # validate all data before any returns
+        standings_by_group = {
+            group_name: [Standing.model_validate(row) for row in rows]
+            for group_name, rows in cached.items()
+        }
+
         if group:
-            if group not in cached:
+            if group not in standings_by_group:
                 raise NotFoundError(f"Group {group} not found in tournament {tournament_id}")
-            return {group: cached[group]}
-        return cached
+
+            return {group: standings_by_group[group]}
+
+        return standings_by_group
 
     tournament = tournaments_service.get_tournament(db, tournament_id)
     rows = standings_repo.get_all_standings(db, tournament_id)
