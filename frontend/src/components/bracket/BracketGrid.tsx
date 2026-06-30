@@ -36,14 +36,20 @@ export function BracketGrid({ rounds }: BracketGridProps) {
 
       <div
         ref={topScrollRef}
+        data-testid="bracket-top-scroll"
         onScroll={() => syncScroll('top')}
         className="mb-2 overflow-x-auto px-1"
       >
-        <div className="h-px" style={{ width: `${rounds.length * 29}rem` }} />
+        <div
+          data-testid="bracket-top-scroll-spacer"
+          className="h-px"
+          style={{ width: `${rounds.length * 29}rem` }}
+        />
       </div>
 
       <div
         ref={contentScrollRef}
+        data-testid="bracket-content-scroll"
         onScroll={() => syncScroll('content')}
         className="overflow-x-auto px-1 pb-4"
       >
