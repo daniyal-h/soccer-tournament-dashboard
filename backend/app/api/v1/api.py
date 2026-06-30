@@ -4,7 +4,6 @@ from app.api.v1.routers import (
     admin,
     health,
     matches,
-    search,
     tournaments,
 )
 from app.core.auth import verify_admin_token
@@ -16,5 +15,4 @@ api_router.include_router(
 )
 api_router.include_router(health.router, prefix="/health", tags=["health"])
 api_router.include_router(matches.router, prefix="/matches", tags=["matches"])
-api_router.include_router(search.router, prefix="/search", tags=["search"])
 api_router.include_router(tournaments.router, prefix="/tournaments", tags=["tournaments"])
