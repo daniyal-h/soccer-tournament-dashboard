@@ -18,6 +18,7 @@ def make_match(match_id: int = 1, status: StatusType = StatusType.SCHEDULED) -> 
         kickoff_time=datetime(2026, 6, 11, 19, 0, tzinfo=UTC),
     )
 
+
 def make_cached_match(id=1) -> dict:
     return {
         "id": id,
