@@ -5,13 +5,15 @@ import { type Match } from '@/types/match';
 
 import MatchCenter from './MatchCenter';
 
-import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
+import { getMatchCenterDisplay, getMatchDay } from '@/utils/matches/matchCardHelper';
 
 vi.mock('@/utils/matches/matchCardHelper', () => ({
   getMatchCenterDisplay: vi.fn(),
+  getMatchDay: vi.fn(),
 }));
 
 const mockGetMatchCenterDisplay = vi.mocked(getMatchCenterDisplay);
+const mockGetMatchDay = vi.mocked(getMatchDay);
 
 const baseMatch: Match = {
   id: 1,
@@ -44,6 +46,7 @@ describe('MatchCenter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetMatchCenterDisplay.mockReturnValue('19:00');
+    mockGetMatchDay.mockReturnValue('Jun 11');
   });
 
   it('renders the helper display for scheduled matches', () => {
@@ -181,5 +184,86 @@ describe('MatchCenter', () => {
     expect(screen.getByText('19:00')).toBeInTheDocument();
     expect(screen.queryByText(/Pens:/)).not.toBeInTheDocument();
     expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(scheduledPenaltyMatch);
+  });
+
+  it('does not render the match date by default for scheduled matches', () => {
+    render(<MatchCenter match={baseMatch} />);
+
+    expect(screen.getByText('19:00')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('does not render the match date by default for scheduled matches', () => {
+    render(<MatchCenter match={baseMatch} />);
+
+    expect(screen.getByText('19:00')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('does not render the match date for live matches when enabled', () => {
+    const liveMatch: Match = {
+      ...baseMatch,
+      status: 'live',
+      elapsed: 67,
+      team_a_score: 1,
+      team_b_score: 1,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('1 - 1');
+
+    render(<MatchCenter match={liveMatch} showDateInCenter />);
+
+    expect(screen.getByText('1 - 1')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(liveMatch);
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('does not render the match date for live matches when enabled', () => {
+    const liveMatch: Match = {
+      ...baseMatch,
+      status: 'live',
+      elapsed: 67,
+      team_a_score: 1,
+      team_b_score: 1,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('1 - 1');
+
+    render(<MatchCenter match={liveMatch} showDateInCenter />);
+
+    expect(screen.getByText('1 - 1')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(liveMatch);
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('does not render the match date in the penalties layout even when enabled', () => {
+    const penaltyMatch: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 0,
+      team_b_score: 0,
+      team_a_penalties: 4,
+      team_b_penalties: 2,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('0 - 0');
+
+    render(<MatchCenter match={penaltyMatch} showDateInCenter />);
+
+    expect(screen.getByText('0 - 0')).toBeInTheDocument();
+    expect(screen.getByText('Pens: 4 - 2')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
   });
 });

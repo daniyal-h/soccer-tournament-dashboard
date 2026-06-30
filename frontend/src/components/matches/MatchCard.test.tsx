@@ -11,12 +11,14 @@ import MatchCard from './MatchCard';
 
 import {
   getMatchCenterDisplay,
+  getMatchDay,
   getMatchMetaDisplay,
   getWinnerSide,
 } from '@/utils/matches/matchCardHelper';
 
 vi.mock('@/utils/matches/matchCardHelper', () => ({
   getMatchCenterDisplay: vi.fn(),
+  getMatchDay: vi.fn(),
   getMatchMetaDisplay: vi.fn(),
   getWinnerSide: vi.fn(),
 }));
@@ -47,6 +49,7 @@ vi.mock('./ResponsiveTeamName', () => ({
 }));
 
 const mockGetMatchCenterDisplay = vi.mocked(getMatchCenterDisplay);
+const mockGetMatchDay = vi.mocked(getMatchDay);
 const mockGetMatchMetaDisplay = vi.mocked(getMatchMetaDisplay);
 const mockGetWinnerSide = vi.mocked(getWinnerSide);
 
@@ -102,6 +105,7 @@ describe('MatchCard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetMatchCenterDisplay.mockReturnValue('19:00');
+    mockGetMatchDay.mockReturnValue('Jun 11');
     mockGetMatchMetaDisplay.mockReturnValue('Group A · Estadio Azteca · Mexico City');
     mockGetWinnerSide.mockReturnValue(null);
   });
@@ -225,6 +229,62 @@ describe('MatchCard', () => {
 
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/matches/1');
+  });
+
+  it('does not render the match date in the center display by default', () => {
+    renderMatchCard(baseMatch);
+
+    expect(screen.getByText('19:00')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchCenterDisplay).toHaveBeenCalledExactlyOnceWith(baseMatch);
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('renders the match date in the center display for scheduled matches when enabled', () => {
+    renderMatchCard(baseMatch, { showDateInCenter: true });
+
+    expect(screen.getByText('Jun 11')).toBeInTheDocument();
+    expect(screen.getByText('19:00')).toBeInTheDocument();
+
+    expect(mockGetMatchDay).toHaveBeenCalledExactlyOnceWith(baseMatch);
+  });
+
+  it('does not render the match date for finished matches even when center date display is enabled', () => {
+    const finishedMatch: Match = {
+      ...baseMatch,
+      status: 'finished',
+      team_a_score: 2,
+      team_b_score: 1,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('2 - 1');
+
+    renderMatchCard(finishedMatch, { showDateInCenter: true });
+
+    expect(screen.getByText('2 - 1')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
+  });
+
+  it('does not render the match date for live matches even when center date display is enabled', () => {
+    const liveMatch: Match = {
+      ...baseMatch,
+      status: 'live',
+      elapsed: 67,
+      team_a_score: 1,
+      team_b_score: 1,
+    };
+
+    mockGetMatchCenterDisplay.mockReturnValue('1 - 1');
+
+    renderMatchCard(liveMatch, { showDateInCenter: true });
+
+    expect(screen.getByText('1 - 1')).toBeInTheDocument();
+    expect(screen.queryByText('Jun 11')).not.toBeInTheDocument();
+
+    expect(mockGetMatchDay).not.toHaveBeenCalled();
   });
 
   it('truncates match metadata', () => {
