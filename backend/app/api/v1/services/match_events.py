@@ -9,17 +9,21 @@ from app.api.v1.services import teams as teams_service
 from app.api.v1.services.freshness.match_events import get_match_events_delay_metadata
 from app.models.match import Match
 from app.models.match_event import MatchEvent
-from app.schemas.match_events import MatchEventRefreshRow, MatchEventsResponse
+from app.schemas.match_events import (
+    MatchEventItemResponse,
+    MatchEventRefreshRow,
+    MatchEventsResponse,
+)
 from app.utils.cache_helper import get_expires_at, get_match_events_ttl
 
 
-def get_match_events(db: Session, match: Match) -> list[MatchEvent]:
+def get_match_events(db: Session, match: Match) -> list[MatchEventItemResponse]:
     cache_key = f"match_events:{match.id}"
     cached = cache_service.get_cache(db, cache_key)
 
     if cached is not None:
         # cache stores serialized response-shaped data
-        return cached
+        return [MatchEventItemResponse.model_validate(item) for item in cached]
 
     match_events = match_events_repo.get_all_match_events(db, match.id)
 

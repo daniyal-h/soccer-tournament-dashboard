@@ -9,7 +9,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.models.standing import Standing
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
-from app.schemas.standings import StandingRefreshRow
+from app.schemas.standings import StandingRefreshRow, StandingResponse
 from app.utils.cache_helper import get_expires_at, get_standings_ttl
 
 
@@ -38,7 +38,7 @@ def build_zero_state_standings(tournament_teams: list[TournamentTeam]) -> list[S
 
 def get_standings(
     db: Session, tournament_id: int, group: str | None = None
-) -> dict[str, list[Standing]]:
+) -> dict[str, list[StandingResponse]]:
     """
     Returns a dictionary of all groups (unless specified) and their standings
     Uses cache if valid
@@ -50,13 +50,20 @@ def get_standings(
     cached = cache_service.get_cache(db, cache_key)
 
     # return cache, if group specified, return just the group data
-    if cached:
-        # cache stores serialized response-shaped data
+    if cached is not None:
+        # validate all data before any returns
+        standings_by_group = {
+            group_name: [StandingResponse.model_validate(row) for row in rows]
+            for group_name, rows in cached.items()
+        }
+
         if group:
-            if group not in cached:
+            if group not in standings_by_group:
                 raise NotFoundError(f"Group {group} not found in tournament {tournament_id}")
-            return {group: cached[group]}
-        return cached
+
+            return {group: standings_by_group[group]}
+
+        return standings_by_group
 
     tournament = tournaments_service.get_tournament(db, tournament_id)
     rows = standings_repo.get_all_standings(db, tournament_id)

@@ -7,7 +7,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.constants.team_rankings import STAGE_SORT_ORDER
 from app.models.tournament_team import TournamentTeam
 from app.schemas.errors import NotFoundError
-from app.schemas.tournament_teams import TeamRankingRefreshRow
+from app.schemas.tournament_teams import TeamRankingRefreshRow, TournamentTeamResponse
 from app.utils.cache_helper import get_expires_at, get_teams_ttl
 
 
@@ -63,7 +63,7 @@ def get_tournament_teams(db: Session, tournament_id: int) -> list[TournamentTeam
     return tournament_teams
 
 
-def get_ranked_tournament_teams(db: Session, tournament_id: int) -> list[TournamentTeam]:
+def get_ranked_tournament_teams(db: Session, tournament_id: int) -> list[TournamentTeamResponse]:
     """
     Return a list of teams in the specified tournament.
     The list is ranked according to its current state.
@@ -73,7 +73,7 @@ def get_ranked_tournament_teams(db: Session, tournament_id: int) -> list[Tournam
 
     if cached:
         # cache stores serialized response-shaped data
-        return cached
+        return [TournamentTeamResponse.model_validate(item) for item in cached]
 
     # validate tournament existence before caching
     tournament = tournaments_service.get_tournament(db, tournament_id)

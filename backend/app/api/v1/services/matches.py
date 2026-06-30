@@ -11,7 +11,7 @@ from app.api.v1.services import tournaments as tournaments_service
 from app.models.enums import StageType
 from app.models.match import Match
 from app.schemas.errors import NotFoundError
-from app.schemas.matches import MatchRefreshRow
+from app.schemas.matches import MatchRefreshRow, MatchResponse
 from app.utils.cache_helper import get_expires_at, get_matches_ttl
 
 
@@ -24,9 +24,9 @@ def get_match(db: Session, match_id: int) -> Match:
     return match
 
 
-def get_matches(db: Session, tournament_id: int) -> list[Match]:
+def get_matches(db: Session, tournament_id: int) -> list[MatchResponse]:
     """
-    Return cached match data when available.
+    Return validated cached match data when available.
 
     If the cache is invalid, validate that the tournament exists,
     read matches from the database, cache the encoded payload using a TTL based
@@ -38,7 +38,7 @@ def get_matches(db: Session, tournament_id: int) -> list[Match]:
 
     if cached is not None:
         # cache stores serialized response-shaped data
-        return cached
+        return [MatchResponse.model_validate(item) for item in cached]
 
     # validate tournament existence before caching an empty match list
     tournament = tournaments_service.get_tournament(db, tournament_id)

@@ -23,6 +23,25 @@ def mock_cache(mocker):
     )
 
 
+def make_cached_standing(points: int) -> dict:
+    return {
+        "team": {
+            "id": 1,
+            "name": "Canada",
+            "short_name": "CAN",
+            "logo_url": None,
+        },
+        "group": "A",
+        "position": 1,
+        "points": points,
+        "wins": 3,
+        "draws": 0,
+        "losses": 0,
+        "goals_for": 5,
+        "goals_against": 1,
+    }
+
+
 def test_get_standings_rejects_invalid_tournament_id(client):
     response = client.get("/api/v1/tournaments/0/standings")
 
@@ -256,7 +275,7 @@ def test_get_standings_sorts_by_goals_for_on_equal_points_and_gd(mocker):
 
 def test_get_standings_returns_cached_result(mocker):
     db = Mock()
-    cached_result = {"A": [{"points": 9}]}
+    cached_result = {"A": [make_cached_standing(points=9)]}
 
     mocker.patch(
         "app.api.v1.services.standings.cache_service.get_cache",
@@ -268,29 +287,54 @@ def test_get_standings_returns_cached_result(mocker):
 
     result = standings_service.get_standings(db, tournament_id=1)
 
-    assert result == cached_result
+    assert list(result.keys()) == ["A"]
+    assert len(result["A"]) == 1
+    assert result["A"][0].team.name == "Canada"
+    assert result["A"][0].team.short_name == "CAN"
+    assert result["A"][0].points == 9
+
     mock_repo.assert_not_called()
 
 
 def test_get_standings_cache_hit_filters_requested_group(mocker):
     db = Mock()
-    cached = {"A": [{"points": 9}], "B": [{"points": 3}]}
+    cached = {
+        "A": [make_cached_standing(points=9)],
+        "B": [
+            {
+                **make_cached_standing(points=3),
+                "team": {
+                    "id": 2,
+                    "name": "Brazil",
+                    "short_name": "BRA",
+                    "logo_url": None,
+                },
+                "group": "B",
+            }
+        ],
+    }
 
     mocker.patch(
         "app.api.v1.services.standings.cache_service.get_cache",
         return_value=cached,
     )
-    mock_repo = mocker.patch("app.api.v1.services.standings.standings_repo.get_all_standings")
+    mock_repo = mocker.patch(
+        "app.api.v1.services.standings.standings_repo.get_all_standings",
+    )
 
     result = standings_service.get_standings(db, tournament_id=1, group="A")
 
-    assert result == {"A": [{"points": 9}]}
+    assert list(result.keys()) == ["A"]
+    assert len(result["A"]) == 1
+    assert result["A"][0].team.short_name == "CAN"
+    assert result["A"][0].points == 9
+
     mock_repo.assert_not_called()
 
 
 def test_get_standings_cache_hit_raises_for_missing_group(mocker):
     db = Mock()
-    cached = {"A": [{"points": 9}]}
+    cached = {"A": [make_cached_standing(points=9)]}
 
     mocker.patch(
         "app.api.v1.services.standings.cache_service.get_cache",

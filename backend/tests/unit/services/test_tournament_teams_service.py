@@ -201,7 +201,19 @@ def test_display_sort_orders_unknown_active_stage_after_known_active_stages():
 
 def test_get_ranked_tournament_teams_returns_cached_rows_without_repo_calls(mocker):
     db = Mock()
-    cached_rows = [{"team_id": 1, "team": {"name": "Cached FC"}}]
+    cached_rows = [
+        {
+            "team": {
+                "id": 1,
+                "name": "Cached FC",
+                "short_name": "CFC",
+                "logo_url": None,
+            },
+            "group": "A",
+            "final_rank": None,
+            "stage_reached": None,
+        }
+    ]
 
     get_cache = mocker.patch.object(
         tournament_teams_service.cache_service,
@@ -223,7 +235,15 @@ def test_get_ranked_tournament_teams_returns_cached_rows_without_repo_calls(mock
 
     result = tournament_teams_service.get_ranked_tournament_teams(db, tournament_id=1)
 
-    assert result == cached_rows
+    assert len(result) == 1
+    assert result[0].team.id == 1
+    assert result[0].team.name == "Cached FC"
+    assert result[0].team.short_name == "CFC"
+    assert result[0].team.logo_url is None
+    assert result[0].group == "A"
+    assert result[0].final_rank is None
+    assert result[0].stage_reached is None
+
     get_cache.assert_called_once_with(db, "teams:1")
     get_tournament.assert_not_called()
     get_teams.assert_not_called()
