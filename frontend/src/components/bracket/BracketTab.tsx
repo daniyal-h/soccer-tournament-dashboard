@@ -38,7 +38,7 @@ function BracketTabs({ rounds }: BracketTabsProps) {
         <TabsContent key={round.stage} value={round.stage} className="mt-5">
           <div className="flex flex-col gap-4">
             {round.matches.map((match) => (
-              <MatchCard key={match.id} match={match} />
+              <MatchCard key={match.id} match={match} showDateInCenter />
             ))}
           </div>
         </TabsContent>
