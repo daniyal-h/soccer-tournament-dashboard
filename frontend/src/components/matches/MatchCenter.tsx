@@ -13,6 +13,7 @@ interface MatchCenterProps {
  * If penalties occurred, inline under the score.
  */
 function MatchCenter({ match, showDateInCenter }: MatchCenterProps) {
+  const shouldShowDate = showDateInCenter && match.status === 'scheduled';
   const hasPenalties =
     (match.status === 'live' || match.status === 'finished') &&
     match.team_a_penalties !== null &&
@@ -33,7 +34,7 @@ function MatchCenter({ match, showDateInCenter }: MatchCenterProps) {
 
   return (
     <div className="flex h-10 flex-col items-center justify-center leading-none">
-      {showDateInCenter && match.status === 'scheduled' && (
+      {shouldShowDate && (
         <span className="mb-1 text-xs text-muted-foreground">{getMatchDay(match)}</span>
       )}
       <span>{centerDisplay}</span>
