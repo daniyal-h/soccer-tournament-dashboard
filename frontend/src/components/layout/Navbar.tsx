@@ -27,7 +27,7 @@ const Navbar = () => {
         </div>
 
         {/* Smallest: hamburger + 2 primary + toggle */}
-        <div className="grid grid-cols-[auto_1fr_auto] items-center min-[500px]:hidden">
+        <div className="grid grid-cols-[auto_1fr_auto] items-center min-[570px]:hidden">
           <CompactNav navItems={NAV_ITEMS} />
           <div className="flex justify-center">
             <InLineNav navItems={PRIMARY_NAV_ITEMS} className="gap-2" />
@@ -36,7 +36,7 @@ const Navbar = () => {
         </div>
 
         {/* Middle: 5 links inline + toggle (stacked as row 3) */}
-        <div className="hidden min-[500px]:flex min-[1050px]:hidden items-center gap-2">
+        <div className="hidden min-[570px]:flex min-[1050px]:hidden items-center gap-2">
           <InLineNav navItems={NAV_ITEMS} className="gap-2" />
           <div className="ml-auto">
             <ThemeToggle />
