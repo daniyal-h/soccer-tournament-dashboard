@@ -4,6 +4,8 @@ import type { BracketRound as BracketRoundType } from '@/types/bracket';
 
 import BracketRound from './BracketRound';
 
+import { syncBracketScroll } from '@/utils/bracket/bracketHelper';
+
 interface BracketGridProps {
   rounds: BracketRoundType[];
 }
@@ -33,21 +35,7 @@ export function BracketGrid({ rounds }: BracketGridProps) {
   }, [rounds.length]);
 
   function syncScroll(source: 'top' | 'content') {
-    const top = topScrollRef.current;
-    const content = contentScrollRef.current;
-
-    if (!top || !content) {
-      return;
-    }
-
-    if (source === 'top') {
-      content.scrollLeft = top.scrollLeft;
-      return;
-    }
-
-    if (top) {
-      top.scrollLeft = content.scrollLeft;
-    }
+    syncBracketScroll(source, topScrollRef.current, contentScrollRef.current);
   }
 
   return (

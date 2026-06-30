@@ -23,3 +23,22 @@ export function getBracketRounds(bracket: BracketResponse): BracketRound[] {
     matches: bracket[stage],
   })).filter((round) => round.matches.length > 0);
 }
+
+type ScrollSource = 'top' | 'content';
+
+export function syncBracketScroll(
+  source: ScrollSource,
+  top: HTMLDivElement | null,
+  content: HTMLDivElement | null,
+) {
+  if (!top || !content) {
+    return;
+  }
+
+  if (source === 'top') {
+    content.scrollLeft = top.scrollLeft;
+    return;
+  }
+
+  top.scrollLeft = content.scrollLeft;
+}
