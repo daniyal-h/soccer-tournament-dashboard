@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { act, render, screen } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { BracketRound as BracketRoundType } from '@/types/bracket';
 
@@ -24,7 +24,71 @@ function makeRound(overrides: Partial<BracketRoundType> = {}): BracketRoundType 
   };
 }
 
+let resizeObserverCallback: ResizeObserverCallback | undefined;
+
+class ResizeObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
+
+  constructor(callback: ResizeObserverCallback) {
+    resizeObserverCallback = callback;
+  }
+}
+
+function setHorizontalScrollMetrics(
+  element: HTMLElement,
+  {
+    scrollWidth,
+    clientWidth,
+  }: {
+    scrollWidth: number;
+    clientWidth: number;
+  },
+) {
+  Object.defineProperty(element, 'scrollWidth', {
+    configurable: true,
+    value: scrollWidth,
+  });
+
+  Object.defineProperty(element, 'clientWidth', {
+    configurable: true,
+    value: clientWidth,
+  });
+}
+
+function triggerResizeObserver() {
+  act(() => {
+    resizeObserverCallback?.([], {} as ResizeObserver);
+  });
+}
+
+function renderBracketGridWithOverflow(rounds: BracketRoundType[]) {
+  render(<BracketGrid rounds={rounds} />);
+
+  const contentScroll = screen.getByTestId('bracket-content-scroll');
+
+  setHorizontalScrollMetrics(contentScroll, {
+    scrollWidth: 1200,
+    clientWidth: 800,
+  });
+
+  triggerResizeObserver();
+
+  return contentScroll;
+}
+
 describe('BracketGrid', () => {
+  beforeEach(() => {
+    resizeObserverCallback = undefined;
+    vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.clearAllMocks();
+  });
+
   it('renders each bracket round', () => {
     const rounds = [
       makeRound({
@@ -88,5 +152,79 @@ describe('BracketGrid', () => {
     render(<BracketGrid rounds={[]} />);
 
     expect(screen.queryByTestId('bracket-round')).not.toBeInTheDocument();
+  });
+  it('does not render the horizontal scroll hint when bracket content fits', () => {
+    render(<BracketGrid rounds={[makeRound()]} />);
+
+    const contentScroll = screen.getByTestId('bracket-content-scroll');
+
+    setHorizontalScrollMetrics(contentScroll, {
+      scrollWidth: 800,
+      clientWidth: 800,
+    });
+
+    triggerResizeObserver();
+
+    expect(screen.queryByText('Scroll horizontally to view later rounds.')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('bracket-top-scroll')).not.toBeInTheDocument();
+  });
+
+  it('does not render the horizontal scroll hint when bracket content fits', () => {
+    render(<BracketGrid rounds={[makeRound()]} />);
+
+    const contentScroll = screen.getByTestId('bracket-content-scroll');
+
+    setHorizontalScrollMetrics(contentScroll, {
+      scrollWidth: 800,
+      clientWidth: 800,
+    });
+
+    triggerResizeObserver();
+
+    expect(screen.queryByText('Scroll horizontally to view later rounds.')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('bracket-top-scroll')).not.toBeInTheDocument();
+  });
+
+  it('renders the horizontal scroll hint when bracket content overflows', () => {
+    renderBracketGridWithOverflow([makeRound(), makeRound({ stage: 'semi_final' })]);
+
+    expect(screen.getByText('Scroll horizontally to view later rounds.')).toBeInTheDocument();
+    expect(screen.getByTestId('bracket-top-scroll')).toBeInTheDocument();
+  });
+
+  it('sizes the top scroll spacer based on the number of rounds when content overflows', () => {
+    renderBracketGridWithOverflow([
+      makeRound({ stage: 'round_of_16' }),
+      makeRound({ stage: 'quarter_final' }),
+      makeRound({ stage: 'semi_final' }),
+    ]);
+
+    expect(screen.getByTestId('bracket-top-scroll-spacer')).toHaveStyle({
+      width: '87rem',
+    });
+  });
+
+  it('sizes the top scroll spacer based on the number of rounds when content overflows', () => {
+    renderBracketGridWithOverflow([
+      makeRound({ stage: 'round_of_16' }),
+      makeRound({ stage: 'quarter_final' }),
+      makeRound({ stage: 'semi_final' }),
+    ]);
+
+    expect(screen.getByTestId('bracket-top-scroll-spacer')).toHaveStyle({
+      width: '87rem',
+    });
+  });
+
+  it('sizes the top scroll spacer based on the number of rounds when content overflows', () => {
+    renderBracketGridWithOverflow([
+      makeRound({ stage: 'round_of_16' }),
+      makeRound({ stage: 'quarter_final' }),
+      makeRound({ stage: 'semi_final' }),
+    ]);
+
+    expect(screen.getByTestId('bracket-top-scroll-spacer')).toHaveStyle({
+      width: '87rem',
+    });
   });
 });

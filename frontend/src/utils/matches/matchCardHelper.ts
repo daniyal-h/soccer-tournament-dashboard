@@ -42,7 +42,7 @@ function startOfToday(): number {
 }
 
 /** Return the local day on the match in the form MMM DD */
-function getMatchDay(match: Match): string {
+export function getMatchDay(match: Match): string {
   const { kickoff_time } = match;
   const utcDate = new Date(kickoff_time);
 

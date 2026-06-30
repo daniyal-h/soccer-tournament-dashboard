@@ -5,7 +5,7 @@ import type { Match } from '@/types/match';
 
 import { MATCH_STAGE_LABELS } from '@/constants/matches';
 
-import { getBracketRounds, hasBracketMatches } from './bracketHelper';
+import { getBracketRounds, hasBracketMatches, syncBracketScroll } from './bracketHelper';
 
 function makeMatch(id: number, stage = 'final') {
   return {
@@ -106,5 +106,47 @@ describe('getBracketRounds', () => {
 
   it('returns an empty list when no bracket rounds exist', () => {
     expect(getBracketRounds(makeBracket())).toEqual([]);
+  });
+});
+
+describe('syncBracketScroll', () => {
+  function makeScrollElement(scrollLeft = 0) {
+    const element = document.createElement('div');
+    element.scrollLeft = scrollLeft;
+    return element;
+  }
+
+  it('does nothing when the top scroll element is missing', () => {
+    const content = makeScrollElement(50);
+
+    syncBracketScroll('top', null, content);
+
+    expect(content.scrollLeft).toBe(50);
+  });
+
+  it('does nothing when the content scroll element is missing', () => {
+    const top = makeScrollElement(75);
+
+    syncBracketScroll('content', top, null);
+
+    expect(top.scrollLeft).toBe(75);
+  });
+
+  it('syncs content scroll position from the top scrollbar', () => {
+    const top = makeScrollElement(180);
+    const content = makeScrollElement(0);
+
+    syncBracketScroll('top', top, content);
+
+    expect(content.scrollLeft).toBe(180);
+  });
+
+  it('syncs top scrollbar position from content scroll position', () => {
+    const top = makeScrollElement(0);
+    const content = makeScrollElement(240);
+
+    syncBracketScroll('content', top, content);
+
+    expect(top.scrollLeft).toBe(240);
   });
 });

@@ -1,13 +1,19 @@
 import type { Match } from '@/types/match';
 
-import { getMatchCenterDisplay } from '@/utils/matches/matchCardHelper';
+import { getMatchCenterDisplay, getMatchDay } from '@/utils/matches/matchCardHelper';
+
+interface MatchCenterProps {
+  match: Match;
+  showDateInCenter?: boolean;
+}
 
 /**
  * Dynamically render the center to be based on the status.
  * Score is only shown for live or finished matches.
  * If penalties occurred, inline under the score.
  */
-function MatchCenter({ match }: { match: Match }) {
+function MatchCenter({ match, showDateInCenter }: MatchCenterProps) {
+  const shouldShowDate = showDateInCenter && match.status === 'scheduled';
   const hasPenalties =
     (match.status === 'live' || match.status === 'finished') &&
     match.team_a_penalties !== null &&
@@ -27,7 +33,10 @@ function MatchCenter({ match }: { match: Match }) {
   }
 
   return (
-    <div className="flex h-10 items-center justify-center">
+    <div className="flex h-10 flex-col items-center justify-center leading-none">
+      {shouldShowDate && (
+        <span className="mb-1 text-xs text-muted-foreground">{getMatchDay(match)}</span>
+      )}
       <span>{centerDisplay}</span>
     </div>
   );
