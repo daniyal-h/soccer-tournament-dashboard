@@ -9,7 +9,11 @@ from app.api.v1.services import teams as teams_service
 from app.api.v1.services.freshness.match_events import get_match_events_delay_metadata
 from app.models.match import Match
 from app.models.match_event import MatchEvent
-from app.schemas.match_events import MatchEventItemResponse, MatchEventRefreshRow, MatchEventsResponse
+from app.schemas.match_events import (
+    MatchEventItemResponse,
+    MatchEventRefreshRow,
+    MatchEventsResponse,
+)
 from app.utils.cache_helper import get_expires_at, get_match_events_ttl
 
 

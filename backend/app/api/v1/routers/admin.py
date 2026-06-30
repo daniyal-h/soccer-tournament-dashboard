@@ -1,9 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Query, Request
+from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.orm import Session
 
-from app.api.v1.services import matches as matches_service
 from app.api.v1.services import refresh_match_events as refresh_match_events_service
 from app.api.v1.services import refresh_matches as refresh_matches_service
 from app.api.v1.services import refresh_player_leaderboards as refresh_player_leaderboards_service
@@ -17,7 +16,6 @@ from app.constants.external_apis import (
 )
 from app.core.database import get_db
 from app.middleware.rate_limit import limiter
-from app.schemas.matches import MatchRefreshRow
 
 router = APIRouter()
 
