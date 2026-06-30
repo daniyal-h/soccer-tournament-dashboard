@@ -18,7 +18,7 @@ def test_get_match_events_returns_cached_events_without_repo_calls(mocker):
     match = make_match(42)
     cached_events = [
         {
-            "team": {"id": 1, "name": "Canada"},
+            "team": {"id": 1, "name": "Canada", "short_name": "CAN"},
             "player_name": "J. David",
             "event_type": "goal",
             "minute": 80,
@@ -42,7 +42,15 @@ def test_get_match_events_returns_cached_events_without_repo_calls(mocker):
 
     result = match_events_service.get_match_events(db, match)
 
-    assert result == cached_events
+    assert len(result) == 1
+    assert result[0].team.id == 1
+    assert result[0].team.name == "Canada"
+    assert result[0].team.short_name == "CAN"
+    assert result[0].player_name == "J. David"
+    assert result[0].event_type == EventType.GOAL
+    assert result[0].minute == 80
+    assert result[0].extra_minute is None
+    assert result[0].comments is None
     get_cache.assert_called_once_with(db, "match_events:42")
     get_match.assert_not_called()
     get_all_match_events.assert_not_called()

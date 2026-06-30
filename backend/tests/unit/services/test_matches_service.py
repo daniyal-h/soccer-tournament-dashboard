@@ -18,6 +18,34 @@ def make_match(match_id: int = 1, status: StatusType = StatusType.SCHEDULED) -> 
         kickoff_time=datetime(2026, 6, 11, 19, 0, tzinfo=UTC),
     )
 
+def make_cached_match(id=1) -> dict:
+    return {
+        "id": id,
+        "team_a": {
+            "id": 10,
+            "name": "Canada",
+            "short_name": "CAN",
+            "logo_url": None,
+        },
+        "team_b": {
+            "id": 20,
+            "name": "Brazil",
+            "short_name": "BRA",
+            "logo_url": None,
+        },
+        "kickoff_time": datetime(2026, 7, 1, 20, 0, tzinfo=timezone.utc).isoformat(),
+        "stage": StageType.ROUND_OF_32,
+        "group": None,
+        "status": StatusType.FINISHED,
+        "venue": "Test Stadium",
+        "city": "Toronto",
+        "elapsed": None,
+        "team_a_score": 2,
+        "team_b_score": 2,
+        "team_a_penalties": 3,
+        "team_b_penalties": 4,
+    }
+
 
 def test_get_match_returns_match_when_found(mocker):
     db = Mock()
@@ -52,7 +80,7 @@ def test_get_match_raises_not_found_when_match_does_not_exist(mocker):
 
 def test_get_matches_returns_cached_matches_without_querying_dependencies(mocker):
     db = Mock()
-    cached_matches = [{"id": 1}, {"id": 2}]
+    cached_matches = [make_cached_match(id=1), make_cached_match(id=2)]
 
     mock_get_cache = mocker.patch(
         "app.api.v1.services.matches.cache_service.get_cache",
@@ -70,7 +98,9 @@ def test_get_matches_returns_cached_matches_without_querying_dependencies(mocker
 
     result = matches_service.get_matches(db, tournament_id=7)
 
-    assert result == cached_matches
+    assert len(result) == 2
+    assert result[0].id == 1
+    assert result[1].id == 2
 
     mock_get_cache.assert_called_once_with(db, "matches:7")
     mock_get_tournament.assert_not_called()
@@ -381,26 +411,28 @@ def test_get_matches_returns_empty_cached_list_without_refreshing(mocker):
 
 def test_get_matches_returns_cached_matches_with_penalties(mocker):
     db = Mock()
-    cached_matches = [
-        {
-            "id": 1,
-            "team_a_score": 2,
-            "team_b_score": 2,
-            "team_a_penalties": 3,
-            "team_b_penalties": 4,
-        }
-    ]
+    cached_matches = [make_cached_match()]
 
     mocker.patch.object(matches_service.cache_service, "get_cache", return_value=cached_matches)
     get_tournament = mocker.patch.object(matches_service.tournaments_service, "get_tournament")
     get_repo_matches = mocker.patch.object(
-        matches_service.matches_repo, "get_matches_by_tournament"
+        matches_service.matches_repo,
+        "get_matches_by_tournament",
     )
     set_cache = mocker.patch.object(matches_service.cache_service, "set_cache")
 
     result = matches_service.get_matches(db, 1)
 
-    assert result == cached_matches
+    assert len(result) == 1
+    assert result[0].team_a.short_name == "CAN"
+    assert result[0].team_b.short_name == "BRA"
+    assert result[0].team_a_score == 2
+    assert result[0].team_b_score == 2
+    assert result[0].team_a_penalties == 3
+    assert result[0].team_b_penalties == 4
+    assert result[0].stage == StageType.ROUND_OF_32
+    assert result[0].status == StatusType.FINISHED
+
     get_tournament.assert_not_called()
     get_repo_matches.assert_not_called()
     set_cache.assert_not_called()
