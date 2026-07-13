@@ -189,9 +189,13 @@ def derive_team_rankings(
     """
     Derive tournament team rankings from stored standings and matches.
 
-    During group stage, no rows are returned so Teams page ordering stays stable.
-    During knockouts, active teams receive stage_reached without final_rank.
-    Eliminated/finalized teams receive final_rank and stage_reached.
+    Before knockouts begin, return no rows so Teams page ordering stays stable.
+
+    During knockouts, track each team's deepest stage reached without assigning
+    numeric final ranks.
+
+    After the final is completed, assign final ranks to all teams based on their
+    knockout finish and group-stage performance as a deterministic fallback.
     """
     standings = standings_repo.get_all_standings(db, tournament_id)
     matches = matches_repo.get_matches_by_tournament(db, tournament_id)
@@ -201,53 +205,93 @@ def derive_team_rankings(
 
     standings_by_team_id, all_team_ids = build_standings_lookup(standings)
 
-    # include teams from matches as fallback if standings are incomplete
+    # Include teams from matches as fallback if standings are incomplete
     for match in matches:
         all_team_ids.add(match.team_a_id)
         all_team_ids.add(match.team_b_id)
 
     matches_by_stage, latest_stage_by_team_id = get_knockout_match_context(matches)
 
-    # stay stable before knockouts begin
+    # Stay stable before knockouts begin
     if not latest_stage_by_team_id:
         return []
 
+    final_matches = matches_by_stage[StageType.FINAL]
+    tournament_finished = bool(final_matches and all_matches_finished(final_matches))
+
     rankings_by_team_id: dict[int, TeamRankingRefreshRow] = {}
 
-    # assign champion and runner-up after final has finished
-    final_matches = matches_by_stage[StageType.FINAL]
+    # Until the final is complete, record tournament progress without assigning ranks
+    if not tournament_finished:
+        assign_active_knockout_teams(
+            rankings_by_team_id,
+            latest_stage_by_team_id,
+        )
 
-    if final_matches and all_matches_finished(final_matches):
-        winner_id, loser_id = get_match_winner_and_loser(final_matches[-1])
+        for team_id in all_team_ids:
+            if team_id in rankings_by_team_id:
+                continue
 
-        assign_rank(rankings_by_team_id, winner_id, 1, StageType.FINAL)
-        assign_rank(rankings_by_team_id, loser_id, 2, StageType.FINAL)
+            rankings_by_team_id[team_id] = TeamRankingRefreshRow(
+                team_id=team_id,
+                final_rank=None,
+                stage_reached=None,
+            )
 
-        next_rank = 3
-    else:
-        next_rank = 1
+        return list(rankings_by_team_id.values())
 
-    # assign third and fourth if the tournament has a finished third-place match
+    # The final is complete, so numeric final placements can now be assigned.
+    winner_id, loser_id = get_match_winner_and_loser(final_matches[-1])
+
+    assign_rank(
+        rankings_by_team_id,
+        winner_id,
+        1,
+        StageType.FINAL,
+    )
+    assign_rank(
+        rankings_by_team_id,
+        loser_id,
+        2,
+        StageType.FINAL,
+    )
+
+    next_rank = 3
+
     third_place_matches = matches_by_stage[StageType.THIRD_PLACE]
     semi_finals = matches_by_stage[StageType.SEMI_FINAL]
 
+    # Assign third and fourth from the third-place match when available.
     if third_place_matches and all_matches_finished(third_place_matches):
-        winner_id, loser_id = get_match_winner_and_loser(third_place_matches[-1])
+        third_place_winner_id, third_place_loser_id = get_match_winner_and_loser(
+            third_place_matches[-1]
+        )
 
-        assign_rank(rankings_by_team_id, winner_id, next_rank, StageType.THIRD_PLACE)
-        assign_rank(rankings_by_team_id, loser_id, next_rank + 1, StageType.THIRD_PLACE)
+        assign_rank(
+            rankings_by_team_id,
+            third_place_winner_id,
+            next_rank,
+            StageType.THIRD_PLACE,
+        )
+        assign_rank(
+            rankings_by_team_id,
+            third_place_loser_id,
+            next_rank + 1,
+            StageType.THIRD_PLACE,
+        )
 
         next_rank += 2
 
-    # if no third-place match exists, rank semi-final losers if those matches have finished
+    # If the tournament has no completed third-place match, rank the
+    # semifinal losers using group-stage performance as a fallback
     elif semi_finals and all_matches_finished(semi_finals):
         semi_final_losers = []
 
         for match in semi_finals:
-            _, loser_id = get_match_winner_and_loser(match)
+            _, semi_final_loser_id = get_match_winner_and_loser(match)
 
-            if loser_id is not None:
-                semi_final_losers.append(loser_id)
+            if semi_final_loser_id is not None:
+                semi_final_losers.append(semi_final_loser_id)
 
         next_rank = assign_rank_bucket(
             rankings_by_team_id,
@@ -257,9 +301,12 @@ def derive_team_rankings(
             standings_by_team_id,
         )
 
-    # assign eliminated knockout teams stage by stage
-    for stage in [StageType.QUARTER_FINAL, StageType.ROUND_OF_16, StageType.ROUND_OF_32]:
-        # set rank only if all matches in the stage are finished
+    # Assign remaining knockout placements stage by stage
+    for stage in [
+        StageType.QUARTER_FINAL,
+        StageType.ROUND_OF_16,
+        StageType.ROUND_OF_32,
+    ]:
         stage_matches = matches_by_stage[stage]
 
         if not stage_matches or not all_matches_finished(stage_matches):
@@ -267,7 +314,7 @@ def derive_team_rankings(
 
         losers = []
 
-        for match in matches_by_stage[stage]:
+        for match in stage_matches:
             _, loser_id = get_match_winner_and_loser(match)
 
             if loser_id is not None:
@@ -281,29 +328,23 @@ def derive_team_rankings(
             standings_by_team_id,
         )
 
-    # keep currently alive knockout teams above finalized/eliminated teams
-    assign_active_knockout_teams(rankings_by_team_id, latest_stage_by_team_id)
+    # Any knockout team not ranked above is retained with its deepest known stage
+    assign_active_knockout_teams(
+        rankings_by_team_id,
+        latest_stage_by_team_id,
+    )
 
-    # keep group-stage exits visible but unranked until final placement is known
     group_exit_team_ids = [
         team_id for team_id in all_team_ids if team_id not in rankings_by_team_id
     ]
 
-    if final_matches and all_matches_finished(final_matches):
-        assign_rank_bucket(
-            rankings_by_team_id,
-            group_exit_team_ids,
-            next_rank,
-            StageType.GROUP,
-            standings_by_team_id,
-        )
-    else:
-        for team_id in group_exit_team_ids:
-            rankings_by_team_id[team_id] = TeamRankingRefreshRow(
-                team_id=team_id,
-                final_rank=None,
-                stage_reached=None,
-            )
+    assign_rank_bucket(
+        rankings_by_team_id,
+        group_exit_team_ids,
+        next_rank,
+        StageType.GROUP,
+        standings_by_team_id,
+    )
 
     return list(rankings_by_team_id.values())
 

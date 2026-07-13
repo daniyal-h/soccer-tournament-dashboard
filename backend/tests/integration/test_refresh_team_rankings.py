@@ -388,7 +388,10 @@ def test_qf_partial_all_teams_present(db_session, seeded_tournament):
     assert {row.team_id for row in rows} == {1, 2, 3, 4, 5, 6, 7, 8}
 
 
-def test_qf_all_done_losers_ranked_winners_active(db_session, seeded_tournament):
+def test_qf_all_done_all_teams_unranked_with_qf_stage_reached(
+    db_session,
+    seeded_tournament,
+):
     from app.api.v1.services.refresh_team_rankings import derive_team_rankings
 
     seed_matches(db_session, qf_matches())
@@ -396,12 +399,10 @@ def test_qf_all_done_losers_ranked_winners_active(db_session, seeded_tournament)
     rows = derive_team_rankings(db_session, 1)
     by_team = {row.team_id: row for row in rows}
 
-    for team_id in [1, 2, 5, 6]:
-        assert by_team[team_id].final_rank is None
-        assert by_team[team_id].stage_reached == StageType.QUARTER_FINAL
+    assert set(by_team) == {1, 2, 3, 4, 5, 6, 7, 8}
 
-    for team_id in [3, 4, 7, 8]:
-        assert by_team[team_id].final_rank is not None
+    for team_id in [1, 2, 3, 4, 5, 6, 7, 8]:
+        assert by_team[team_id].final_rank is None
         assert by_team[team_id].stage_reached == StageType.QUARTER_FINAL
 
 
@@ -443,7 +444,10 @@ def test_refresh_team_rankings_group_stage_marks_tournaments_skipped(db_session,
     assert all(row.stage_reached is None for row in by_team.values())
 
 
-def test_refresh_team_rankings_knockout_updates_tournament_team_rows(db_session, seeded_tournament):
+def test_refresh_team_rankings_knockout_updates_stage_without_final_ranks(
+    db_session,
+    seeded_tournament,
+):
     from app.api.v1.services.refresh_team_rankings import refresh_team_rankings
 
     seed_matches(db_session, qf_matches())
@@ -455,12 +459,8 @@ def test_refresh_team_rankings_knockout_updates_tournament_team_rows(db_session,
     assert result["tournaments_skipped"] == 0
     assert set(by_team) == {1, 2, 3, 4, 5, 6, 7, 8}
 
-    for team_id in [1, 2, 5, 6]:
+    for team_id in [1, 2, 3, 4, 5, 6, 7, 8]:
         assert by_team[team_id].final_rank is None
-        assert by_team[team_id].stage_reached == StageType.QUARTER_FINAL
-
-    for team_id in [3, 4, 7, 8]:
-        assert by_team[team_id].final_rank is not None
         assert by_team[team_id].stage_reached == StageType.QUARTER_FINAL
 
 
