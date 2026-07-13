@@ -879,7 +879,6 @@ class TestDeriveTeamRankings:
 
     # ── third place scheduled but not played ─────────────────────────────────
 
-
     def test_third_place_scheduled_all_teams_remain_unranked(self, db, mocker):
         matches = sf_all_done() + [
             make_match(
@@ -905,7 +904,6 @@ class TestDeriveTeamRankings:
         assert all(row.final_rank is None for row in rows)
         assert stages[2] == StageType.SEMI_FINAL
         assert stages[6] == StageType.SEMI_FINAL
-
 
     def test_third_place_scheduled_does_not_override_semi_final_stage(
         self,
