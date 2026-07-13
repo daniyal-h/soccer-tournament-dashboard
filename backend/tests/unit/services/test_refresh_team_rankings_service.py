@@ -643,7 +643,11 @@ class TestDeriveTeamRankings:
         assert stages_of(rows)[103] == StageType.QUARTER_FINAL
         assert stages_of(rows)[104] == StageType.QUARTER_FINAL
 
-    def test_derive_team_rankings_continues_after_unresolvable_knockout_winner(db, mocker):
+    def test_unresolvable_knockout_winner_still_tracks_all_qf_teams_without_ranks(
+        self,
+        db,
+        mocker,
+    ):
         matches = [
             make_match(1, 1, 8, StageType.QUARTER_FINAL, a_score=1, b_score=1),
             make_match(2, 5, 4, StageType.QUARTER_FINAL, a_score=1, b_score=0),
@@ -662,12 +666,12 @@ class TestDeriveTeamRankings:
 
         rows = derive_team_rankings(db, 123)
         ranks = ranks_of(rows)
+        stages = stages_of(rows)
 
-        assert ranks[4] is not None
-        assert ranks[7] is not None
-        assert ranks[3] is not None
-        assert ranks[1] is None
-        assert ranks[8] is None
+        assert all(rank is None for rank in ranks.values())
+
+        for team_id in [1, 8, 5, 4, 2, 7, 6, 3]:
+            assert stages[team_id] == StageType.QUARTER_FINAL
 
     # ── qf partial ────────────────────────────────────────────────────────────
 
@@ -709,7 +713,7 @@ class TestDeriveTeamRankings:
 
     # ── qf all done ───────────────────────────────────────────────────────────
 
-    def test_qf_all_done_losers_get_ranks(self, db, mocker):
+    def test_qf_all_done_no_final_ranks_assigned(self, db, mocker):
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
             return_value=standings_8(),
@@ -718,10 +722,10 @@ class TestDeriveTeamRankings:
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
             return_value=qf_all_done(),
         )
+
         rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        for team_id in [8, 4, 7, 3]:
-            assert r[team_id] is not None
+
+        assert all(row.final_rank is None for row in rows)
 
     def test_qf_all_done_winners_are_active(self, db, mocker):
         mocker.patch(
@@ -765,20 +769,6 @@ class TestDeriveTeamRankings:
         for team_id in [8, 4, 7, 3]:
             assert s[team_id] == StageType.QUARTER_FINAL
 
-    def test_qf_ranks_start_at_1_when_no_final(self, db, mocker):
-        mocker.patch(
-            "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
-            return_value=standings_8(),
-        )
-        mocker.patch(
-            "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
-            return_value=qf_all_done(),
-        )
-        rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        finalized = sorted([v for v in r.values() if v is not None])
-        assert finalized[0] == 1
-
     def test_qf_all_done_all_8_teams_present(self, db, mocker):
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
@@ -809,7 +799,11 @@ class TestDeriveTeamRankings:
         rows = derive_team_rankings(db, 1)
         assert ranks_of(rows)[2] is None
 
-    def test_sf_partial_qf_losers_still_ranked(self, db, mocker):
+    def test_sf_partial_all_teams_remain_unranked_with_progress_preserved(
+        self,
+        db,
+        mocker,
+    ):
         matches = qf_all_done() + [
             make_match(5, 1, 2, StageType.SEMI_FINAL, a_score=1, b_score=0),
             make_match(6, 5, 6, StageType.SEMI_FINAL, status=StatusType.SCHEDULED),
@@ -822,14 +816,21 @@ class TestDeriveTeamRankings:
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
             return_value=matches,
         )
+
         rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        for team_id in [8, 4, 7, 3]:
-            assert r[team_id] is not None
+        stages = stages_of(rows)
+
+        assert all(row.final_rank is None for row in rows)
+
+        for team_id in [1, 2, 5, 6]:
+            assert stages[team_id] == StageType.SEMI_FINAL
+
+        for team_id in [3, 4, 7, 8]:
+            assert stages[team_id] == StageType.QUARTER_FINAL
 
     # ── sf all done, no third place ───────────────────────────────────────────
 
-    def test_sf_done_no_third_place_sf_losers_get_ranks(self, db, mocker):
+    def test_sf_done_without_final_all_teams_remain_unranked(self, db, mocker):
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
             return_value=standings_8(),
@@ -838,10 +839,10 @@ class TestDeriveTeamRankings:
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
             return_value=sf_all_done(),
         )
+
         rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        assert r[2] is not None
-        assert r[6] is not None
+
+        assert all(row.final_rank is None for row in rows)
 
     def test_sf_done_no_third_place_sf_winners_still_active(self, db, mocker):
         mocker.patch(
@@ -857,7 +858,7 @@ class TestDeriveTeamRankings:
         assert r[1] is None
         assert r[5] is None
 
-    def test_sf_done_no_third_place_sf_losers_ranked_above_qf_losers(self, db, mocker):
+    def test_sf_done_tracks_sf_teams_above_qf_teams_by_stage(self, db, mocker):
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
             return_value=standings_8(),
@@ -866,17 +867,28 @@ class TestDeriveTeamRankings:
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
             return_value=sf_all_done(),
         )
+
         rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        sf_loser_ranks = [r[2], r[6]]
-        qf_loser_ranks = [r[8], r[4], r[7], r[3]]
-        assert max(sf_loser_ranks) < min(qf_loser_ranks)
+        stages = stages_of(rows)
+
+        for team_id in [1, 2, 5, 6]:
+            assert stages[team_id] == StageType.SEMI_FINAL
+
+        for team_id in [3, 4, 7, 8]:
+            assert stages[team_id] == StageType.QUARTER_FINAL
 
     # ── third place scheduled but not played ─────────────────────────────────
 
-    def test_third_place_scheduled_sf_losers_keep_ranks(self, db, mocker):
+
+    def test_third_place_scheduled_all_teams_remain_unranked(self, db, mocker):
         matches = sf_all_done() + [
-            make_match(7, 2, 6, StageType.THIRD_PLACE, status=StatusType.SCHEDULED),
+            make_match(
+                7,
+                2,
+                6,
+                StageType.THIRD_PLACE,
+                status=StatusType.SCHEDULED,
+            ),
         ]
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
@@ -886,33 +898,43 @@ class TestDeriveTeamRankings:
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
             return_value=matches,
         )
-        rows = derive_team_rankings(db, 1)
-        r = ranks_of(rows)
-        assert r[2] is not None
-        assert r[6] is not None
 
-    def test_third_place_scheduled_does_not_override_sf_ranks(self, db, mocker):
+        rows = derive_team_rankings(db, 1)
+        stages = stages_of(rows)
+
+        assert all(row.final_rank is None for row in rows)
+        assert stages[2] == StageType.SEMI_FINAL
+        assert stages[6] == StageType.SEMI_FINAL
+
+
+    def test_third_place_scheduled_does_not_override_semi_final_stage(
+        self,
+        db,
+        mocker,
+    ):
+        matches = sf_all_done() + [
+            make_match(
+                7,
+                2,
+                6,
+                StageType.THIRD_PLACE,
+                status=StatusType.SCHEDULED,
+            ),
+        ]
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.standings_repo.get_all_standings",
             return_value=standings_8(),
         )
         mocker.patch(
             "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
-            return_value=sf_all_done(),
+            return_value=matches,
         )
-        without_3p = derive_team_rankings(db, 1)
 
-        matches_with_3p = sf_all_done() + [
-            make_match(7, 2, 6, StageType.THIRD_PLACE, status=StatusType.SCHEDULED),
-        ]
-        mocker.patch(
-            "app.api.v1.services.refresh_team_rankings.matches_repo.get_matches_by_tournament",
-            return_value=matches_with_3p,
-        )
-        with_3p = derive_team_rankings(db, 1)
+        rows = derive_team_rankings(db, 1)
+        stages = stages_of(rows)
 
-        assert ranks_of(without_3p)[2] == ranks_of(with_3p)[2]
-        assert ranks_of(without_3p)[6] == ranks_of(with_3p)[6]
+        assert stages[2] == StageType.SEMI_FINAL
+        assert stages[6] == StageType.SEMI_FINAL
 
     # ── complete tournament with third place ──────────────────────────────────
 
@@ -1365,8 +1387,7 @@ def test_derive_team_rankings_continues_to_round_of_16_when_quarter_finals_missi
     rows = derive_team_rankings(db, 123)
     ranks = ranks_of(rows)
 
-    assert ranks[2] is not None
-    assert ranks[4] is not None
+    assert all(rank is None for rank in ranks.values())
     assert stages_of(rows)[2] == StageType.ROUND_OF_16
     assert stages_of(rows)[4] == StageType.ROUND_OF_16
 
@@ -1394,10 +1415,13 @@ def test_derive_team_rankings_continues_to_round_of_16_when_quarter_finals_unfin
     rows = derive_team_rankings(db, 123)
     ranks = ranks_of(rows)
 
-    assert ranks[4] is not None
-    assert ranks[6] is not None
-    assert stages_of(rows)[4] == StageType.ROUND_OF_16
-    assert stages_of(rows)[6] == StageType.ROUND_OF_16
+    stages = stages_of(rows)
+
+    assert all(rank is None for rank in ranks.values())
+    assert stages[4] == StageType.ROUND_OF_16
+    assert stages[6] == StageType.ROUND_OF_16
+    assert stages[1] == StageType.QUARTER_FINAL
+    assert stages[8] == StageType.QUARTER_FINAL
 
 
 class TestRefreshTeamRankings:
