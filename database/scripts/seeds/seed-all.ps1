@@ -26,6 +26,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/global/tournaments.sql",
 
     # teams
+    "database/scripts/seeds/static/world-cup-2026/01-teams.sql",
     "database/scripts/seeds/static/world-cup-2022/01-teams.sql",
     "database/scripts/seeds/static/euro-2024/01-teams.sql",
     "database/scripts/seeds/static/copa-america-2024/01-teams.sql",
@@ -34,6 +35,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/world-cup-2026/01-teams.sql",
 
     # tournament teams
+    "database/scripts/seeds/static/world-cup-2026/02-tournament-teams.sql",
     "database/scripts/seeds/static/world-cup-2022/02-tournament-teams.sql",
     "database/scripts/seeds/static/euro-2024/02-tournament-teams.sql",
     "database/scripts/seeds/static/copa-america-2024/02-tournament-teams.sql",
@@ -42,6 +44,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/world-cup-2026/02-tournament-teams.sql",
 
     # standings
+    "database/scripts/seeds/static/world-cup-2026/03-standings.sql",
     "database/scripts/seeds/static/world-cup-2022/03-standings.sql",
     "database/scripts/seeds/static/euro-2024/03-standings.sql",
     "database/scripts/seeds/static/copa-america-2024/03-standings.sql",
@@ -49,6 +52,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/club-world-cup-2025/03-standings.sql",
 
     # matches
+    "database/scripts/seeds/static/world-cup-2026/04-matches.sql",
     "database/scripts/seeds/static/world-cup-2022/04-matches.sql",
     "database/scripts/seeds/static/euro-2024/04-matches.sql",
     "database/scripts/seeds/static/copa-america-2024/04-matches.sql",
@@ -56,6 +60,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/club-world-cup-2025/04-matches.sql",
 
     # players
+    "database/scripts/seeds/static/world-cup-2026/05-players.sql",
     "database/scripts/seeds/static/world-cup-2022/05-players.sql",
     "database/scripts/seeds/static/euro-2024/05-players.sql",
     "database/scripts/seeds/static/copa-america-2024/05-players.sql",
@@ -63,6 +68,7 @@ $seedFiles = @(
     "database/scripts/seeds/static/club-world-cup-2025/05-players.sql",
 
     # team players
+    "database/scripts/seeds/static/world-cup-2026/06-team-players.sql",
     "database/scripts/seeds/static/world-cup-2022/06-team-players.sql",
     "database/scripts/seeds/static/euro-2024/06-team-players.sql",
     "database/scripts/seeds/static/copa-america-2024/06-team-players.sql",
@@ -71,6 +77,7 @@ $seedFiles = @(
 
     # match events
     "database/scripts/seeds/static/world-cup-2022/07-match-events.sql",
+    "database/scripts/seeds/static/world-cup-2026/07-match-events.sql",
     "database/scripts/seeds/static/euro-2024/07-match-events.sql",
     "database/scripts/seeds/static/copa-america-2024/07-match-events.sql",
     "database/scripts/seeds/static/africa-cup-of-nations-2025/07-match-events.sql",
@@ -78,6 +85,7 @@ $seedFiles = @(
 
     
     # tournament teams rankings
+    "database/scripts/seeds/static/world-cup-2026/08-tournament-team-ranks.sql",
     "database/scripts/seeds/static/world-cup-2022/08-tournament-team-ranks.sql",
     "database/scripts/seeds/static/euro-2024/08-tournament-team-ranks.sql",
     "database/scripts/seeds/static/copa-america-2024/08-tournament-team-ranks.sql",
@@ -85,20 +93,12 @@ $seedFiles = @(
     "database/scripts/seeds/static/club-world-cup-2025/08-tournament-team-ranks.sql",
 
     # player leaderboards
+    "database/scripts/seeds/static/world-cup-2026/09-player-leaderboards.sql",
     "database/scripts/seeds/static/world-cup-2022/09-player-leaderboards.sql",
     "database/scripts/seeds/static/euro-2024/09-player-leaderboards.sql",
     "database/scripts/seeds/static/copa-america-2024/09-player-leaderboards.sql",
     "database/scripts/seeds/static/africa-cup-of-nations-2025/09-player-leaderboards.sql",
     "database/scripts/seeds/static/club-world-cup-2025/09-player-leaderboards.sql"
-
-    # intentionally excluding:
-    # world-cup-2026/03-standings.sql
-    # world-cup-2026/04-matches.sql
-    # world-cup-2026/05-players.sql
-    # world-cup-2026/06-team-players.sql
-    # world-cup-2026/07-matches-events.sql
-    # world-cup-2026/08-tournament-teams-ranking.sql
-    # world-cup-2026/09-player-leaderboards.sql
 )
 
 foreach ($file in $seedFiles) {

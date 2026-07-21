@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 
@@ -12,13 +12,16 @@ from app.models.tournament_team import TournamentTeam
 
 @pytest.fixture
 def seeded_tournament(db_session):
+    # keep the tournament inside the refreshable window regardless of when tests run
+    today = date.today()
+
     tournament = Tournament(
         id=1,
         external_api_id=1,
         name="Test Cup",
-        season="2026",
-        start_date=date(2026, 6, 1),
-        end_date=date(2026, 7, 15),
+        season=str(today.year),
+        start_date=today - timedelta(days=30),
+        end_date=today + timedelta(days=30),
     )
     db_session.add(tournament)
     db_session.flush()
