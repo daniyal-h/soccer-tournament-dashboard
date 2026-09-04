@@ -20,7 +20,7 @@ describe('Navbar', () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText('Soccer Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('MatchTrack')).toBeInTheDocument();
 
     expect(screen.getByText('Tournament Selector')).toBeInTheDocument();
 

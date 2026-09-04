@@ -17,7 +17,7 @@ const Navbar = () => {
     <header className="border-b border-border bg-background">
       <nav className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-4 py-3 min-[1050px]:flex-row min-[1050px]:items-center min-[1050px]:gap-4 min-[500px]:px-6 min-[1050px]:px-8">
         <NavLink to="/" className="text-lg font-semibold shrink-0">
-          Soccer Dashboard
+          MatchTrack
         </NavLink>
 
         <div className="w-full min-[1050px]:flex-1 min-[1050px]:flex min-[1050px]:justify-center">
