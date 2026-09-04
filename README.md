@@ -1,4 +1,4 @@
-# Soccer Tournament Dashboard
+# MatchTrack
 
 **[Live Demo](https://soccer-tournament-dashboard.vercel.app)** · [Test Plan](docs/test-plan.md) · [Decisions](docs/decisions.md)
 
@@ -369,7 +369,7 @@ soccer-tournament-dashboard/
 
 ## Key Design Decisions
 
-Full reasoning in [docs/DECISIONS.md](docs/DECISIONS.md).
+Full reasoning in [docs/decisions.md](docs/decisions.md).
 
 | Decision           | Choice                    | Reason                                                                                    |
 | ------------------ | ------------------------- | ----------------------------------------------------------------------------------------- |
